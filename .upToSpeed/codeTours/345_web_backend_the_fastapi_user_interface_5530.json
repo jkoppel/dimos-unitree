@@ -1,0 +1,218 @@
+{
+  "title": "34.5: Web Backend: The FastAPI User Interface",
+  "id": "uwCI1AG+neyj2M+f3jDztjk2HHd06DxB0Fz89Cj4Be8=",
+  "originalId": 5530,
+  "position": 131,
+  "steps": [
+    {
+      "type": "highlight",
+      "description": "Welcome to this tour of the frontend code for our `FastAPI` video streaming application. This file is a `Jinja2` `HTML` template that defines the user interface for the `FastAPIServer`. Let's start with the basic HTML structure.",
+      "file": "dimos/web/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 18,
+          "end": 22
+        }
+      ],
+      "title": "",
+      "id": "68584",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `HTML body` begins with a simple **page title**. This sets the context for users that they're viewing live video streams from the system.",
+      "file": "dimos/web/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 211,
+          "end": 213
+        }
+      ],
+      "title": "",
+      "id": "68585",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The first interactive section is the query form with ID `queryForm`. This allows users to submit text-based queries to the backend server. Notice the form uses semantic HTML with proper labels and input validation.",
+      "file": "dimos/web/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 214,
+          "end": 221
+        }
+      ],
+      "title": "",
+      "id": "68586",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The text streams section demonstrates `Jinja2` template syntax in action. The `{% if text_stream_keys %}` conditional ensures this section only appears if streams exist. The `{% for key in text_stream_keys %}` loop dynamically creates containers, with `{{ key }}` variables being replaced by actual stream names on the server.",
+      "file": "dimos/web/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 224,
+          "end": 230
+        }
+      ],
+      "title": "",
+      "id": "68587",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Each text stream gets its own message container and control buttons. The `id` attributes use template variables to create unique identifiers like `text_messages_camera1`, enabling **JavaScript** to target specific streams.",
+      "file": "dimos/web/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 231,
+          "end": 239
+        }
+      ],
+      "title": "",
+      "id": "68588",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The video stream grid follows the same templating pattern. Each stream gets a container with a dynamically named title, an empty `<img>` element that will display the video feed, and control buttons. The `src` attribute starts empty - it's populated by JavaScript when streaming begins.",
+      "file": "dimos/web/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 241,
+          "end": 252
+        }
+      ],
+      "title": "",
+      "id": "68589",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Now let's examine the `JavaScript` code that brings this interface to life. The `script` tag contains all the client-side logic for interacting with the `FastAPIServer`'s endpoints.",
+      "title": "",
+      "id": "68590"
+    },
+    {
+      "type": "highlight",
+      "description": "The `startStream` function initiates the video feed. When a user clicks 'Start', it finds the corresponding image element and sets its `src` to `/video_feed/{key}`. This single line triggers the browser to begin requesting the MJPEG video stream from the server.",
+      "file": "dimos/web/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 264,
+          "end": 267
+        }
+      ],
+      "title": "",
+      "id": "68591",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "The `startStream` function at line 264 is called when a user clicks the 'Start' button. What is the direct cause of the browser initiating the request to the `/video_feed/{key}` endpoint?\n\nOptions:\n\n A). The assignment of the endpoint URL to the `src` attribute of the `<img>` element.\n\nB). An asynchronous `fetch()` call is made to the video endpoint to retrieve the stream data.\n\nC). A new `EventSource` object is created to listen for video data from the server.\n\nD). A WebSocket connection is established for real-time, bidirectional video transfer.\n\n\nCorrect: A). The assignment of the endpoint URL to the `src` attribute of the `<img>` element.\n\nExplanation: The correct answer is based on how browsers handle the `<img>` tag's `src` attribute. When the `src` is set to an endpoint that provides an MJPEG stream (content-type `multipart/x-mixed-replace`), the browser holds the connection open and continuously updates the image content, creating the appearance of a video. While `fetch()`, `EventSource`, and WebSockets are used for data transfer, they are not the mechanism used here to display the video feed within the `<img>` element. `EventSource` is used for the text streams in this application, not the video.",
+      "title": "",
+      "id": "68598",
+      "text": "The `startStream` function at line 264 is called when a user clicks the 'Start' button. What is the direct cause of the browser initiating the request to the `/video_feed/{key}` endpoint?",
+      "answers": [
+        "The assignment of the endpoint URL to the `src` attribute of the `<img>` element.",
+        "An asynchronous `fetch()` call is made to the video endpoint to retrieve the stream data.",
+        "A new `EventSource` object is created to listen for video data from the server.",
+        "A WebSocket connection is established for real-time, bidirectional video transfer."
+      ],
+      "correct": 0,
+      "explanation": "The correct answer is based on how browsers handle the `<img>` tag's `src` attribute. When the `src` is set to an endpoint that provides an MJPEG stream (content-type `multipart/x-mixed-replace`), the browser holds the connection open and continuously updates the image content, creating the appearance of a video. While `fetch()`, `EventSource`, and WebSockets are used for data transfer, they are not the mechanism used here to display the video feed within the `<img>` element. `EventSource` is used for the text streams in this application, not the video."
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the `startStream` function, what specific client-side action triggers the browser to begin receiving the MJPEG video stream from the `/video_feed/{key}` endpoint?\n\nOptions:\n\n A). A `fetch` POST request is sent to the endpoint.\n\nB). The `src` attribute of the corresponding `<img>` element is set to the endpoint URL.\n\nC). A new `EventSource` object is created to connect to the stream.\n\nD). A bi-directional `WebSocket` connection is established.\n\n\nCorrect: B). The `src` attribute of the corresponding `<img>` element is set to the endpoint URL.\n\nExplanation: The browser is designed to handle different media types based on the `src` attribute of elements like `<img>`. When the `src` is set to an endpoint that provides an MJPEG stream (with the correct `Content-Type` header), the browser continuously fetches and renders the image frames, creating a video effect. `fetch` is used for submitting the query, and `EventSource` is used for the text streams.",
+      "title": "",
+      "id": "68599",
+      "text": "Based on the `startStream` function, what specific client-side action triggers the browser to begin receiving the MJPEG video stream from the `/video_feed/{key}` endpoint?",
+      "answers": [
+        "A `fetch` POST request is sent to the endpoint.",
+        "The `src` attribute of the corresponding `<img>` element is set to the endpoint URL.",
+        "A new `EventSource` object is created to connect to the stream.",
+        "A bi-directional `WebSocket` connection is established."
+      ],
+      "correct": 1,
+      "explanation": "The browser is designed to handle different media types based on the `src` attribute of elements like `<img>`. When the `src` is set to an endpoint that provides an MJPEG stream (with the correct `Content-Type` header), the browser continuously fetches and renders the image frames, creating a video effect. `fetch` is used for submitting the query, and `EventSource` is used for the text streams."
+    },
+    {
+      "type": "highlight",
+      "description": "The query form uses modern `JavaScript` patterns. The **event listener** prevents the **default form submission** (which would reload the page), extracts and validates the user's input, and prepares it for API submission.",
+      "file": "dimos/web/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 279,
+          "end": 286
+        }
+      ],
+      "title": "",
+      "id": "68592",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The query is packaged into a `FormData` object and sent to the `/submit_query` endpoint using the modern `fetch` API. This approach provides better error handling and user experience than traditional form submissions.",
+      "file": "dimos/web/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 288,
+          "end": 295
+        }
+      ],
+      "title": "",
+      "id": "68593",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Text streaming uses Server-Sent Events (SSE) through the `EventSource` API. SSE is ideal here because it provides one-way real-time communication from server to client - perfect for streaming text updates without the overhead of `WebSocket`'s bidirectional capabilities.",
+      "file": "dimos/web/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 339,
+          "end": 347
+        }
+      ],
+      "title": "",
+      "id": "68594",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "When the server sends text data, this **event listener** springs into action. It creates a new `div` for each message, styles it appropriately, and appends it to the stream's `container`. The automatic scrolling ensures users always see the latest messages - creating a chat-like experience.",
+      "file": "dimos/web/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 350,
+          "end": 359
+        }
+      ],
+      "title": "",
+      "id": "68595",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the template ensures all text streams connect automatically when the page loads. This `Jinja2` loop generates `JavaScript` function calls for each available stream, providing immediate real-time updates as soon as users visit the page.",
+      "file": "dimos/web/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 382,
+          "end": 386
+        }
+      ],
+      "title": "",
+      "id": "68596",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This completes our walkthrough of the frontend template. We've seen how `Jinja2` enables dynamic UI generation, how **JavaScript** functions handle video streaming, and how **Server-Sent Events** provide real-time text communication - all working together to create an interactive streaming interface.",
+      "title": "",
+      "id": "68597"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "title": "9.6: Assembling Audio Pipelines",
+  "id": "uo6v/LsbwuiiKiaye0m2Z5FiZFpP1kSr+pZqjo2FNoQ=",
+  "originalId": 5446,
+  "position": 34,
+  "steps": [
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/stream/audio/pipelines.py"
+      ],
+      "description": "This final tour stop brings everything together to show how audio nodes are assembled into complete, functional pipelines. We'll be looking at `dimos/stream/audio/pipelines.py`.\n\nContrary to the tour plan, this file doesn't contain a single `create_audio_pipeline` factory function. Instead, it provides two distinct functions, `stt` and `tts`, which create pre-configured speech-to-text and text-to-speech pipelines, respectively. Let's examine how they work.",
+      "title": "",
+      "id": "69418",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "First, let's look at the `stt` function, which builds the \"listen\" part of a potential voice assistant.\n\n- **Lines 13-16**: It instantiates the necessary nodes: `SounddeviceAudioSource` for capturing microphone input, `AudioNormalizer` for standardizing the signal, `KeyRecorder` to control when to record, and `WhisperNode` for transcription.\n- **Lines 19-22**: This is where the pipeline is assembled. The raw audio from the microphone (`mic`) is passed to the normalizer. The normalized audio is then sent to both the recorder and a volume monitor. Finally, the completed recording from the `recorder` is sent to the `whisper_node` for speech-to-text conversion.\n- **Lines 24-25**: A `TextPrinterNode` is subscribed to `Whisper`'s text output, printing any transcribed text to the console, prefixed with `\"USER: \"`.\n- **Line 27**: The function returns the `whisper_node`, which acts as the text-emitting end of this pipeline.",
+      "file": "dimos/stream/audio/pipelines.py",
+      "highlight": [
+        {
+          "start": 11,
+          "end": 28
+        }
+      ],
+      "title": "",
+      "id": "69419",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This code implements a speech-to-text pipeline, analogous to calling `create_audio_pipeline(with_microphone=True, with_whisper=True, with_stdout=True)`.\n\nThe data flows from the `mic` source, through a `normalizer`, and into a `recorder`. The complete recording is then transcribed by the `whisper_node`, and the final text is printed to the console.",
+      "file": "dimos/stream/audio/pipelines.py",
+      "highlight": [
+        {
+          "start": 19,
+          "end": 25
+        }
+      ],
+      "title": "",
+      "id": "69420",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `tts` function assembles the \"speak\" part of a voice assistant. It uses an `OpenAITTSNode` to convert text to audio, which is then played back by a `SounddeviceAudioOutput`. For logging, the original text is also piped to a `TextPrinterNode`.\n\nThe function returns the `tts_node` itself, which serves as the text-consuming entry point for this speech pipeline.",
+      "file": "dimos/stream/audio/pipelines.py",
+      "highlight": [
+        {
+          "start": 30,
+          "end": 39
+        }
+      ],
+      "title": "",
+      "id": "69421",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Finally, let's trace the **\"full-circle\"** example from the tour plan: a complete **\"listen, think, speak\"** loop. While this file doesn't connect the `stt` and `tts` pipelines directly, it provides the two components to do so.\n\nA hypothetical application would orchestrate this loop as follows:\n\n1.  **Listen**: The application calls `stt()` to create the speech-to-text pipeline. It then subscribes to the returned `whisper_node.emit_text()` stream. When the user speaks, the application receives the transcribed text (e.g., `\"What time is it?\"`).\n\n2.  **Think**: This is the role of the application logic, which is not part of the `stream` library. It would process the user's text, determine the current time, and formulate a response string (e.g., `\"The current time is 4:30 PM.\"`).\n\n3.  **Speak**: The application calls `tts()` to get the text-to-speech pipeline. It then passes the response string to the pipeline's input by calling `tts_node.consume_text(\"The current time is 4:30 PM.\")`. This triggers the `OpenAITTSNode` to generate the audio, which is then played through the speakers by the `SounddeviceAudioOutput`. Simultaneously, the `agent_text_printer` logs `AGENT: The current time is 4:30 PM.` to the console.\n\nThis demonstrates how the `stt` and `tts` functions serve as modular building blocks for creating a complete, interactive voice agent.",
+      "title": "",
+      "id": "69422"
+    },
+    {
+      "type": "mcq",
+      "description": "In a full voice assistant application using the `stt()` and `tts()` pipelines, what is the correct mechanism for connecting the user's transcribed speech to the agent's spoken response?\n\nOptions:\n\n A). The `whisper_node.emit_text()` stream is directly piped into the `tts_node.consume_text()` method, creating a continuous loop.\n\nB). An external application component subscribes to the text from `whisper_node`, processes it, and then calls `tts_node.consume_text()` with a formulated response.\n\nC). The `tts()` function is modified to accept the `whisper_node` as an argument, and it internally subscribes to its text output.\n\n\nCorrect: B). An external application component subscribes to the text from `whisper_node`, processes it, and then calls `tts_node.consume_text()` with a formulated response.\n\nExplanation: The correct answer is that an external application orchestrates the flow. The `stt` and `tts` functions create independent, modular pipelines. The application logic acts as the bridge: it listens for text from the `stt` pipeline's output, performs some processing (the 'think' step), and then feeds a new text response into the `tts` pipeline's input. Directly piping the output of `stt` to `tts` would only make the system echo the user's speech without any intelligent response.",
+      "title": "",
+      "id": "69423",
+      "text": "In a full voice assistant application using the `stt()` and `tts()` pipelines, what is the correct mechanism for connecting the user's transcribed speech to the agent's spoken response?",
+      "answers": [
+        "The `whisper_node.emit_text()` stream is directly piped into the `tts_node.consume_text()` method, creating a continuous loop.",
+        "An external application component subscribes to the text from `whisper_node`, processes it, and then calls `tts_node.consume_text()` with a formulated response.",
+        "The `tts()` function is modified to accept the `whisper_node` as an argument, and it internally subscribes to its text output."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that an external application orchestrates the flow. The `stt` and `tts` functions create independent, modular pipelines. The application logic acts as the bridge: it listens for text from the `stt` pipeline's output, performs some processing (the 'think' step), and then feeds a new text response into the `tts` pipeline's input. Directly piping the output of `stt` to `tts` would only make the system echo the user's speech without any intelligent response."
+    }
+  ]
+}

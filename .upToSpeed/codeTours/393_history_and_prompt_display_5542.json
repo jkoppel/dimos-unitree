@@ -1,0 +1,127 @@
+{
+  "title": "39.3: History and Prompt Display",
+  "id": "qYPwSNc0UyPNsLd4twm/KWvpYTHZsqw6aXaANO0By/g=",
+  "originalId": 5542,
+  "position": 158,
+  "steps": [
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/web/dimos_interface/src/components/Ps1.svelte"
+      ],
+      "description": "Let's begin our walkthrough with `Ps1.svelte`. This component handles rendering the command prompt.\n\nIt's a straightforward presentational component that constructs the familiar prompt string like **guest@hostname:~$**.",
+      "title": "",
+      "id": "68857",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The component imports the `theme store` and obtains the hostname directly from the browser's `window.location.hostname` property.",
+      "file": "dimos/web/dimos_interface/src/components/Ps1.svelte",
+      "highlight": [
+        {
+          "start": 2,
+          "end": 4
+        }
+      ],
+      "title": "",
+      "id": "68858",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The prompt renders with distinct colors from the `$theme` store: yellow for `guest`, white for `@` and `:~$`, and green for the `hostname`. This creates the authentic terminal-like appearance.",
+      "file": "dimos/web/dimos_interface/src/components/Ps1.svelte",
+      "highlight": [
+        {
+          "start": 6,
+          "end": 11
+        }
+      ],
+      "title": "",
+      "id": "68859",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/web/dimos_interface/src/components/History.svelte"
+      ],
+      "description": "Now let's examine `History.svelte`, which manages displaying the history of commands and their outputs.",
+      "title": "",
+      "id": "68860",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The component imports the required stores and components, then iterates through the `$history` store. Each history entry contains a `command` and its associated `outputs`.",
+      "file": "dimos/web/dimos_interface/src/components/History.svelte",
+      "highlight": [
+        {
+          "start": 1,
+          "end": 7
+        }
+      ],
+      "title": "",
+      "id": "68861",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "For each history entry, it begins by rendering the `Ps1` component to display the command prompt, ensuring consistent terminal appearance throughout the interface.",
+      "file": "dimos/web/dimos_interface/src/components/History.svelte",
+      "highlight": [
+        {
+          "start": 9,
+          "end": 11
+        }
+      ],
+      "title": "",
+      "id": "68862",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Following the prompt, it displays the actual command that was executed. The responsive design adapts for mobile devices by showing a `❯` character instead of the full `prompt` layout.",
+      "file": "dimos/web/dimos_interface/src/components/History.svelte",
+      "highlight": [
+        {
+          "start": 12,
+          "end": 17
+        }
+      ],
+      "title": "",
+      "id": "68863",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, it renders each output from the command. The `whitespace-pre` class preserves all formatting, including spaces, newlines, and indentation, ensuring command outputs like ASCII art or structured text display properly.",
+      "file": "dimos/web/dimos_interface/src/components/History.svelte",
+      "highlight": [
+        {
+          "start": 19,
+          "end": 23
+        }
+      ],
+      "title": "",
+      "id": "68864",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "A user executes a command that returns a **multi-line string** with specific indentation. Based on the provided components, how does the interface ensure this output is displayed correctly in the command history?\n\nOptions:\n\n A). The `Ps1.svelte` component processes the output and wraps each line in a separate HTML element to maintain the structure.\n\nB). The `$history` store pre-formats the output with HTML tags (e.g., `<br>`) before it is rendered by the `History.svelte` component.\n\nC). The `History.svelte` component applies the `whitespace-pre` class to the paragraph element rendering the output, instructing the browser to preserve whitespace and line breaks.\n\nD). The `History.svelte` component dynamically inserts a `<pre>` tag around the output string.\n\n\nCorrect: C). The `History.svelte` component applies the `whitespace-pre` class to the paragraph element rendering the output, instructing the browser to preserve whitespace and line breaks.\n\nExplanation: The correct mechanism is the use of the `whitespace-pre` CSS utility class on the `<p>` tag in `History.svelte`. This class preserves all whitespace, including spaces and newlines, from the raw output string. `Ps1.svelte` is only responsible for the prompt, the `$history` store contains raw data, and the component uses a `<p>` tag with a class, not a `<pre>` tag.",
+      "title": "",
+      "id": "68866",
+      "text": "A user executes a command that returns a **multi-line string** with specific indentation. Based on the provided components, how does the interface ensure this output is displayed correctly in the command history?",
+      "answers": [
+        "The `Ps1.svelte` component processes the output and wraps each line in a separate HTML element to maintain the structure.",
+        "The `$history` store pre-formats the output with HTML tags (e.g., `<br>`) before it is rendered by the `History.svelte` component.",
+        "The `History.svelte` component applies the `whitespace-pre` class to the paragraph element rendering the output, instructing the browser to preserve whitespace and line breaks.",
+        "The `History.svelte` component dynamically inserts a `<pre>` tag around the output string."
+      ],
+      "correct": 2,
+      "explanation": "The correct mechanism is the use of the `whitespace-pre` CSS utility class on the `<p>` tag in `History.svelte`. This class preserves all whitespace, including spaces and newlines, from the raw output string. `Ps1.svelte` is only responsible for the prompt, the `$history` store contains raw data, and the component uses a `<p>` tag with a class, not a `<pre>` tag."
+    }
+  ]
+}

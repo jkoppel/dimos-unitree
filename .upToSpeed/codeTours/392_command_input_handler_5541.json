@@ -1,0 +1,195 @@
+{
+  "title": "39.2: Command Input Handler",
+  "id": "TPEfqAvzxkDWfG4a8oEY57417LuW3O60NgEuK5psN9k=",
+  "originalId": 5541,
+  "position": 157,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to this walkthrough of the `Input.svelte` component, the heart of the interactive terminal.\n\nThis component manages user input, command execution, history navigation, and auto-completion. Let's explore how it works.",
+      "title": "",
+      "id": "68836"
+    },
+    {
+      "type": "highlight",
+      "description": "The script section begins by importing several modules. The `history` store tracks all commands and outputs, `theme` provides color styling, and `commands` maps command names to their functions. The `connectTextStream` import handles real-time data streaming.\n\nThree variables are declared: `command` holds the current input text, `historyIndex` tracks position in command history for navigation, and `input` will reference the DOM element.",
+      "file": "dimos/web/dimos_interface/src/components/Input.svelte",
+      "highlight": [
+        {
+          "start": 1,
+          "end": 11
+        }
+      ],
+      "title": "",
+      "id": "68837",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `onMount` lifecycle function initializes the component when it's first added to the DOM.\n\nLine 14 immediately focuses the input so users can start typing. Lines 16-23 check if the history is empty and automatically run the `banner` command to display a welcome message when the terminal first loads.",
+      "file": "dimos/web/dimos_interface/src/components/Input.svelte",
+      "highlight": [
+        {
+          "start": 13,
+          "end": 24
+        }
+      ],
+      "title": "",
+      "id": "68838",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `afterUpdate` function runs after every component update.\n\nIts sole purpose is to scroll the `input` element into view smoothly. This ensures the input stays visible as the terminal history grows and pushes content down the page.",
+      "file": "dimos/web/dimos_interface/src/components/Input.svelte",
+      "highlight": [
+        {
+          "start": 26,
+          "end": 28
+        }
+      ],
+      "title": "",
+      "id": "68839",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Now we'll dive into the `handleKeyDown` function - **the most important part of this component**. It processes different keyboard inputs to provide a full terminal experience.",
+      "title": "",
+      "id": "68840"
+    },
+    {
+      "type": "highlight",
+      "description": "When Enter is pressed, the command processing begins.\n\nLine 32 splits the input into `commandName` and `args`. Lines 34-36 handle analytics tracking if enabled. Lines 38-41 look up the command function in the `commands` object and execute it, storing the result in `output`.",
+      "file": "dimos/web/dimos_interface/src/components/Input.svelte",
+      "highlight": [
+        {
+          "start": 31,
+          "end": 42
+        }
+      ],
+      "title": "",
+      "id": "68841",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The output handling has special logic for different command types.\n\nLine 43 skips history updates for the **'clear'** command. Lines 44-48 detect streaming commands by checking for a special `STREAM_START` type - these add an initial message to history and connect to a text stream. Line 50 handles regular commands by simply adding their output to history.",
+      "file": "dimos/web/dimos_interface/src/components/Input.svelte",
+      "highlight": [
+        {
+          "start": 43,
+          "end": 52
+        }
+      ],
+      "title": "",
+      "id": "68842",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the `handleKeyDown` function, after a command is executed, how does the system distinguish between a regular command and one that should initiate a text stream?\n\nOptions:\n\n A). It checks if the `commandName` exists in a hardcoded list of streaming commands.\n\nB). The command function calls `connectTextStream` directly before returning.\n\nC). It inspects the command's return value for an object with a `type` property equal to 'STREAM_START'.\n\nD). It analyzes the `args` array for a flag like `--stream`.\n\n\nCorrect: C). It inspects the command's return value for an object with a `type` property equal to 'STREAM_START'.\n\nExplanation: The correct answer is based on the logic at lines 44-48. The system checks if the `output` from the command function is an object containing `type: 'STREAM_START'`. This approach allows any command to signal that it needs to initiate a stream by returning a specific data structure, decoupling the input handler from the implementation details of individual commands.",
+      "title": "",
+      "id": "68850",
+      "text": "In the `handleKeyDown` function, after a command is executed, how does the system distinguish between a regular command and one that should initiate a text stream?",
+      "answers": [
+        "It checks if the `commandName` exists in a hardcoded list of streaming commands.",
+        "The command function calls `connectTextStream` directly before returning.",
+        "It inspects the command's return value for an object with a `type` property equal to 'STREAM_START'.",
+        "It analyzes the `args` array for a flag like `--stream`."
+      ],
+      "correct": 2,
+      "explanation": "The correct answer is based on the logic at lines 44-48. The system checks if the `output` from the command function is an object containing `type: 'STREAM_START'`. This approach allows any command to signal that it needs to initiate a stream by returning a specific data structure, decoupling the input handler from the implementation details of individual commands."
+    },
+    {
+      "type": "highlight",
+      "description": "The Enter key handling concludes with error handling and cleanup.\n\nLines 53-55 handle unknown commands by showing a `\"command not found\"` message. Lines 58-59 reset the input by clearing the `command` variable and resetting `historyIndex` to -1, ready for the next command.",
+      "file": "dimos/web/dimos_interface/src/components/Input.svelte",
+      "highlight": [
+        {
+          "start": 53,
+          "end": 59
+        }
+      ],
+      "title": "",
+      "id": "68843",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Arrow keys** provide command history navigation.\n\n**ArrowUp** (lines 60-65): Moves backward through history by incrementing `historyIndex` and loading the corresponding command. **ArrowDown** (lines 66-71): Moves forward through history, decrementing the index and either loading a command or clearing the input if at the end.\n\nBoth call `preventDefault()` to stop the cursor from moving within the input field.",
+      "file": "dimos/web/dimos_interface/src/components/Input.svelte",
+      "highlight": [
+        {
+          "start": 60,
+          "end": 71
+        }
+      ],
+      "title": "",
+      "id": "68844",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Tab` key provides auto-completion functionality.\n\nLine 73 prevents the default tab behavior. Lines 74-76 search through all available commands to find one that starts with the current input. If a match is found, the input is automatically completed to that command name.",
+      "file": "dimos/web/dimos_interface/src/components/Input.svelte",
+      "highlight": [
+        {
+          "start": 72,
+          "end": 77
+        }
+      ],
+      "title": "",
+      "id": "68845",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`Ctrl+L` provides a quick way to clear the terminal screen.\n\nLine 79 prevents any default browser shortcuts. Line 80 clears the entire command history by setting `$history` to an empty array. **Svelte**'s reactivity automatically updates the display.",
+      "file": "dimos/web/dimos_interface/src/components/Input.svelte",
+      "highlight": [
+        {
+          "start": 78,
+          "end": 81
+        }
+      ],
+      "title": "",
+      "id": "68846",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The HTML markup starts with a global click listener.\n\nThe `svelte:window` component listens for clicks anywhere on the page and refocuses the input element. This ensures users can click anywhere and immediately start typing commands without manually clicking the input field.",
+      "file": "dimos/web/dimos_interface/src/components/Input.svelte",
+      "highlight": [
+        {
+          "start": 85,
+          "end": 89
+        }
+      ],
+      "title": "",
+      "id": "68847",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The input element itself brings everything together.\n\nNotice how Svelte's directives connect all the pieces we've discussed. Two-way data binding links the input's content to the `command` variable, and keyboard events are wired up to our `handleKeyDown` function. We also get a direct reference to the DOM element itself, which we use for focusing and scrolling. Finally, the inline style dynamically applies the current theme's foreground color.",
+      "file": "dimos/web/dimos_interface/src/components/Input.svelte",
+      "highlight": [
+        {
+          "start": 94,
+          "end": 104
+        }
+      ],
+      "title": "",
+      "id": "68848",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This completes our walkthrough of the `Input.svelte` component. It elegantly combines `Svelte`'s reactive features with sophisticated keyboard handling to create a fully-featured terminal input experience.",
+      "title": "",
+      "id": "68849"
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "title": "23.2: Object Detection: Reactive Stream Design",
+  "id": "bC7vM7j4BCykRtCyXH2Az2sErn4YYOnx9GsOH1Pirpg=",
+  "originalId": 5491,
+  "position": 80,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Let's explore how `ObjectDetectionStream` wires raw video frames into a reactive detection pipeline.\n\nFirst, a quick primer on `RxPY`: An **Observable** is a data source that emits items over time. You can transform these emissions using `.pipe(ops.map(fn))`, which applies function `fn` to each emitted item, creating a new stream of transformed data.\n\nNow let's see how this reactive pattern powers the object detection pipeline.",
+      "title": "",
+      "id": "68194"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/object_detection_stream.py"
+      ],
+      "description": "The `ObjectDetectionStream` class transforms raw video frames into structured object detection data using a reactive pipeline.",
+      "title": "",
+      "id": "68195",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The constructor configures the entire detection pipeline with key parameters:\n- `camera_intrinsics`: Camera parameters `[fx, fy, cx, cy]` for 3D position calculations\n- `detector`: The 2D object detector (`Detic` or `YOLO`)\n- `gt_depth_scale`: Ground-truth depth scale for the `Metric3D` depth model\n- `min_confidence`: Threshold to filter low-confidence detections\n- `class_filter`: Optional list of specific classes to detect (e.g., `[\"person\", \"car\"]`)\n- `transform_to_map`: Optional function to convert coordinates from camera frame to map frame",
+      "file": "dimos/perception/object_detection_stream.py",
+      "highlight": [
+        {
+          "start": 28,
+          "end": 51
+        }
+      ],
+      "title": "",
+      "id": "68196",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The constructor initializes the core components: a 2D detector (defaulting to `Detic`), the `Metric3D` depth estimation model, and builds the camera matrix from the intrinsics for 3D calculations.",
+      "file": "dimos/perception/object_detection_stream.py",
+      "highlight": [
+        {
+          "start": 55,
+          "end": 74
+        }
+      ],
+      "title": "",
+      "id": "68197",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `create_stream` method is where the reactive pipeline comes together. Notice that `process_frame` is a **nested function** defined inside `create_stream`. This nested structure allows `process_frame` to act as a **closure**, accessing `self` from the outer scope. This gives it access to all the instance configuration like `self.detector`, `self.min_confidence`, and `self.depth_model` without needing them as parameters.\n\nThe pipeline is created with `video_stream.pipe(ops.map(process_frame))`, which applies our nested function to each incoming video frame.",
+      "file": "dimos/perception/object_detection_stream.py",
+      "highlight": [
+        {
+          "start": 81,
+          "end": 184
+        }
+      ],
+      "title": "",
+      "id": "68198",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In `create_stream`, the `process_frame` function is defined as a nested function. What is the primary architectural reason for this design?\n\nOptions:\n\n A). It is a Python requirement that functions used with `reactivex.operators.map` must be defined within the same local scope.\n\nB). This creates a closure, allowing `process_frame` to access the instance's `self` (e.g., `self.detector`, `self.min_confidence`) when applied to each frame in the stream.\n\nC). To ensure `process_frame` is automatically garbage-collected after the stream is created, optimizing memory usage.\n\n\nCorrect: B). This creates a closure, allowing `process_frame` to access the instance's `self` (e.g., `self.detector`, `self.min_confidence`) when applied to each frame in the stream.\n\nExplanation: The correct answer is that nesting `process_frame` creates a closure. A closure 'closes over' the variables from its enclosing scope—in this case, the `self` instance of `ObjectDetectionStream`. This allows the `process_frame` function, when called by the `ops.map` operator, to access all the necessary configuration and models (like `self.detector` and `self.depth_model`) without needing them passed in as arguments. The other options are incorrect: `ops.map` can accept any callable, and this pattern doesn't primarily relate to garbage collection.",
+      "title": "",
+      "id": "68205",
+      "text": "In `create_stream`, the `process_frame` function is defined as a nested function. What is the primary architectural reason for this design?",
+      "answers": [
+        "It is a Python requirement that functions used with `reactivex.operators.map` must be defined within the same local scope.",
+        "This creates a closure, allowing `process_frame` to access the instance's `self` (e.g., `self.detector`, `self.min_confidence`) when applied to each frame in the stream.",
+        "To ensure `process_frame` is automatically garbage-collected after the stream is created, optimizing memory usage."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that nesting `process_frame` creates a closure. A closure 'closes over' the variables from its enclosing scope—in this case, the `self` instance of `ObjectDetectionStream`. This allows the `process_frame` function, when called by the `ops.map` operator, to access all the necessary configuration and models (like `self.detector` and `self.depth_model`) without needing them passed in as arguments. The other options are incorrect: `ops.map` can accept any callable, and this pattern doesn't primarily relate to garbage collection."
+    },
+    {
+      "type": "highlight",
+      "description": "The first step in `process_frame` is to run the 2D detector. This line calls the configured detector (`Detic` or `YOLO`) on the incoming frame, unpacking the results—bounding boxes, tracking IDs, class predictions, and more—into the local variables you see on the left.",
+      "file": "dimos/perception/object_detection_stream.py",
+      "highlight": [
+        {
+          "start": 94,
+          "end": 94
+        }
+      ],
+      "title": "",
+      "id": "68199",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Next comes the filtering and depth integration. The code filters detections based on `self.min_confidence` and the optional `self.class_filter`. For each valid detection, it calls `calculate_depth_from_bbox` which uses `self.depth_model` (`Metric3D`) to estimate the object's depth. Objects with invalid depth are discarded.",
+      "file": "dimos/perception/object_detection_stream.py",
+      "highlight": [
+        {
+          "start": 102,
+          "end": 116
+        }
+      ],
+      "title": "",
+      "id": "68200",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "For objects that pass all filters, the pipeline calculates 3D position and rotation using the camera intrinsics, computes object dimensions, and optionally transforms coordinates to the map frame using the configured `transform function`.",
+      "file": "dimos/perception/object_detection_stream.py",
+      "highlight": [
+        {
+          "start": 118,
+          "end": 134
+        }
+      ],
+      "title": "",
+      "id": "68201",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "The beauty of this reactive architecture is that each video frame flows through the same processing pipeline automatically. The closure pattern allows the `process_frame` function to access all the configured detection and depth models seamlessly.\n\nThe result is a clean stream of structured object data - each emission contains the original frame, a visualization frame, and a list of detected objects with their 3D positions, orientations, and metadata.",
+      "title": "",
+      "id": "68202"
+    }
+  ]
+}

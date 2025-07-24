@@ -1,0 +1,297 @@
+{
+  "title": "33.1: Core Logic: Agent Implementations: Overview",
+  "id": "ezByCg68bDULbgFx83Kpjiwt2Bxv/SbLgPoOHCJnM9k=",
+  "originalId": 5566,
+  "position": 122,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough provides a comprehensive overview of the agent implementations in the `DimOS framework`. We'll explore the base classes and concrete implementations, understand when to use each type, and see how they can work together for complex AI workflows.",
+      "title": "",
+      "id": "69146"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/agent.py"
+      ],
+      "description": "We start with the foundation file `dimos/agents/agent.py`, which defines the architectural backbone of all agents in the framework.",
+      "title": "",
+      "id": "69147",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Agent` class provides the foundational interface that all agents inherit. It manages memory systems, subscription lifecycles, and thread scheduling - ensuring consistent behavior across all agent types in the framework.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 75,
+          "end": 82
+        }
+      ],
+      "title": "",
+      "id": "69148",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`LLMAgent` extends `Agent` with core LLM functionality: stream processing, conversation history, RAG memory retrieval, and prompt building. The abstract `_send_query` method allows subclasses to implement their specific API communication while inheriting all the common LLM orchestration logic.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 113,
+          "end": 126
+        }
+      ],
+      "title": "",
+      "id": "69149",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`OpenAIAgent` is an implementation for using OpenAI's models. It supports structured outputs with `Pydantic` models and includes tool calling capabilities. These features make it applicable for use in customer-facing applications or for tasks that involve complex reasoning.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 660,
+          "end": 666
+        }
+      ],
+      "title": "",
+      "id": "69150",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `_send_query` method demonstrates `OpenAI's chat completions API` integration. This handles both standard text responses and structured outputs, making it versatile for applications requiring consistent data formats or function calling workflows.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 829,
+          "end": 835
+        }
+      ],
+      "title": "",
+      "id": "69151",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/claude_agent.py"
+      ],
+      "description": "Next, we explore the `Claude implementation`, which offers unique advantages for reasoning-intensive tasks.",
+      "title": "",
+      "id": "69152",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`ClaudeAgent` extends `LLMAgent` for Anthropic's `Claude` models. Its key strength is transparent reasoning through thinking steps, making it excellent for complex analysis and research tasks.",
+      "file": "dimos/agents/claude_agent.py",
+      "highlight": [
+        {
+          "start": 77,
+          "end": 82
+        }
+      ],
+      "title": "",
+      "id": "69153",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The streaming implementation with `self.client.messages.stream()` captures **Claude**'s thinking process in real-time. This provides unprecedented visibility into the model's reasoning, making it invaluable for debugging complex queries and understanding decision-making processes.",
+      "file": "dimos/agents/claude_agent.py",
+      "highlight": [
+        {
+          "start": 376,
+          "end": 377
+        }
+      ],
+      "title": "",
+      "id": "69154",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/agent_huggingface_remote.py"
+      ],
+      "description": "Now we'll examine agents for `Hugging Face models`, starting with **remote inference**.",
+      "title": "",
+      "id": "69155",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`HuggingFaceRemoteAgent` provides access to thousands of models on `Hugging Face Hub` without local setup. Perfect for experimentation, prototyping, and accessing specialized models like code generation or domain-specific fine-tunes that aren't available elsewhere.",
+      "file": "dimos/agents/agent_huggingface_remote.py",
+      "highlight": [
+        {
+          "start": 44,
+          "end": 44
+        }
+      ],
+      "title": "",
+      "id": "69156",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Using `huggingface_hub.InferenceClient`, this agent abstracts away the complexity of remote model APIs while providing access to cutting-edge research models and specialized fine-tunes that would be impractical to run locally.",
+      "file": "dimos/agents/agent_huggingface_remote.py",
+      "highlight": [
+        {
+          "start": 129,
+          "end": 133
+        }
+      ],
+      "title": "",
+      "id": "69157",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/agent_huggingface_local.py"
+      ],
+      "description": "For scenarios requiring data privacy and offline operation, `DimOS` supports local model execution.",
+      "title": "",
+      "id": "69158",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`HuggingFaceLocalAgent` runs models entirely on local hardware. This is ideal for privacy-sensitive applications, offline environments, custom fine-tuned models, and scenarios where data cannot leave your infrastructure due to compliance requirements.",
+      "file": "dimos/agents/agent_huggingface_local.py",
+      "highlight": [
+        {
+          "start": 47,
+          "end": 47
+        }
+      ],
+      "title": "",
+      "id": "69159",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The agent automatically optimizes for available hardware, using **GPU** acceleration when available and falling back to **CPU**. This automatic device detection ensures optimal performance across different deployment environments.",
+      "file": "dimos/agents/agent_huggingface_local.py",
+      "highlight": [
+        {
+          "start": 106,
+          "end": 110
+        }
+      ],
+      "title": "",
+      "id": "69160",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/agent_ctransformers_gguf.py"
+      ],
+      "description": "For resource-constrained environments, `GGUF agents` provide highly optimized inference.",
+      "title": "",
+      "id": "69161",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`CTransformersGGUFAgent` specializes in running GGUF-optimized models with minimal resource usage. Ideal for edge computing, resource-limited servers, and scenarios where you need to run large models on consumer hardware with acceptable performance.",
+      "file": "dimos/agents/agent_ctransformers_gguf.py",
+      "highlight": [
+        {
+          "start": 86,
+          "end": 86
+        }
+      ],
+      "title": "",
+      "id": "69162",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `gpu_layers` parameter enables hybrid inference - offloading specific layers to GPU while keeping others on CPU. This fine-grained control allows optimal resource utilization, balancing performance with memory constraints.",
+      "file": "dimos/agents/agent_ctransformers_gguf.py",
+      "highlight": [
+        {
+          "start": 140,
+          "end": 145
+        }
+      ],
+      "title": "",
+      "id": "69163",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/planning_agent.py"
+      ],
+      "description": "Finally, we explore a specialized high-level agent that demonstrates how to build domain-specific functionality.",
+      "title": "",
+      "id": "69164",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`PlanningAgent` showcases the framework's extensibility. Built on `OpenAIAgent`, it breaks complex tasks into executable steps through dialogue. This demonstrates how specialized agents can be created for specific workflows while leveraging the full power of the base framework.",
+      "file": "dimos/agents/planning_agent.py",
+      "highlight": [
+        {
+          "start": 36,
+          "end": 47
+        }
+      ],
+      "title": "",
+      "id": "69165",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The structured system prompt creates a specialized **AI assistant** that outputs `JSON`-formatted plans. This facilitates integration with **execution agents** - the `PlanningAgent` creates the roadmap, while other agents handle individual steps, creating **multi-agent workflows**.",
+      "file": "dimos/agents/planning_agent.py",
+      "highlight": [
+        {
+          "start": 75,
+          "end": 112
+        }
+      ],
+      "title": "",
+      "id": "69166",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "**Agent Selection Guide**: Use `OpenAI` for production apps and tool calling, `Claude` for complex reasoning and research, `HuggingFace Remote` for experimentation with diverse models, `HuggingFace Local` for privacy/offline needs, `GGUF` for resource constraints, and `Planning` for task decomposition. All agents support reactive streams for real-time processing and can be chained together for sophisticated AI workflows.",
+      "title": "",
+      "id": "69167"
+    },
+    {
+      "type": "mcq",
+      "description": "An engineer is developing a **medical summarization application** for a hospital. Due to strict privacy regulations, all data processing must occur **on-premise** without connecting to **external APIs**. The hospital has provided a **server** with a powerful **GPU** for the task. Which agent implementation is the most suitable choice for this scenario?\n\nOptions:\n\n A). OpenAIAgent, because it is the most robust and production-ready implementation.\n\nB). HuggingFaceLocalAgent, as it runs models on-premise and is optimized for hardware acceleration like GPUs.\n\nC). CTransformersGGUFAgent, because it is the most efficient option for local inference.\n\nD). ClaudeAgent, because its advanced reasoning is well-suited for complex medical text.\n\n\nCorrect: B). HuggingFaceLocalAgent, as it runs models on-premise and is optimized for hardware acceleration like GPUs.\n\nExplanation: `HuggingFaceLocalAgent` is the correct choice because it is designed for on-premise deployment, which satisfies the strict data privacy requirement. It leverages the `transformers` library to make full use of available hardware, including the powerful GPU mentioned in the scenario. `OpenAIAgent` and `ClaudeAgent` are incorrect as they rely on external APIs, sending data off-premise. While `CTransformersGGUFAgent` also runs locally, it is primarily optimized for resource-constrained environments; `HuggingFaceLocalAgent` is better suited to leverage a powerful GPU.",
+      "title": "",
+      "id": "69169",
+      "text": "An engineer is developing a **medical summarization application** for a hospital. Due to strict privacy regulations, all data processing must occur **on-premise** without connecting to **external APIs**. The hospital has provided a **server** with a powerful **GPU** for the task. Which agent implementation is the most suitable choice for this scenario?",
+      "answers": [
+        "OpenAIAgent, because it is the most robust and production-ready implementation.",
+        "HuggingFaceLocalAgent, as it runs models on-premise and is optimized for hardware acceleration like GPUs.",
+        "CTransformersGGUFAgent, because it is the most efficient option for local inference.",
+        "ClaudeAgent, because its advanced reasoning is well-suited for complex medical text."
+      ],
+      "correct": 1,
+      "explanation": "`HuggingFaceLocalAgent` is the correct choice because it is designed for on-premise deployment, which satisfies the strict data privacy requirement. It leverages the `transformers` library to make full use of available hardware, including the powerful GPU mentioned in the scenario. `OpenAIAgent` and `ClaudeAgent` are incorrect as they rely on external APIs, sending data off-premise. While `CTransformersGGUFAgent` also runs locally, it is primarily optimized for resource-constrained environments; `HuggingFaceLocalAgent` is better suited to leverage a powerful GPU."
+    },
+    {
+      "type": "textOnly",
+      "description": "This concludes our comprehensive tour of DimOS agents. The **framework's layered architecture** - from base `Agent` through `LLMAgent` to specialized implementations - provides both consistency and flexibility, enabling everything from simple chatbots to complex multi-agent reasoning systems.",
+      "title": "",
+      "id": "69168"
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "title": "24.1: Perception & Data: Spatial Intelligence: Overview",
+  "id": "tsv1kAbRwc9OwEO5JJKMGpzt6TS/34ds0A22thGOWsA=",
+  "originalId": 5496,
+  "position": 85,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour introduces the **Spatial Intelligence** component, which consists of two classes: `SpatialMemory` for building a semantic map and `VisualServoing` for real-time target tracking.",
+      "title": "",
+      "id": "68122"
+    },
+    {
+      "type": "highlight",
+      "description": "The `SpatialMemory` class, defined in `dimos/perception/spatial_perception.py`, is responsible for building a semantic map of the environment. Its docstring indicates that it associates video frames with `XYZL` locations, stores embeddings in a vector database, and supports both spatial and semantic queries. This allows the system to understand \"what is where\" in the environment.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 43,
+          "end": 50
+        }
+      ],
+      "title": "",
+      "id": "68123",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__` method of `SpatialMemory` reveals its key parameters for configuration. `min_distance_threshold` and `min_time_threshold` control how frequently new frames are sampled into the memory. Parameters like `new_memory`, `db_path`, and `visual_memory_path` handle the persistence of the spatial map. The class takes a `video_stream` and a `transform_provider` as reactive stream inputs to process real-time data.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 52,
+          "end": 67
+        }
+      ],
+      "title": "",
+      "id": "68124",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Next, we have the `VisualServoing` class in `dimos/perception/visual_servoing.py`. Its purpose is to track a target in real-time. It processes a stream of person detections, estimates the distance and angle to the target, and uses a `PID` controller to generate velocity commands to follow the target.",
+      "file": "dimos/perception/visual_servoing.py",
+      "highlight": [
+        {
+          "start": 42,
+          "end": 49
+        }
+      ],
+      "title": "",
+      "id": "68125",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__` method of `VisualServoing` shows its core parameters. It takes a `tracking_stream` of detections. `max_linear_speed`, `max_angular_speed`, and `desired_distance` define the robot's movement constraints and goal. `iou_threshold` and `max_lost_frames` are used to maintain the track on a target, even if it is temporarily lost.",
+      "file": "dimos/perception/visual_servoing.py",
+      "highlight": [
+        {
+          "start": 51,
+          "end": 68
+        }
+      ],
+      "title": "",
+      "id": "68126",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **PID controller**'s gains for linear and angular velocity are also configured in the `__init__` method, allowing for fine-tuning of the robot's tracking behavior.",
+      "file": "dimos/perception/visual_servoing.py",
+      "highlight": [
+        {
+          "start": 72,
+          "end": 90
+        }
+      ],
+      "title": "",
+      "id": "68127",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "In the **DimOS** system, these two classes work together to provide spatial intelligence. `SpatialMemory` receives a ROS video stream (via `robot.get_ros_video_stream` and a transform provider) to continuously build and update its map of the environment. Simultaneously, person detection results are fed as an `Observable` to the `VisualServoing` class. `SpatialMemory` provides the robot with a persistent, queryable map of its surroundings, while `VisualServoing` enables the robot to react to and follow specific targets using precise, real-time visual feedback.",
+      "title": "",
+      "id": "68128"
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the tour, which statement accurately describes the division of labor between `SpatialMemory` and `VisualServoing` in the DimOS system?\n\nOptions:\n\n A). Both classes consume a raw video stream; `SpatialMemory` generates velocity commands and `VisualServoing` builds the map.\n\nB). `VisualServoing` builds a map using its PID controller, and `SpatialMemory` queries this map to track targets.\n\nC). `SpatialMemory` consumes a general video stream to build a persistent map, while `VisualServoing` consumes a dedicated detection stream to generate real-time motion commands.\n\nD). `SpatialMemory` uses its `min_distance_threshold` to generate velocity commands, while `VisualServoing` uses the vector database to map the environment.\n\n\nCorrect: C). `SpatialMemory` consumes a general video stream to build a persistent map, while `VisualServoing` consumes a dedicated detection stream to generate real-time motion commands.\n\nExplanation: `SpatialMemory` is responsible for the high-level task of building a persistent, queryable map of the environment from a video stream. `VisualServoing` handles the low-level, real-time task of tracking a specific target by consuming a stream of detections (not raw video) and using a PID controller to generate immediate velocity commands. The other options incorrectly swap or misattribute the core functions of these two distinct components.",
+      "title": "",
+      "id": "68129",
+      "text": "Based on the tour, which statement accurately describes the division of labor between `SpatialMemory` and `VisualServoing` in the DimOS system?",
+      "answers": [
+        "Both classes consume a raw video stream; `SpatialMemory` generates velocity commands and `VisualServoing` builds the map.",
+        "`VisualServoing` builds a map using its PID controller, and `SpatialMemory` queries this map to track targets.",
+        "`SpatialMemory` consumes a general video stream to build a persistent map, while `VisualServoing` consumes a dedicated detection stream to generate real-time motion commands.",
+        "`SpatialMemory` uses its `min_distance_threshold` to generate velocity commands, while `VisualServoing` uses the vector database to map the environment."
+      ],
+      "correct": 2,
+      "explanation": "`SpatialMemory` is responsible for the high-level task of building a persistent, queryable map of the environment from a video stream. `VisualServoing` handles the low-level, real-time task of tracking a specific target by consuming a stream of detections (not raw video) and using a PID controller to generate immediate velocity commands. The other options incorrectly swap or misattribute the core functions of these two distinct components."
+    }
+  ]
+}

@@ -1,0 +1,248 @@
+{
+  "title": "3.2: The `Vector` Type",
+  "id": "GOLaMp+J7hXHvWMBLNi0fKcjEcNYrPnTfYLQZhXHid8=",
+  "originalId": 5415,
+  "position": 5,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to this comprehensive walkthrough of the `Vector` class, which serves as the foundation for all spatial calculations in `DimOS`.\n\nWe'll explore how this class provides an intuitive interface for vector operations while maintaining flexibility and performance.",
+      "title": "",
+      "id": "67371"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/types/vector.py"
+      ],
+      "description": "Let's begin by examining the `Vector` class implementation in `dimos/types/vector.py`.",
+      "title": "",
+      "id": "67372",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Vector` class starts with a clear definition and flexible initialization. The `docstring` demonstrates four different ways to create vectors, showcasing the class's versatility in accepting various input formats.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 28,
+          "end": 39
+        }
+      ],
+      "title": "",
+      "id": "67373",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The initialization logic handles three cases: `iterables` (like `lists` and `arrays`), objects with `x`/`y`/`z` attributes, and individual `scalar arguments`. This allows the class to be initialized from different data sources.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 40,
+          "end": 46
+        }
+      ],
+      "title": "",
+      "id": "67374",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The property accessors `x`, `y`, and `z` provide safe component access. Notice how they gracefully handle vectors of different dimensions by returning `0.0` for missing components (lines 60, 65, 70).",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 58,
+          "end": 70
+        }
+      ],
+      "title": "",
+      "id": "67375",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The basic arithmetic **dunder methods** enable natural mathematical expressions with vectors. These methods support operations between vectors and also between vectors and other array-like objects, making the API very flexible.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 123,
+          "end": 143
+        }
+      ],
+      "title": "",
+      "id": "67376",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Now let's examine the core vector operations that perform common vector calculations.",
+      "title": "",
+      "id": "67377"
+    },
+    {
+      "type": "highlight",
+      "description": "`length` computes the Euclidean magnitude of the vector using `NumPy`'s optimized linear algebra functions.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 166,
+          "end": 168
+        }
+      ],
+      "title": "",
+      "id": "67378",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`normalize` returns a unit vector pointing in the same direction, with careful handling of near-zero vectors to avoid division errors.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 174,
+          "end": 179
+        }
+      ],
+      "title": "",
+      "id": "67379",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`dot` computes the dot product between vectors, supporting both `Vector` objects and array-like inputs.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 145,
+          "end": 149
+        }
+      ],
+      "title": "",
+      "id": "67380",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`cross` computes the cross product for 3D vectors only, with proper validation to ensure both vectors are three-dimensional.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 151,
+          "end": 164
+        }
+      ],
+      "title": "",
+      "id": "67381",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "You have a 2D vector: `v = Vector(5, 12)`. According to the implementation, which of the following method calls will raise a `ValueError`?\n\nOptions:\n\n A). v.length()\n\nB). v.normalize()\n\nC). v.cross(Vector(1, 0, 0))\n\nD). v.dot(Vector(1, 0))\n\n\nCorrect: C). v.cross(Vector(1, 0, 0))\n\nExplanation: The correct answer is `v.cross(Vector(1, 0, 0))`. The `cross` method at line 151 explicitly checks if `self.dim` is equal to 3. Since `v` is a 2D vector, this check fails and a `ValueError` is raised. The `length`, `normalize`, and `dot` methods are implemented to work with vectors of any dimension.",
+      "title": "",
+      "id": "67404",
+      "text": "You have a 2D vector: `v = Vector(5, 12)`. According to the implementation, which of the following method calls will raise a `ValueError`?",
+      "answers": [
+        "v.length()",
+        "v.normalize()",
+        "v.cross(Vector(1, 0, 0))",
+        "v.dot(Vector(1, 0))"
+      ],
+      "correct": 2,
+      "explanation": "The correct answer is `v.cross(Vector(1, 0, 0))`. The `cross` method at line 151 explicitly checks if `self.dim` is equal to 3. Since `v` is a 2D vector, this check fails and a `ValueError` is raised. The `length`, `normalize`, and `dot` methods are implemented to work with vectors of any dimension."
+    },
+    {
+      "type": "highlight",
+      "description": "The `VectorLike` protocol defines the interface for vector-compatible objects. Any object that supports indexing and has a length can be treated as a vector, enabling functions to accept tuples, lists, and arrays interchangeably.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 282,
+          "end": 287
+        }
+      ],
+      "title": "",
+      "id": "67382",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `to_numpy` utility function converts any vector-like object to a `NumPy` array, handling special cases like `ROS Vector3` messages and providing a unified interface for numerical operations.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 290,
+          "end": 307
+        }
+      ],
+      "title": "",
+      "id": "67383",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The utility functions `to_vector`, `to_tuple`, and `to_list` provide conversions to other representations. Together, these functions enable interoperability between `Vector` objects, `NumPy` arrays, **tuples**, and **lists** throughout the codebase.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 309,
+          "end": 361
+        }
+      ],
+      "title": "",
+      "id": "67384",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `x` helper function extracts the X component from any vector-like object. It handles `Vector` instances, `ROS` messages, and generic array-like objects through the `to_numpy` conversion.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 404,
+          "end": 418
+        }
+      ],
+      "title": "",
+      "id": "67385",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Given the helper function `z(value: VectorLike)` from `vector.py`, what is the result of calling `z((10.0, 20.0))`?\n\nOptions:\n\n A). An `IndexError` is raised because the tuple only has two elements.\n\nB). 0.0\n\nC). None\n\nD). 20.0\n\n\nCorrect: B). 0.0\n\nExplanation: The correct answer is `0.0`. The `z` function first converts the input tuple `(10.0, 20.0)` into a NumPy array. It then checks if the array's length is greater than 2. Since the length is exactly 2, the condition `len(arr) > 2` is false, and the function returns the default value `0.0` as designed for 2D vectors.",
+      "title": "",
+      "id": "67405",
+      "text": "Given the helper function `z(value: VectorLike)` from `vector.py`, what is the result of calling `z((10.0, 20.0))`?",
+      "answers": [
+        "An `IndexError` is raised because the tuple only has two elements.",
+        "0.0",
+        "None",
+        "20.0"
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is `0.0`. The `z` function first converts the input tuple `(10.0, 20.0)` into a NumPy array. It then checks if the array's length is greater than 2. Since the length is exactly 2, the condition `len(arr) > 2` is false, and the function returns the default value `0.0` as designed for 2D vectors."
+    },
+    {
+      "type": "highlight",
+      "description": "Similarly, `y` and `z` functions extract the respective components, with safe bounds checking to return `0.0` for components that don't exist in lower-dimensional vectors. These helper functions enable generic programming with various vector representations.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 439,
+          "end": 454
+        }
+      ],
+      "title": "",
+      "id": "67386",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This completes our tour of the `Vector` class. You now understand how `DimOS` provides a system for vector operations that integrates with `NumPy`, `Python` collections, and `ROS` message types.",
+      "title": "",
+      "id": "67387"
+    }
+  ]
+}

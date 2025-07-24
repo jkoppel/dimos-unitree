@@ -1,0 +1,147 @@
+{
+  "title": "28.2: Core Logic: Unitree Robot Implementation: Overview",
+  "id": "4KsXFL6o2Ny7UtSV4uQCo0o8Fl3FkN9+bKI60k5rGHs=",
+  "originalId": 5558,
+  "position": 103,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Mapping `Unitree Go2` architecture: `main orchestrator`, `ROS control`, and `skill library`.",
+      "title": "",
+      "id": "69116"
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__.py` is empty, serving only as a Python package marker.",
+      "file": "dimos/robot/unitree/__init__.py",
+      "highlight": [
+        {
+          "start": 1,
+          "end": 1
+        }
+      ],
+      "title": "",
+      "id": "69117",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `UnitreeGo2` class inherits from `Robot` and serves as the main orchestrator.",
+      "file": "dimos/robot/unitree/unitree_go2.py",
+      "highlight": [
+        {
+          "start": 48,
+          "end": 48
+        }
+      ],
+      "title": "",
+      "id": "69118",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `UnitreeROSControl` class inherits from `ROSControl` and handles all ROS2 communication.",
+      "file": "dimos/robot/unitree/unitree_ros_control.py",
+      "highlight": [
+        {
+          "start": 28,
+          "end": 28
+        }
+      ],
+      "title": "",
+      "id": "69119",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `MyUnitreeSkills` class inherits from `SkillLibrary` and provides the robot’s capabilities.",
+      "file": "dimos/robot/unitree/unitree_skills.py",
+      "highlight": [
+        {
+          "start": 161,
+          "end": 161
+        }
+      ],
+      "title": "",
+      "id": "69120",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Key imports show `UnitreeGo2` depends on both the `skill library` and `skill base types`.",
+      "file": "dimos/robot/unitree/unitree_go2.py",
+      "highlight": [
+        {
+          "start": 19,
+          "end": 20
+        }
+      ],
+      "title": "",
+      "id": "69121",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here UnitreeGo2 imports `UnitreeROSControl`, establishing its ROS control dependency.",
+      "file": "dimos/robot/unitree/unitree_go2.py",
+      "highlight": [
+        {
+          "start": 27,
+          "end": 27
+        }
+      ],
+      "title": "",
+      "id": "69122",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The constructor signature exposes `ros_control`, `use_ros`/`use_webrtc`, and `skills` parameters for dependency injection and communication selection.",
+      "file": "dimos/robot/unitree/unitree_go2.py",
+      "highlight": [
+        {
+          "start": 49,
+          "end": 64
+        }
+      ],
+      "title": "",
+      "id": "69123",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Component wiring:** `UnitreeGo2` initializes or accepts a skill library, then creates and connects each `AbstractRobotSkill` instance to itself as the robot.",
+      "file": "dimos/robot/unitree/unitree_go2.py",
+      "highlight": [
+        {
+          "start": 105,
+          "end": 112
+        }
+      ],
+      "title": "",
+      "id": "69124",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the initialization logic shown, how does the `UnitreeGo2` instance establish a connection with the skills defined in its `skill_library`?\n\nOptions:\n\n A). The `skill_library` instantiates `UnitreeGo2`, establishing a parent-child relationship.\n\nB). Communication happens exclusively through `UnitreeROSControl`, which brokers messages between the robot and skills.\n\nC). The `UnitreeGo2` instance passes a reference to itself (`self`) to its skill instances upon their creation.\n\nD). `UnitreeGo2` only reads static skill definitions and does not interact with skill instances at runtime.\n\n\nCorrect: C). The `UnitreeGo2` instance passes a reference to itself (`self`) to its skill instances upon their creation.\n\nExplanation: The code shows that the `UnitreeGo2` instance is passed to the skills. Specifically, `self.skill_library.create_instance(skill.__name__, robot=self)` on line 108 injects the robot instance into each skill. This gives skills a direct handle to the robot, which they can then command. The other approaches are plausible ways to structure a system, but not how it is done here.",
+      "title": "",
+      "id": "69126",
+      "text": "Based on the initialization logic shown, how does the `UnitreeGo2` instance establish a connection with the skills defined in its `skill_library`?",
+      "answers": [
+        "The `skill_library` instantiates `UnitreeGo2`, establishing a parent-child relationship.",
+        "Communication happens exclusively through `UnitreeROSControl`, which brokers messages between the robot and skills.",
+        "The `UnitreeGo2` instance passes a reference to itself (`self`) to its skill instances upon their creation.",
+        "`UnitreeGo2` only reads static skill definitions and does not interact with skill instances at runtime."
+      ],
+      "correct": 2,
+      "explanation": "The code shows that the `UnitreeGo2` instance is passed to the skills. Specifically, `self.skill_library.create_instance(skill.__name__, robot=self)` on line 108 injects the robot instance into each skill. This gives skills a direct handle to the robot, which they can then command. The other approaches are plausible ways to structure a system, but not how it is done here."
+    },
+    {
+      "type": "textOnly",
+      "description": "`UnitreeGo2` ties together a `ROS control interface` and a skill library at runtime. It can inject mocks or custom implementations, then orchestrates video, perception, and motion by routing calls through these components.",
+      "title": "",
+      "id": "69125"
+    }
+  ]
+}

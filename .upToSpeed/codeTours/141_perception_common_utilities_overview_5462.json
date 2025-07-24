@@ -1,0 +1,147 @@
+{
+  "title": "14.1: Perception Common Utilities: Overview",
+  "id": "pRpkLELpc8cdYcvmnz1BSJCcbWwjTqAr0JOJGOn3JFw=",
+  "originalId": 5462,
+  "position": 50,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to the Perception Common Utilities component! This brief overview introduces the core building blocks that power 2D tracking, 3D geometry fitting, distance estimation, and model export in the **DIMOS perception system**.",
+      "title": "",
+      "id": "67901"
+    },
+    {
+      "type": "highlight",
+      "description": "The module's **__init__.py** centralizes exports: it exposes 2D tracking from `detection2d_tracker` and all utility functions from `cuboid_fit` and `ibvs`, creating a unified API.",
+      "file": "dimos/perception/common/__init__.py",
+      "highlight": [
+        {
+          "start": 1,
+          "end": 3
+        }
+      ],
+      "title": "",
+      "id": "67902",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `depth_to_point_cloud` function converts depth images to point clouds with optional subsampling for real-time performance.",
+      "file": "dimos/perception/common/cuboid_fit.py",
+      "highlight": [
+        {
+          "start": 8,
+          "end": 20
+        }
+      ],
+      "title": "",
+      "id": "67903",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `fit_cuboid` function uses iterative PCA and inlier thresholding to robustly fit cuboids to noisy 3D point clouds.",
+      "file": "dimos/perception/common/cuboid_fit.py",
+      "highlight": [
+        {
+          "start": 50,
+          "end": 65
+        }
+      ],
+      "title": "",
+      "id": "67904",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `target2d` class represents a tracked 2D object, maintaining recent masks, bounding boxes, and score history for tracking.",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 56,
+          "end": 73
+        }
+      ],
+      "title": "",
+      "id": "67905",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `target2dTracker` class orchestrates track lifecycles with tunable thresholds for start/stop scoring and history size.",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 198,
+          "end": 213
+        }
+      ],
+      "title": "",
+      "id": "67906",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `PersonDistanceEstimator` class inverts `camera intrinsics` and uses known `camera height/pitch` to estimate a person's distance via `ground-plane geometry`.",
+      "file": "dimos/perception/common/ibvs.py",
+      "highlight": [
+        {
+          "start": 3,
+          "end": 14
+        }
+      ],
+      "title": "",
+      "id": "67907",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `ObjectDistanceEstimator` class estimates object distance by relating bounding-box pixel height to real-world size once calibrated.",
+      "file": "dimos/perception/common/ibvs.py",
+      "highlight": [
+        {
+          "start": 106,
+          "end": 123
+        }
+      ],
+      "title": "",
+      "id": "67908",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `parse_args` function defines CLI options for exporting `YOLO`/`FastSAM` models to `ONNX` or `TensorRT` engines with `fp32`/`fp16`/`int8` precision.",
+      "file": "dimos/perception/common/export_tensorrt.py",
+      "highlight": [
+        {
+          "start": 5,
+          "end": 11
+        }
+      ],
+      "title": "",
+      "id": "67909",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "These utilities: 3D cuboid fitting, 2D tracking, visual-servoing distance estimation, and model export form the backbone of the DIMOS perception pipeline.",
+      "title": "",
+      "id": "67910"
+    },
+    {
+      "type": "mcq",
+      "description": "A stream of `2D bounding boxes` and `segmentation masks` is received from a detection model. Which component is responsible for assigning a consistent identity to each object across multiple video frames, managing its lifecycle from appearance to disappearance?\n\nOptions:\n\n A). `cuboid_fit.py`, by fitting a 3D model to the detection's point cloud.\n\nB). `detection2d_tracker.py`, using the `target2dTracker` class to manage track scores and history.\n\nC). `ibvs.py`, by estimating the object's distance to confirm its presence.\n\nD). `export_tensorrt.py`, by optimizing the detection model for faster inference.\n\n\nCorrect: B). `detection2d_tracker.py`, using the `target2dTracker` class to manage track scores and history.\n\nExplanation: The `detection2d_tracker.py` module, specifically the `target2dTracker` class, is designed to maintain object identities over time. It uses a scoring system to manage the lifecycle of each track. `cuboid_fit.py` handles 3D shape fitting, `ibvs.py` estimates distance, and `export_tensorrt.py` is a utility for model conversion, not runtime tracking.",
+      "title": "",
+      "id": "67911",
+      "text": "A stream of `2D bounding boxes` and `segmentation masks` is received from a detection model. Which component is responsible for assigning a consistent identity to each object across multiple video frames, managing its lifecycle from appearance to disappearance?",
+      "answers": [
+        "`cuboid_fit.py`, by fitting a 3D model to the detection's point cloud.",
+        "`detection2d_tracker.py`, using the `target2dTracker` class to manage track scores and history.",
+        "`ibvs.py`, by estimating the object's distance to confirm its presence.",
+        "`export_tensorrt.py`, by optimizing the detection model for faster inference."
+      ],
+      "correct": 1,
+      "explanation": "The `detection2d_tracker.py` module, specifically the `target2dTracker` class, is designed to maintain object identities over time. It uses a scoring system to manage the lifecycle of each track. `cuboid_fit.py` handles 3D shape fitting, `ibvs.py` estimates distance, and `export_tensorrt.py` is a utility for model conversion, not runtime tracking."
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "title": "37.5: Frontend Event Tracking",
+  "id": "G/sSNOoaGjta2VoGaP35bv1rL1UZFIk1FVkFyytCp+8=",
+  "originalId": 5576,
+  "position": 151,
+  "steps": [
+    {
+      "type": "highlight",
+      "description": "In `dimos/web/dimos_interface/src/utils/tracking.ts`, the `track` function is a simple utility that acts as a wrapper around the `umami` analytics library. Its purpose is to log user-entered commands and their arguments, which helps developers understand how the application is being used. The function is designed to be resilient; it first checks for the existence of `window.umami` before attempting to track an event, which prevents runtime errors if the analytics script hasn't loaded.",
+      "file": "dimos/web/dimos_interface/src/utils/tracking.ts",
+      "highlight": [
+        {
+          "start": 25,
+          "end": 31
+        }
+      ],
+      "title": "",
+      "id": "69229",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "What is the behavior of the `track` function if the `umami` analytics script fails to load or is blocked?\n\nOptions:\n\n A). It throws a runtime error, halting further execution.\n\nB). It takes no action, and the application continues running normally.\n\nC). It logs a warning message to the browser's console.\n\nD). It queues the event and retries sending it after a short delay.\n\n\nCorrect: B). It takes no action, and the application continues running normally.\n\nExplanation: The function's logic is wrapped in a conditional check: `if (window.umami)` on line 26. If the `umami` object is not available on the `window` (for instance, if an ad-blocker blocks the script), the condition evaluates to false, and the code block containing the `window.umami.track()` call is never executed. This prevents any errors and allows the application to proceed without interruption.",
+      "title": "",
+      "id": "69230",
+      "text": "What is the behavior of the `track` function if the `umami` analytics script fails to load or is blocked?",
+      "answers": [
+        "It throws a runtime error, halting further execution.",
+        "It takes no action, and the application continues running normally.",
+        "It logs a warning message to the browser's console.",
+        "It queues the event and retries sending it after a short delay."
+      ],
+      "correct": 1,
+      "explanation": "The function's logic is wrapped in a conditional check: `if (window.umami)` on line 26. If the `umami` object is not available on the `window` (for instance, if an ad-blocker blocks the script), the condition evaluates to false, and the code block containing the `window.umami.track()` call is never executed. This prevents any errors and allows the application to proceed without interruption."
+    }
+  ]
+}

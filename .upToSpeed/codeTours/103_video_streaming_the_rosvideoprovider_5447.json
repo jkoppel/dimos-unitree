@@ -1,0 +1,89 @@
+{
+  "title": "10.3: Video Streaming: The ROSVideoProvider",
+  "id": "p2L9Drw7ySPlIlmtsEks26KRiwoyWInyyYOVdCKf2Ww=",
+  "originalId": 5447,
+  "position": 37,
+  "steps": [
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/stream/ros_video_provider.py"
+      ],
+      "description": "This tour will cover `ROSVideoProvider`, which streams video from the Robot Operating System (`ROS`). Unlike the file-based provider, this class doesn't pull frames from a source. Instead, an external process pushes frames into it.\n\nLet's begin with the `__init__` method.",
+      "title": "",
+      "id": "67668",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The key component for this provider is created on the highlighted line.\n\nA `Subject` in `RxPY` is a special type of object that acts as both an `Observable` (it can emit values) and an `Observer` (it can receive values). This duality allows it to subscribe to one stream and push, or \"multicast,\" the values it receives to multiple subscribers of its own.\n\nThis is the foundation of the **\"push\" pattern** used here. The `_subject` will receive frames from an external source and broadcast them to any part of the application that is listening.",
+      "file": "dimos/stream/ros_video_provider.py",
+      "highlight": [
+        {
+          "start": 47,
+          "end": 60
+        }
+      ],
+      "title": "",
+      "id": "67669",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `push_data` method is the entry point for incoming data. An external component, such as a `ROS topic subscriber`, would call this method whenever a new video frame arrives.\n\nThe key line here is 82, where the `_subject` **\"pushes\"** the new `frame` into the reactive stream. Any observer subscribed to `_subject` will be notified and receive the `frame`.",
+      "file": "dimos/stream/ros_video_provider.py",
+      "highlight": [
+        {
+          "start": 62,
+          "end": 86
+        }
+      ],
+      "title": "",
+      "id": "67670",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "An external component, like a ROS topic subscriber, receives a new video frame. How is this frame correctly propagated through the `ROSVideoProvider` to all active subscribers?\n\nOptions:\n\n A). The external subscriber calls `_subject.on_next(frame)` directly on the provider instance.\n\nB). The provider's `_subject` subscribes to an external source and pulls frames via a callback.\n\nC). `push_data(frame)` is called on the provider, which then calls `self._subject.on_next(frame)`.\n\nD). `capture_video_as_observable()` is called for each new frame to create a new stream.\n\n\nCorrect: C). `push_data(frame)` is called on the provider, which then calls `self._subject.on_next(frame)`.\n\nExplanation: The correct data flow is for an external component, like a ROS subscriber, to call the public `push_data` method. This method, in turn, uses the internal `_subject` to push the frame into the reactive stream by calling `on_next()`. Calling `_subject` directly would violate encapsulation. The `_subject` does not pull data; data is pushed into it. `capture_video_as_observable` is for consumers to get the stream, not for producers to add data.",
+      "title": "",
+      "id": "67673",
+      "text": "An external component, like a ROS topic subscriber, receives a new video frame. How is this frame correctly propagated through the `ROSVideoProvider` to all active subscribers?",
+      "answers": [
+        "The external subscriber calls `_subject.on_next(frame)` directly on the provider instance.",
+        "The provider's `_subject` subscribes to an external source and pulls frames via a callback.",
+        "`push_data(frame)` is called on the provider, which then calls `self._subject.on_next(frame)`.",
+        "`capture_video_as_observable()` is called for each new frame to create a new stream."
+      ],
+      "correct": 2,
+      "explanation": "The correct data flow is for an external component, like a ROS subscriber, to call the public `push_data` method. This method, in turn, uses the internal `_subject` to push the frame into the reactive stream by calling `on_next()`. Calling `_subject` directly would violate encapsulation. The `_subject` does not pull data; data is pushed into it. `capture_video_as_observable` is for consumers to get the stream, not for producers to add data."
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, let's look at `capture_video_as_observable`.\n\nUnlike the file-based provider, this method doesn't need to create an `Observable` with `rx.create`. The `_subject` is already an `Observable`. This method simply returns the `_subject` and applies a few standard operators.\n\n`subscribe_on` and `observe_on` manage the threading, while `share()` makes the stream **\"hot,\"** or multicast. This ensures all subscribers receive the same stream of frames from the single `_subject`.",
+      "file": "dimos/stream/ros_video_provider.py",
+      "highlight": [
+        {
+          "start": 88,
+          "end": 113
+        }
+      ],
+      "title": "",
+      "id": "67671",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `TODO` comment on line 103 highlights that **rate limiting** is not yet implemented. In a push-based system where the source might send data too quickly, you can control the flow with operators.\n\nTo implement **rate limiting**, you could add an operator like `ops.throttle_first(1.0 / fps)` into the `pipe`. This would only allow the first frame within each time interval `(1.0 / fps)` to pass, effectively throttling the stream to the desired frame rate.",
+      "file": "dimos/stream/ros_video_provider.py",
+      "highlight": [
+        {
+          "start": 102,
+          "end": 105
+        }
+      ],
+      "title": "",
+      "id": "67672",
+      "hideAreas": []
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "title": "29.3: OpenAITokenizer: Implementation and Usage",
+  "id": "SGDpJMxWrGceK5zL+LWAt7ZMFB8rL+rBjFEOnW2BTjw=",
+  "originalId": 5514,
+  "position": 110,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "The `OpenAITokenizer` class in `dimos/agents/tokenizer/openai_tokenizer.py` is designed to align with OpenAI's tokenization standards by using the `tiktoken` library. This ensures that token counts and text encoding/decoding are handled consistently with the models served by the **OpenAI API**. Let's examine its key methods.",
+      "title": "",
+      "id": "68406"
+    },
+    {
+      "type": "highlight",
+      "description": "The constructor initializes the tokenizer for a specific OpenAI model, defaulting to `\"gpt-4o\"`. It uses `tiktoken.encoding_for_model` to fetch the correct encoding rules, ensuring compatibility. If the model name is not recognized, it raises a `ValueError`.",
+      "file": "dimos/agents/tokenizer/openai_tokenizer.py",
+      "highlight": [
+        {
+          "start": 21,
+          "end": 31
+        }
+      ],
+      "title": "",
+      "id": "68407",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `tokenize_text` method is a direct wrapper around the `tiktoken` encoder. It takes a string of text and calls `self.tokenizer.encode()`, which converts the text into a list of token integers based on the model's vocabulary.",
+      "file": "dimos/agents/tokenizer/openai_tokenizer.py",
+      "highlight": [
+        {
+          "start": 33,
+          "end": 37
+        }
+      ],
+      "title": "",
+      "id": "68408",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `detokenize_text` method converts a list of tokens back into a string. It uses `errors=\"ignore\"` to prevent failures if invalid token sequences are encountered, simply skipping them. A `try...except` block provides an additional layer of safety, catching any other exceptions during the decoding process and raising a `ValueError`.",
+      "file": "dimos/agents/tokenizer/openai_tokenizer.py",
+      "highlight": [
+        {
+          "start": 39,
+          "end": 46
+        }
+      ],
+      "title": "",
+      "id": "68409",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "To calculate the cost of a text prompt, the `token_count` method first tokenizes the input text by calling `tokenize_text` and then returns the length of the resulting token list. This is a common way to estimate API costs before sending a request.",
+      "file": "dimos/agents/tokenizer/openai_tokenizer.py",
+      "highlight": [
+        {
+          "start": 48,
+          "end": 52
+        }
+      ],
+      "title": "",
+      "id": "68410",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `image_token_count` method calculates the token cost for images based on their detail level. For \"low\" detail, the cost is a fixed 85 tokens. For \"high\" detail, the implementation follows the algorithm from OpenAI's documentation. The code first scales the image to fit within a 2048x2048 square, then resizes the shortest side to 768 pixels. With the final dimensions, it calculates how many 512x512 pixel tiles the image contains and applies the cost formula to get the final token count.",
+      "file": "dimos/agents/tokenizer/openai_tokenizer.py",
+      "highlight": [
+        {
+          "start": 55,
+          "end": 88
+        }
+      ],
+      "title": "",
+      "id": "68411",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Given an image of 3000x2000 pixels, what is the token count calculated by the `image_token_count` method for **\"high\"** detail, based on the provided implementation?\n\nOptions:\n\n A). 1445\n\nB). 425\n\nC). 1105\n\nD). 2635\n\n\nCorrect: B). 425\n\nExplanation: The correct token count is 425. The calculation follows these steps based on the code's logic:\n1. The image (3000x2000) is first scaled to fit within a 2048x2048 square, resulting in dimensions of 2048x1365.\n2. The shortest side (1365px) is then scaled to 768px, resizing the image to 1152x768.\n3. The code uses integer division (`//`) to calculate the number of 512x512 tiles: `(1152 // 512) * (768 // 512)` results in `2 * 1 = 2` squares.\n4. The final token count is `170 * 2 + 85 = 425`.\n\nOption `1105` is incorrect because it assumes `ceil` division (`math.ceil(width/512) * math.ceil(height/512)`), which is what OpenAI's documentation specifies but is not what the code implements. The other options result from skipping one or both scaling steps.",
+      "title": "",
+      "id": "68414",
+      "text": "Given an image of 3000x2000 pixels, what is the token count calculated by the `image_token_count` method for **\"high\"** detail, based on the provided implementation?",
+      "answers": [
+        "1445",
+        "425",
+        "1105",
+        "2635"
+      ],
+      "correct": 1,
+      "explanation": "The correct token count is 425. The calculation follows these steps based on the code's logic:\n1. The image (3000x2000) is first scaled to fit within a 2048x2048 square, resulting in dimensions of 2048x1365.\n2. The shortest side (1365px) is then scaled to 768px, resizing the image to 1152x768.\n3. The code uses integer division (`//`) to calculate the number of 512x512 tiles: `(1152 // 512) * (768 // 512)` results in `2 * 1 = 2` squares.\n4. The final token count is `170 * 2 + 85 = 425`.\n\nOption `1105` is incorrect because it assumes `ceil` division (`math.ceil(width/512) * math.ceil(height/512)`), which is what OpenAI's documentation specifies but is not what the code implements. The other options result from skipping one or both scaling steps."
+    },
+    {
+      "type": "highlight",
+      "description": "Within the `OpenAIAgent` class, `OpenAITokenizer` is set as the default tokenizer. In the constructor, if a `tokenizer` is not provided, it instantiates `OpenAITokenizer` with the specified `model_name`. This ensures that all token-related operations within the agent are handled correctly for the target OpenAI model.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 761,
+          "end": 765
+        }
+      ],
+      "title": "",
+      "id": "68412",
+      "hideAreas": []
+    }
+  ]
+}

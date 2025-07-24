@@ -1,0 +1,98 @@
+{
+  "title": "26.3: Global Planner: Planner Implementation",
+  "id": "5g7pmf7v3/2MeGKnWCbFFJnP6tfrSI1Cbuv7Je4ceKk=",
+  "originalId": 5507,
+  "position": 97,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour explains how the `AstarPlanner` class uses the **A*** algorithm for pathfinding. We will start with the `Planner` abstract base class, highlighting its inheritance from `Visualizable` and its abstract `plan` method. Then, we'll examine the `AstarPlanner` implementation, detailing its callback fields and the `conservativism` parameter. We will focus on the `plan` method, explaining how it prepares the costmap using `.smudge()`, generates a path with the `astar` function, and uses `self.vis()` for visualization. Finally, we'll see how the `set_goal` method coordinates the planning and execution of the path.",
+      "title": "",
+      "id": "68329"
+    },
+    {
+      "type": "highlight",
+      "description": "The **`Planner`** class serves as an **abstract base class** for all planners. It inherits from **`Visualizable`**, which provides the **`vis`** method for debugging and visualization. It defines an abstract **`plan`** method that **concrete subclasses** must implement to generate a path, and a **`set_goal`** method to coordinate the planning and execution of the path.",
+      "file": "dimos/robot/global_planner/planner.py",
+      "highlight": [
+        {
+          "start": 30,
+          "end": 46
+        }
+      ],
+      "title": "",
+      "id": "68330",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `AstarPlanner` is a concrete implementation of `Planner`. It requires three callbacks: `get_costmap` to fetch the environment's costmap, `get_robot_pos` for the robot's current position, and `set_local_nav` to send the final path to the robot's navigation system. It also includes a `conservativism` field, which adjusts how cautiously the planner generates paths, likely by influencing cost calculations near obstacles.",
+      "file": "dimos/robot/global_planner/planner.py",
+      "highlight": [
+        {
+          "start": 48,
+          "end": 54
+        }
+      ],
+      "title": "",
+      "id": "68331",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `plan` method implements the core A* logic. It starts by getting the robot's position and the environment's costmap. The costmap is processed using `.smudge()`, a method that inflates the size of obstacles. This creates a safety buffer, ensuring the robot's path stays a safe distance away from hazards. The method also makes calls to `self.vis()`, inherited from `Visualizable`, to visualize the costmap and target for monitoring.",
+      "file": "dimos/robot/global_planner/planner.py",
+      "highlight": [
+        {
+          "start": 55,
+          "end": 70
+        }
+      ],
+      "title": "",
+      "id": "68332",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "After preparing the data, the `plan` method calls the external `astar` function with the processed costmap, the goal, and the robot's starting position. If a path is found, it is resampled to a finer resolution (0.1m), visualized with another call to `self.vis(\"a*\", path)`, and then returned. If no path is found, a warning is logged.",
+      "file": "dimos/robot/global_planner/planner.py",
+      "highlight": [
+        {
+          "start": 62,
+          "end": 70
+        }
+      ],
+      "title": "",
+      "id": "68333",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the `set_goal` method in the base `Planner` class orchestrates the entire process. It calls the `plan` method (implemented in `AstarPlanner`) to generate the path. If a path is successfully created, it is passed to the `set_local_nav` callback, which commands the robot to follow it. This design neatly separates high-level goal management from the specific pathfinding implementation.",
+      "file": "dimos/robot/global_planner/planner.py",
+      "highlight": [
+        {
+          "start": 37,
+          "end": 46
+        }
+      ],
+      "title": "",
+      "id": "68334",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the code, what is the correct sequence of calls when `Planner.set_goal()` is invoked on an `AstarPlanner` instance to generate and execute a path?\n\nOptions:\n\n A). A. `AstarPlanner.plan()` calls `astar()`, and then `AstarPlanner.plan()` calls `self.set_local_nav()` to execute the path.\n\nB). B. `Planner.set_goal()` calls `AstarPlanner.plan()`, which returns a path. `Planner.set_goal()` then calls `self.set_local_nav()` with the returned path.\n\nC). C. `Planner.set_goal()` calls the `astar()` function directly and then passes the result to `self.set_local_nav()`.\n\n\nCorrect: B). B. `Planner.set_goal()` calls `AstarPlanner.plan()`, which returns a path. `Planner.set_goal()` then calls `self.set_local_nav()` with the returned path.\n\nExplanation: The correct sequence is driven by the `set_goal` method in the `Planner` base class. It first calls `self.plan()`, which, due to polymorphism, resolves to the implementation in `AstarPlanner`. The `plan` method's sole responsibility is to generate and return a path. Once `plan` returns, the control goes back to `set_goal`, which then passes the path to the `self.set_local_nav` callback. `AstarPlanner.plan` does not call `set_local_nav` itself; it only returns the path.",
+      "title": "",
+      "id": "68335",
+      "text": "Based on the code, what is the correct sequence of calls when `Planner.set_goal()` is invoked on an `AstarPlanner` instance to generate and execute a path?",
+      "answers": [
+        "A. `AstarPlanner.plan()` calls `astar()`, and then `AstarPlanner.plan()` calls `self.set_local_nav()` to execute the path.",
+        "B. `Planner.set_goal()` calls `AstarPlanner.plan()`, which returns a path. `Planner.set_goal()` then calls `self.set_local_nav()` with the returned path.",
+        "C. `Planner.set_goal()` calls the `astar()` function directly and then passes the result to `self.set_local_nav()`."
+      ],
+      "correct": 1,
+      "explanation": "The correct sequence is driven by the `set_goal` method in the `Planner` base class. It first calls `self.plan()`, which, due to polymorphism, resolves to the implementation in `AstarPlanner`. The `plan` method's sole responsibility is to generate and return a path. Once `plan` returns, the control goes back to `set_goal`, which then passes the path to the `self.set_local_nav` callback. `AstarPlanner.plan` does not call `set_local_nav` itself; it only returns the path."
+    }
+  ]
+}

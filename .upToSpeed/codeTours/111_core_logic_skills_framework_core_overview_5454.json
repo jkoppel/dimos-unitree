@@ -1,0 +1,157 @@
+{
+  "title": "11.1: Core Logic: Skills Framework Core: Overview",
+  "id": "2JUOBCK8YoUgaijhJYcwdxM3sW0Oeq6F86i7eL2jI0A=",
+  "originalId": 5454,
+  "position": 41,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to a tour of the `Dimos Skills Framework`'s core logic. This high-level overview will introduce the key classes—`AbstractSkill`, `AbstractRobotSkill`, and `SkillLibrary`—and explain how they work together to enable type-safe skill management.",
+      "title": "",
+      "id": "68706"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/skills/skills.py"
+      ],
+      "description": "This `file` defines the core components of the skills framework: the `base skill classes` and the `library` that orchestrates them.",
+      "title": "",
+      "id": "68707",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`AbstractSkill` is the foundational base class for all skills. By inheriting from `pydantic.BaseModel`, it gains typed fields, automatic data validation, JSON serialization, and JSON schema generation. Its `__init__` (lines 244–245) sets up `_instances` and `_list_of_skills`, which underpin lifecycle tracking and skill composition.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 239,
+          "end": 246
+        }
+      ],
+      "title": "",
+      "id": "68708",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "These lifecycle methods enable two-way coordination with `SkillLibrary`. `clone()` replicates a skill instance, while `register_as_running()`/`unregister_as_running()` inform the library when a skill starts or stops, allowing centralized tracking and safe termination of long-running tasks.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 248,
+          "end": 262
+        }
+      ],
+      "title": "",
+      "id": "68709",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`AbstractRobotSkill` extends `AbstractSkill` by injecting a `_robot` attribute. This separation decouples hardware interaction from core logic, enabling modular robot-specific skills that can be tested without real hardware or reused across different robot types.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 292,
+          "end": 301
+        }
+      ],
+      "title": "",
+      "id": "68710",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Its `__call__` method enforces a safety check: if no `_robot` is set, it raises a `RuntimeError` (lines 312–316). This guard prevents execution of hardware commands without a valid robot context.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 311,
+          "end": 319
+        }
+      ],
+      "title": "",
+      "id": "68711",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`SkillLibrary` is the central orchestrator. `__init__` initializes `registered_skills` (active instances), `class_skills` (discovered skill classes), and `_running_skills` (currently executing tasks). `init()` refreshes `class_skills` and populates `registered_skills` for immediate use.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 29,
+          "end": 38
+        }
+      ],
+      "title": "",
+      "id": "68712",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Core management API**: `add()` prevents duplicates, `get()` returns a safe copy, `remove()` handles missing entries with a warning, and `clear()` empties the library. These methods demonstrate defensive programming and maintain library integrity.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 76,
+          "end": 90
+        }
+      ],
+      "title": "",
+      "id": "68713",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`get_tools()` converts registered skills into **JSON-compatible tool definitions** via `pydantic_function_tool`. This integration enables external systems (like agents) to discover available skill functions programmatically.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 145,
+          "end": 152
+        }
+      ],
+      "title": "",
+      "id": "68714",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`call()` provides dynamic execution: it merges pre-stored args with runtime parameters (lines 121–124), locates the `skill class` by name (lines 126–134), instantiates it (line 137), and invokes `__call__()` (line 141). This **unified model** simplifies skill invocation across the framework.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 119,
+          "end": 141
+        }
+      ],
+      "title": "",
+      "id": "68715",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "In summary, `AbstractSkill` provides schema, validation, and lifecycle hooks; `AbstractRobotSkill` adds explicit hardware context with safety checks; and `SkillLibrary` manages discovery, registration, execution, and external integration. Together, they form a cohesive, extensible architecture for building and running skills in `Dimos`.",
+      "title": "",
+      "id": "68716"
+    },
+    {
+      "type": "mcq",
+      "description": "What is the primary architectural purpose of separating `AbstractRobotSkill` from `AbstractSkill` and managing them with a `SkillLibrary`?\n\nOptions:\n\n A). To optimize performance by pre-compiling robot-specific skills in `AbstractRobotSkill` while allowing generic skills in `AbstractSkill` to be interpreted at runtime by the `SkillLibrary`.\n\nB). To enforce a separation of concerns where `AbstractSkill` defines a universal, data-centric skill interface, `AbstractRobotSkill` adds a specific hardware dependency, and `SkillLibrary` provides a unified registry for discovery, execution, and external integration.\n\nC). To ensure all skills are stored in `SkillLibrary` primarily for JSON serialization, with `AbstractRobotSkill` acting as a stricter version of `AbstractSkill` for validation purposes only.\n\nD). To create a system where `SkillLibrary` inherits from `AbstractRobotSkill` to directly control all hardware interactions, making `AbstractSkill` a lightweight data container.\n\n\nCorrect: B). To enforce a separation of concerns where `AbstractSkill` defines a universal, data-centric skill interface, `AbstractRobotSkill` adds a specific hardware dependency, and `SkillLibrary` provides a unified registry for discovery, execution, and external integration.\n\nExplanation: The correct answer accurately describes the architectural pattern. `AbstractSkill` serves as a generic, data-driven base class using `pydantic`. `AbstractRobotSkill` extends it to introduce a specific dependency—the robot context—thus separating hardware-agnostic logic from hardware-specific logic. `SkillLibrary` acts as an orchestrator using composition, managing the lifecycle, discovery (via `get_tools`), and dynamic execution (`call`) of all registered skills, providing a clean, unified interface to the rest of the system. The other options are incorrect because the framework uses dynamic instantiation, not pre-compilation; the library's primary role is orchestration, not just storage/serialization; and the library contains skills (composition) rather than inheriting from them.",
+      "title": "",
+      "id": "68717",
+      "text": "What is the primary architectural purpose of separating `AbstractRobotSkill` from `AbstractSkill` and managing them with a `SkillLibrary`?",
+      "answers": [
+        "To optimize performance by pre-compiling robot-specific skills in `AbstractRobotSkill` while allowing generic skills in `AbstractSkill` to be interpreted at runtime by the `SkillLibrary`.",
+        "To enforce a separation of concerns where `AbstractSkill` defines a universal, data-centric skill interface, `AbstractRobotSkill` adds a specific hardware dependency, and `SkillLibrary` provides a unified registry for discovery, execution, and external integration.",
+        "To ensure all skills are stored in `SkillLibrary` primarily for JSON serialization, with `AbstractRobotSkill` acting as a stricter version of `AbstractSkill` for validation purposes only.",
+        "To create a system where `SkillLibrary` inherits from `AbstractRobotSkill` to directly control all hardware interactions, making `AbstractSkill` a lightweight data container."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer accurately describes the architectural pattern. `AbstractSkill` serves as a generic, data-driven base class using `pydantic`. `AbstractRobotSkill` extends it to introduce a specific dependency—the robot context—thus separating hardware-agnostic logic from hardware-specific logic. `SkillLibrary` acts as an orchestrator using composition, managing the lifecycle, discovery (via `get_tools`), and dynamic execution (`call`) of all registered skills, providing a clean, unified interface to the rest of the system. The other options are incorrect because the framework uses dynamic instantiation, not pre-compilation; the library's primary role is orchestration, not just storage/serialization; and the library contains skills (composition) rather than inheriting from them."
+    }
+  ]
+}

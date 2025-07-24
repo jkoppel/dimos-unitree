@@ -1,0 +1,90 @@
+{
+  "title": "28.1: Unitree Go2: ROS Control Setup",
+  "id": "RZohuqYw0CIH7/w0/HC+hpdZfJ3c+jtoFuukS6+qkSQ=",
+  "originalId": 5509,
+  "position": 102,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This guide provides a tour of the `dimos/robot/unitree/README.md` file, focusing on the prerequisites for setting up the **Unitree Go2 robot**.",
+      "title": "",
+      "id": "68282"
+    },
+    {
+      "type": "highlight",
+      "description": "The setup process begins with the installation of an external ROS2 SDK. The `README.md` file points to a specific GitHub repository for the `unitree_ros2_ws`, which contains the necessary ROS2 packages to interface with the Go2 robot. This is a fundamental dependency for all subsequent steps.",
+      "file": "dimos/robot/unitree/README.md",
+      "highlight": [
+        {
+          "start": 1,
+          "end": 4
+        }
+      ],
+      "title": "",
+      "id": "68283",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "After installing the **SDK**, you must configure the environment. This involves two critical sourcing commands. The first command configures the shell with the paths required to find and use the Unitree ROS2 packages. The second adds the **DimOS** project directory to the Python path, allowing **DimOS** scripts to be recognized as importable Python modules.",
+      "file": "dimos/robot/unitree/README.md",
+      "highlight": [
+        {
+          "start": 7,
+          "end": 11
+        }
+      ],
+      "title": "",
+      "id": "68284",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "With the environment set up, the next step is to launch the robot's **ROS2** interface nodes. The command `ros2 launch go2_robot_sdk \u001brobot.launch.py\u001b` starts the necessary **ROS2** nodes that provide the low-level control interface for the Unitree Go2. These nodes handle communication with the robot's hardware.",
+      "file": "dimos/robot/unitree/README.md",
+      "highlight": [
+        {
+          "start": 13,
+          "end": 17
+        }
+      ],
+      "title": "",
+      "id": "68285",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Once the **ROS2** nodes are running, the **DimOS** agent can be started. The command `python3 dimos/robot/unitree/run_go2_ros.py` executes a Python script that connects the **DimOS** application to the robot's **ROS2** interface. This allows **DimOS** to send commands to and receive data from the robot.",
+      "file": "dimos/robot/unitree/README.md",
+      "highlight": [
+        {
+          "start": 19,
+          "end": 23
+        }
+      ],
+      "title": "",
+      "id": "68286",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "In summary, the setup process follows a strict sequence: first, install the external `Unitree ROS2 SDK`. Second, source both the `ROS2 workspace` and the `DimOS Python path`. Third, launch the `ROS2 nodes` to interface with the robot. Finally, start the `DimOS agent` to connect to the running ROS2 system. Each step is a prerequisite for the next, ensuring that all components are correctly configured and running in the proper order.",
+      "title": "",
+      "id": "68287"
+    },
+    {
+      "type": "mcq",
+      "description": "After installing the SDK, which command sequence correctly configures the environment and starts the robot interface and agent?\n\nOptions:\n\n A). `source setup.bash` -> `export PYTHONPATH` -> `python3 run_go2_ros.py` -> `ros2 launch robot.launch.py`\n\nB). `source setup.bash` -> `export PYTHONPATH` -> `ros2 launch robot.launch.py` -> `python3 run_go2_ros.py`\n\nC). `ros2 launch robot.launch.py` -> `source setup.bash` -> `export PYTHONPATH` -> `python3 run_go2_ros.py`\n\n\nCorrect: B). `source setup.bash` -> `export PYTHONPATH` -> `ros2 launch robot.launch.py` -> `python3 run_go2_ros.py`\n\nExplanation: The correct sequence is essential for proper operation. First, the environment must be configured by sourcing the ROS2 workspace (`setup.bash`) and setting the `PYTHONPATH`. This makes the necessary commands and modules available. Second, the robot's ROS2 interface (`ros2 launch`) must be started. Finally, the DimOS agent (`python3 run_go2_ros.py`) can be run, as it depends on both the configured environment and the active ROS2 nodes to establish a connection.",
+      "title": "",
+      "id": "68288",
+      "text": "After installing the SDK, which command sequence correctly configures the environment and starts the robot interface and agent?",
+      "answers": [
+        "`source setup.bash` -> `export PYTHONPATH` -> `python3 run_go2_ros.py` -> `ros2 launch robot.launch.py`",
+        "`source setup.bash` -> `export PYTHONPATH` -> `ros2 launch robot.launch.py` -> `python3 run_go2_ros.py`",
+        "`ros2 launch robot.launch.py` -> `source setup.bash` -> `export PYTHONPATH` -> `python3 run_go2_ros.py`"
+      ],
+      "correct": 1,
+      "explanation": "The correct sequence is essential for proper operation. First, the environment must be configured by sourcing the ROS2 workspace (`setup.bash`) and setting the `PYTHONPATH`. This makes the necessary commands and modules available. Second, the robot's ROS2 interface (`ros2 launch`) must be started. Finally, the DimOS agent (`python3 run_go2_ros.py`) can be run, as it depends on both the configured environment and the active ROS2 nodes to establish a connection."
+    }
+  ]
+}

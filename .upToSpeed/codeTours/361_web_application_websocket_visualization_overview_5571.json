@@ -1,0 +1,264 @@
+{
+  "title": "36.1: Web Application: Websocket Visualization: Overview",
+  "id": "LkfExOmeF4YPghn5q+azPD3mzHL6w34bpkSaHTl5sPg=",
+  "originalId": 5571,
+  "position": 136,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "`DimOS WebsocketVis`: **Reactive Robot Visualization Pipeline** —\n\nThis component bridges live robot data in Python to browser-based visualizers using a reactive pipeline.",
+      "title": "",
+      "id": "69398"
+    },
+    {
+      "type": "textOnly",
+      "description": "Robot \u0002192; `RxPY Observable` \u0002192; `WebsocketVis Server` \u0002192; `Browser` (`Socket.IO`) \u0002192; Visualizer\n\nThis architecture solves real-time monitoring by taking robot-generated vectors, paths, and costmaps in `Python`, streaming them over websockets, and rendering them in the browser.",
+      "title": "",
+      "id": "69399"
+    },
+    {
+      "type": "highlight",
+      "description": "**Vector** represents robot positions and targets in navigation algorithms. Flexible initialization supports coordinate tuples, `numpy arrays`, or `ROS messages`.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 28,
+          "end": 32
+        }
+      ],
+      "title": "",
+      "id": "69400",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`Path` models robot trajectories as sequences of points—critical for visualizing planned and historic robot movement.",
+      "file": "dimos/types/path.py",
+      "highlight": [
+        {
+          "start": 22,
+          "end": 26
+        }
+      ],
+      "title": "",
+      "id": "69401",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`Costmap` encapsulates a 2D occupancy grid with resolution and origin, visualizing obstacles and free space for navigation planning.",
+      "file": "dimos/types/costmap.py",
+      "highlight": [
+        {
+          "start": 46,
+          "end": 50
+        }
+      ],
+      "title": "",
+      "id": "69402",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`Drawable` union combines `Vector`, `Path`, `Costmap` and optional draw configurations, enabling styled or default rendering.",
+      "file": "dimos/web/websocket_vis/types.py",
+      "highlight": [
+        {
+          "start": 27,
+          "end": 34
+        }
+      ],
+      "title": "",
+      "id": "69403",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`server.py` declares `WebsocketVis`, which starts an ASGI Socket.IO server, serves static client files, and holds shared visualization state.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 93,
+          "end": 101
+        }
+      ],
+      "title": "",
+      "id": "69404",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`connect()` subscribes to an `RxPY` Observable of `(name, drawable)` tuples and broadcasts serialized drawables over `Socket.IO` for live browser updates.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 149,
+          "end": 156
+        }
+      ],
+      "title": "",
+      "id": "69405",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`helpers.py` defines `vector_stream`, which creates a reactive stream of positions that emits only on significant movement and maintains a history.",
+      "file": "dimos/web/websocket_vis/helpers.py",
+      "highlight": [
+        {
+          "start": 32,
+          "end": 39
+        }
+      ],
+      "title": "",
+      "id": "69406",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the context of the reactive data pipeline, what is the primary function of the `WebsocketVis.connect()` method shown in `server.py`?\n\nOptions:\n\n A). It receives JSON data from the browser, decodes it into Python objects, and forwards it to the robot.\n\nB). It subscribes to a Python-side `Observable` stream and forwards the data to browser clients over a websocket.\n\nC). It initiates the build process for the client-side TypeScript code before starting the server.\n\n\nCorrect: B). It subscribes to a Python-side `Observable` stream and forwards the data to browser clients over a websocket.\n\nExplanation: The correct answer is that `connect()` subscribes to an `Observable` and broadcasts data. The method's purpose is to link the Python data source (the observable stream) to the browser clients. Receiving data from the browser would be a different function, and the build process is handled separately by `build.ts`.",
+      "title": "",
+      "id": "69417",
+      "text": "In the context of the reactive data pipeline, what is the primary function of the `WebsocketVis.connect()` method shown in `server.py`?",
+      "answers": [
+        "It receives JSON data from the browser, decodes it into Python objects, and forwards it to the robot.",
+        "It subscribes to a Python-side `Observable` stream and forwards the data to browser clients over a websocket.",
+        "It initiates the build process for the client-side TypeScript code before starting the server."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that `connect()` subscribes to an `Observable` and broadcasts data. The method's purpose is to link the Python data source (the observable stream) to the browser clients. Receiving data from the browser would be a different function, and the build process is handled separately by `build.ts`."
+    },
+    {
+      "type": "highlight",
+      "description": "**`clientside/init.ts`** initializes **Socket.IO**, updates local `serverState` on `state_update` events, decodes `drawables`, and triggers UI rerenders.",
+      "file": "dimos/web/websocket_vis/clientside/init.ts",
+      "highlight": [
+        {
+          "start": 18,
+          "end": 22
+        }
+      ],
+      "title": "",
+      "id": "69407",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`clientside/types.ts` mirrors Python types in TypeScript, defining `Vector`, `Path`, `Costmap`, and `Grid` with static `decode` methods.",
+      "file": "dimos/web/websocket_vis/clientside/types.ts",
+      "highlight": [
+        {
+          "start": 5,
+          "end": 13
+        }
+      ],
+      "title": "",
+      "id": "69408",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**clientside/decoder.ts** dispatches JSON payloads to the correct `.decode()` method based on the `type` field, reconstructing drawables.",
+      "file": "dimos/web/websocket_vis/clientside/decoder.ts",
+      "highlight": [
+        {
+          "start": 3,
+          "end": 10
+        }
+      ],
+      "title": "",
+      "id": "69409",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`clientside/vis.ts` implements a **D3.js**-based 2D visualizer that renders costmaps on a Canvas embedded in SVG for efficient large-grid rendering.",
+      "file": "dimos/web/websocket_vis/clientside/vis.ts",
+      "highlight": [
+        {
+          "start": 12,
+          "end": 18
+        }
+      ],
+      "title": "",
+      "id": "69410",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**`clientside/vis2.tsx`** builds `worldToPx`/`pxToWorld` D3 scales to map world meters ↔ screen pixels, including Y-axis inversion, for accurate 2D rendering and click handling.",
+      "file": "dimos/web/websocket_vis/clientside/vis2.tsx",
+      "highlight": [
+        {
+          "start": 61,
+          "end": 69
+        }
+      ],
+      "title": "",
+      "id": "69411",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`clientside/vis3.tsx` uses `React Three Fiber` to render costmaps as 3D terrain, where obstacle costs translate to elevation for intuitive spatial understanding.",
+      "file": "dimos/web/websocket_vis/clientside/vis3.tsx",
+      "highlight": [
+        {
+          "start": 1,
+          "end": 4
+        }
+      ],
+      "title": "",
+      "id": "69412",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`build.ts` configures `esbuild` with Deno plugins to bundle client-side TypeScript and React into `static/js/clientside.js`, with optional watch mode.",
+      "file": "dimos/web/websocket_vis/build.ts",
+      "highlight": [
+        {
+          "start": 8,
+          "end": 16
+        }
+      ],
+      "title": "",
+      "id": "69413",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**`main.ts`** exports a trivial `add(a, b)` function and logs its result when run, serving as a `Deno` module example unrelated to visualization.",
+      "file": "dimos/web/websocket_vis/main.ts",
+      "highlight": [
+        {
+          "start": 1,
+          "end": 3
+        }
+      ],
+      "title": "",
+      "id": "69414",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`main_test.ts` defines a Deno test to verify `add(2, 3) === 5`, illustrating the test harness but not part of the visualization pipeline.",
+      "file": "dimos/web/websocket_vis/main_test.ts",
+      "highlight": [
+        {
+          "start": 1,
+          "end": 4
+        }
+      ],
+      "title": "",
+      "id": "69415",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "**Integration Summary**\n\nRobot code creates **Vectors**, **Paths**, and **Costmaps** → emits them via `RxPY` → `WebsocketVis.connect` serializes and broadcasts via `Socket.IO` → `Browser` decodes and renders in 2D/3D, enabling interactive real-time robot visualization.",
+      "title": "",
+      "id": "69416"
+    }
+  ]
+}

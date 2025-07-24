@@ -1,0 +1,187 @@
+{
+  "title": "1.1: DimOS: A High-Level Tour",
+  "id": "VKjdQEg+430HkM5lCbdhgN+xNNKWe0k64y0RUaRmZRA=",
+  "originalId": 5417,
+  "position": 1,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to DimOS: An Overview!\n\nThis tour provides a comprehensive walkthrough of the DimOS codebase, a framework for building AI-native generalist robotics applications. We'll explore not just **WHAT** the components are, but **HOW** they work together in practice.\n\nOur goal is to understand the complete data flow: from user input through AI reasoning to robot execution and back.",
+      "title": "",
+      "id": "67427"
+    },
+    {
+      "type": "textOnly",
+      "description": "`DimOS` is built on three fundamental abstractions working in harmony:\n\n1. **Agents**: The `brains` - LLMs that reason, plan, and make decisions\n2. **Robot**: The `body` - hardware abstraction providing unified control\n3. **Skills**: The `actions` - capabilities that bridge AI reasoning to robot execution\n\nLet's see **HOW** these components create intelligent robot behavior through reactive data streams.",
+      "title": "",
+      "id": "67428"
+    },
+    {
+      "type": "highlight",
+      "description": "The `OpenAIAgent` is a concrete implementation showing **HOW** agents work in practice. Notice the initialization parameters on lines `668-692` - these show **HOW** an agent connects to input streams, skills, and memory systems.\n\nThe key insight: agents aren't just language models, they're reactive systems that process continuous streams of data and emit responses that trigger robot actions.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 660,
+          "end": 692
+        }
+      ],
+      "title": "",
+      "id": "67429",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's HOW an agent actually processes queries. The `_send_query` method on lines `802-849` shows the complete workflow:\n\n1. Construct messages for the LLM (line `821-835`)\n2. Handle tool/skill calling if available\n3. Parse and return structured responses\n\nThis is where the **\"intelligence\"** happens - the agent decides WHAT skills to use based on the query and available capabilities.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 802,
+          "end": 849
+        }
+      ],
+      "title": "",
+      "id": "67430",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The Robot abstraction provides the **\"nervous system\"** connecting AI decisions to hardware. The `get_ros_video_stream` method shows **HOW** robots create reactive data pipelines.\n\nNotice lines 168-172: the video stream is processed through thread-safe observables, enabling real-time perception that feeds back to the agent's decision-making loop.",
+      "file": "dimos/robot/robot.py",
+      "highlight": [
+        {
+          "start": 146,
+          "end": 174
+        }
+      ],
+      "title": "",
+      "id": "67431",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's HOW robot control actually works. The `move_vel` method shows the bridge between high-level AI commands and low-level robot control.\n\nWhen an agent decides `move forward`, this method translates that intention into specific velocity commands (`x`, `y`, `yaw`) that the robot hardware can execute. This is the \"body\" responding to the \"brain.\"",
+      "file": "dimos/robot/robot.py",
+      "highlight": [
+        {
+          "start": 260,
+          "end": 277
+        }
+      ],
+      "title": "",
+      "id": "67432",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This is **HOW** skills actually get executed. The `call` method shows the complete skill execution workflow:\n\n1. Retrieve stored skill parameters (`line 121`)\n2. Find the appropriate skill class (`lines 127-134`)\n3. Create an instance with merged arguments (`line 137`)\n4. Execute the skill (`line 141`)\n\nThis **dynamic dispatch** allows **agents** to discover and use capabilities at runtime.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 119,
+          "end": 141
+        }
+      ],
+      "title": "",
+      "id": "67433",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's a concrete skill in action! This `Move` skill shows **HOW** the agent-to-robot connection actually works in practice.\n\nNotice the workflow: the skill receives parameters from the agent (`line 323`), validates the robot connection (`lines 324-325`), then calls the robot's movement method (`line 328`). This is the \"action\" component completing the thought-to-action pipeline.",
+      "file": "README.md",
+      "highlight": [
+        {
+          "start": 322,
+          "end": 342
+        }
+      ],
+      "title": "",
+      "id": "67434",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Now let's see the complete system in action! This example shows **HOW** reactive streams enable agent chaining:\n\n1. Web interface captures user input (line 282)\n2. `PlanningAgent` creates a multi-step plan\n3. Plan flows through `get_response_observable()` (line 290) \n4. `ExecutionAgent` receives and executes each step\n\nThis is **HOW** complex behaviors emerge from simple, composable components.",
+      "file": "README.md",
+      "highlight": [
+        {
+          "start": 273,
+          "end": 297
+        }
+      ],
+      "title": "",
+      "id": "67435",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the code snippet in Step 9, how is the output from the `PlanningAgent` transmitted to the `ExecutionAgent`?\n\nOptions:\n\n A). The `planner` writes its plan to a shared memory component, which the `executor` periodically polls for new tasks.\n\nB). The `planner`'s response observable (`get_response_observable()`) is directly passed as the `executor`'s `input_query_stream`.\n\nC). The `web_interface` acts as a message broker, receiving the plan from the `planner` and forwarding it to the `executor`.\n\nD). The `planner` directly calls an `execute` method on the `executor` instance, passing the plan as a list of strings.\n\n\nCorrect: B). The `planner`'s response observable (`get_response_observable()`) is directly passed as the `executor`'s `input_query_stream`.\n\nExplanation: The correct answer reflects the reactive design pattern shown in the code. The `planner.get_response_observable()` method returns an RxPY stream that is passed directly to the `executor`'s `input_query_stream` during initialization. This creates a direct, reactive data pipeline between the two agents. The other options describe alternative but incorrect architectural patterns; the system does not use polling, a web-based message broker, or direct method calls for this specific interaction.",
+      "title": "",
+      "id": "67449",
+      "text": "Based on the code snippet in Step 9, how is the output from the `PlanningAgent` transmitted to the `ExecutionAgent`?",
+      "answers": [
+        "The `planner` writes its plan to a shared memory component, which the `executor` periodically polls for new tasks.",
+        "The `planner`'s response observable (`get_response_observable()`) is directly passed as the `executor`'s `input_query_stream`.",
+        "The `web_interface` acts as a message broker, receiving the plan from the `planner` and forwarding it to the `executor`.",
+        "The `planner` directly calls an `execute` method on the `executor` instance, passing the plan as a list of strings."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer reflects the reactive design pattern shown in the code. The `planner.get_response_observable()` method returns an RxPY stream that is passed directly to the `executor`'s `input_query_stream` during initialization. This creates a direct, reactive data pipeline between the two agents. The other options describe alternative but incorrect architectural patterns; the system does not use polling, a web-based message broker, or direct method calls for this specific interaction."
+    },
+    {
+      "type": "highlight",
+      "description": "Here's HOW the **reactive processing** actually works under the hood. This method shows the complete video processing pipeline:\n\n1. Encode incoming video frames (line 495)\n2. Create observables for async processing (lines 501-506)\n3. Handle backpressure with the `is_processing` flag (lines 511-530)\n\nThis **reactive architecture** enables real-time robot perception and response.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 445,
+          "end": 508
+        }
+      ],
+      "title": "",
+      "id": "67436",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**This is HOW robots build spatial understanding!** The `process_combined_data` function shows the **complete perception workflow**:\n\n1. **Extract frame and position data** (lines 281-284)\n2. **Apply filtering logic for relevant frames** (lines 290-296)\n3. **Generate embeddings for semantic search** (line 300)\n4. **Store in vector database with metadata** (lines 316-321)\n\n**This enables agents to ask** \"What did you see near the kitchen?\" **and get meaningful answers.**",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 278,
+          "end": 337
+        }
+      ],
+      "title": "",
+      "id": "67437",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's the payoff - **HOW agents can query spatial memory semantically**. The `query_by_text` method enables natural language spatial queries.\n\nAn agent can ask \"where is the kitchen\" and this method uses `CLIP` embeddings to find visually similar scenes. This transforms raw sensor data into actionable spatial intelligence that guides robot behavior.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 358,
+          "end": 373
+        }
+      ],
+      "title": "",
+      "id": "67438",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Let's trace a complete user interaction:\n\n1. **User**: `\"Go to the kitchen and pick up the red cup\"`\n2. **Web Interface**: Captures query and streams to PlanningAgent\n3. **Planning Agent**: Reasons about the task, creates plan: `[\"navigate to kitchen\", \"locate red cup\", \"pick up cup\"]`\n4. **Execution Agent**: Receives first step, queries spatial memory for kitchen location\n5. **Skills**: Navigate skill executes movement commands to robot hardware\n6. **Perception**: Continuously updates spatial memory as robot moves\n\nThis is **HOW** intelligence emerges from the interaction of all components!",
+      "title": "",
+      "id": "67439"
+    },
+    {
+      "type": "textOnly",
+      "description": "This tour has shown you **HOW** DimOS creates intelligent robot behavior:\n\n* **Reactive Architecture**: `RxPY` streams enable real-time data flow\n* **Agent Intelligence**: **LLMs** reason about goals and select appropriate actions\n* **Spatial Understanding**: **Vector databases** enable semantic environmental queries\n* **Skill Execution**: **Dynamic dispatch** bridges AI decisions to robot control\n* **Continuous Learning**: **Spatial memory** grows with every interaction\n\nYou now understand not just the architecture, but **HOW** it creates emergent intelligent behavior. Ready to dive deeper into any specific component?",
+      "title": "",
+      "id": "67440"
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "title": "36.11: Web Application: Websocket Visualization: Build & Testing",
+  "id": "kSCQYLKwtfj4QIMWcltx5a4uE5bnSt1y5w1I3nQB9wI=",
+  "originalId": 5537,
+  "position": 146,
+  "steps": [
+    {
+      "type": "highlight",
+      "description": "The build options for the frontend assets are defined in `dimos/web/websocket_vis/build.ts` using ESBuild. The configuration specifies the entry point, output file, and enables bundling. It also defines loaders for `.tsx` and `.ts` files and includes the `denoPlugins` to integrate with the Deno ecosystem.",
+      "file": "dimos/web/websocket_vis/build.ts",
+      "highlight": [
+        {
+          "start": 8,
+          "end": 15
+        }
+      ],
+      "title": "",
+      "id": "68765",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `build.ts` script includes a **watch mode**, which you can activate by passing the `--watch` flag. When active, it uses `Deno.watchFs` to monitor the `clientside` directory for any file changes and automatically triggers a rebuild.",
+      "file": "dimos/web/websocket_vis/build.ts",
+      "highlight": [
+        {
+          "start": 46,
+          "end": 62
+        }
+      ],
+      "title": "",
+      "id": "68766",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This `main.ts` file showcases a simple TypeScript module. It exports an `add` function for use in other modules. The conditional block at the end demonstrates how to create an executable section that runs only when the script is the main module, a concept similar to Python's main execution block.",
+      "file": "dimos/web/websocket_vis/main.ts",
+      "highlight": [
+        {
+          "start": 1,
+          "end": 8
+        }
+      ],
+      "title": "",
+      "id": "68767",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The accompanying test file, `main_test.ts`, illustrates how to test Deno modules. It imports the `assertEquals` function from the standard library and the `add` function from `main.ts`. A test case is then defined using `Deno.test` to verify the correctness of the `add` function.",
+      "file": "dimos/web/websocket_vis/main_test.ts",
+      "highlight": [
+        {
+          "start": 1,
+          "end": 6
+        }
+      ],
+      "title": "",
+      "id": "68768",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the `server.py` file at `dimos/web/websocket_vis/server.py` is responsible for serving the web interface. It uses a `Starlette` application to mount a directory for static files at the root URL. This configuration ensures that the bundled JavaScript file, `clientside.js`, is accessible to the browser.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 32,
+          "end": 34
+        }
+      ],
+      "title": "",
+      "id": "68769",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Considering the build and server configurations, how does the frontend application code get delivered to the browser?\n\nOptions:\n\n A). ESBuild's development server serves the `clientside.js` file directly.\n\nB). The Starlette application in `server.py` serves the `static` directory containing the `clientside.js` bundle.\n\nC). The Deno runtime hosts the bundled file when `build.ts` is executed with the `--watch` flag.\n\n\nCorrect: B). The Starlette application in `server.py` serves the `static` directory containing the `clientside.js` bundle.\n\nExplanation: The process involves two distinct steps. First, `build.ts` defines an `outfile` (line 15) that places the bundled JavaScript into the `static/js/` directory. Second, `server.py` (line 33) configures a Starlette application to serve the contents of the `static` directory. The build script only handles asset creation; it does not serve files.",
+      "title": "",
+      "id": "68771",
+      "text": "Considering the build and server configurations, how does the frontend application code get delivered to the browser?",
+      "answers": [
+        "ESBuild's development server serves the `clientside.js` file directly.",
+        "The Starlette application in `server.py` serves the `static` directory containing the `clientside.js` bundle.",
+        "The Deno runtime hosts the bundled file when `build.ts` is executed with the `--watch` flag."
+      ],
+      "correct": 1,
+      "explanation": "The process involves two distinct steps. First, `build.ts` defines an `outfile` (line 15) that places the bundled JavaScript into the `static/js/` directory. Second, `server.py` (line 33) configures a Starlette application to serve the contents of the `static` directory. The build script only handles asset creation; it does not serve files."
+    }
+  ]
+}

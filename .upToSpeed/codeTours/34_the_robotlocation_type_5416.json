@@ -1,0 +1,104 @@
+{
+  "title": "3.4: The `RobotLocation` Type",
+  "id": "YaPkr/J8mn7YcnlnF3tHXpvKNlH8FRaJrZ4DDLdylEQ=",
+  "originalId": 5416,
+  "position": 7,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour covers the `RobotLocation` **data class**, which is used to represent and manage named spatial locations in the robot's memory system. This class enables robots to remember specific places and navigate back to them later.",
+      "title": "",
+      "id": "67363"
+    },
+    {
+      "type": "highlight",
+      "description": "The class relies on several Python standard library imports. The `dataclasses` module provides the `@dataclass` decorator and `field` function for advanced attribute configuration. The `time` and `uuid` modules generate timestamps and unique identifiers automatically.",
+      "file": "dimos/types/robot_location.py",
+      "highlight": [
+        {
+          "start": 19,
+          "end": 23
+        }
+      ],
+      "title": "",
+      "id": "67364",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `@dataclass` decorator automatically generates `__init__`, `__repr__`, and other methods. Each attribute serves a specific purpose:\n\n- `name`: Human-readable identifier like \"kitchen\" or \"charging station\"\n- `position` and `rotation`: Store 3D spatial data as tuples\n- `frame_id`: Links to associated video frames for visual context\n- `timestamp`: Uses `field(default_factory=time.time)` to set creation time automatically\n- `location_id`: Generates unique IDs like \"loc_a1b2c3d4\" using a **lambda function**\n- `metadata`: Stores additional custom data\n\nThe `field()` function with `default_factory` ensures each instance gets fresh values rather than sharing mutable objects.",
+      "file": "dimos/types/robot_location.py",
+      "highlight": [
+        {
+          "start": 24,
+          "end": 47
+        }
+      ],
+      "title": "",
+      "id": "67365",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__post_init__` method runs after object creation to ensure data consistency. It normalizes position and rotation data to always be 3-element tuples. For example, a 2D position `(1.0, 2.0)` becomes `(1.0, 2.0, 0.0)`, and a single yaw angle `(1.57,)` becomes `(0.0, 0.0, 1.57)`. This flexibility makes the class easy to use while maintaining internal consistency.",
+      "file": "dimos/types/robot_location.py",
+      "highlight": [
+        {
+          "start": 49,
+          "end": 61
+        }
+      ],
+      "title": "",
+      "id": "67366",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `to_vector_metadata` method prepares location data for storage in a vector database, which enables semantic search over spatial locations. The method flattens the 3D tuples into individual scalar fields (`pos_x`, `pos_y`, `pos_z`, etc.) because vector databases work better with flat key-value structures. Notice how `description` duplicates the `name` field - this makes locations searchable by text queries like \"find the kitchen location\".",
+      "file": "dimos/types/robot_location.py",
+      "highlight": [
+        {
+          "start": 63,
+          "end": 82
+        }
+      ],
+      "title": "",
+      "id": "67367",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `from_vector_metadata` class method reconstructs a `RobotLocation` from database storage. It handles missing data gracefully with defaults (0.0 for coordinates, current time for timestamp). Lines 110-113 show a key feature: any extra metadata fields not part of the core location structure are preserved in the `metadata` dictionary, making this class extensible for custom use cases.",
+      "file": "dimos/types/robot_location.py",
+      "highlight": [
+        {
+          "start": 84,
+          "end": 114
+        }
+      ],
+      "title": "",
+      "id": "67368",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "When `from_vector_metadata` is called with a dictionary containing an extra field, such as `\"source\": \"manual_entry\"`, that is not part of the standard `RobotLocation` attributes, how does the method handle this field?\n\nOptions:\n\n A). The extra field and its value are stored in the `metadata` dictionary of the new `RobotLocation` object.\n\nB). A `KeyError` is raised because the field is not a recognized attribute.\n\nC). The method discards the extra field to ensure strict data integrity.\n\n\nCorrect: A). The extra field and its value are stored in the `metadata` dictionary of the new `RobotLocation` object.\n\nExplanation: The correct answer is that the field is stored in the `metadata` dictionary. The dictionary comprehension on lines 110-113 is specifically designed to collect any keys from the input dictionary that are not standard `RobotLocation` fields. This makes the class extensible, allowing it to preserve custom data during the deserialization process without raising errors or losing information.",
+      "title": "",
+      "id": "67370",
+      "text": "When `from_vector_metadata` is called with a dictionary containing an extra field, such as `\"source\": \"manual_entry\"`, that is not part of the standard `RobotLocation` attributes, how does the method handle this field?",
+      "answers": [
+        "The extra field and its value are stored in the `metadata` dictionary of the new `RobotLocation` object.",
+        "A `KeyError` is raised because the field is not a recognized attribute.",
+        "The method discards the extra field to ensure strict data integrity."
+      ],
+      "correct": 0,
+      "explanation": "The correct answer is that the field is stored in the `metadata` dictionary. The dictionary comprehension on lines 110-113 is specifically designed to collect any keys from the input dictionary that are not standard `RobotLocation` fields. This makes the class extensible, allowing it to preserve custom data during the deserialization process without raising errors or losing information."
+    },
+    {
+      "type": "textOnly",
+      "description": "Together, these methods enable a complete round-trip: `RobotLocation` → **vector database** → `RobotLocation`. This allows the robot to store named locations in a searchable database and retrieve them later for navigation tasks. For example, a robot could save `\"kitchen\"` with coordinates and later search for locations near the kitchen or navigate directly to it by name.",
+      "title": "",
+      "id": "67369"
+    }
+  ]
+}

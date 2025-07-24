@@ -1,0 +1,134 @@
+{
+  "title": "9.5: Text-to-Speech (TTS) Nodes",
+  "id": "pBIzBkeCrb+NmIE5weXi5FcXTIxTKLMNdJsU9cEW5iI=",
+  "originalId": 5521,
+  "position": 33,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to the **Text-to-Speech** system walkthrough. We'll explore how this system converts text into audible speech using two different **TTS engines**: a local offline solution and a cloud-based `OpenAI` solution.",
+      "title": "",
+      "id": "68515"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/stream/audio/tts/node_pytts.py"
+      ],
+      "description": "Let's start with `PyTTSNode`, which provides local, offline text-to-speech using the `pyttsx3` library. This is useful for development and situations without internet connectivity.",
+      "title": "",
+      "id": "68516",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "In the initialization method, the node creates and configures a `pyttsx3` engine. **Lines 28-30** initialize the engine and set properties for speech rate and volume, providing the foundation for local text-to-speech conversion.",
+      "file": "dimos/stream/audio/tts/node_pytts.py",
+      "highlight": [
+        {
+          "start": 20,
+          "end": 33
+        }
+      ],
+      "title": "",
+      "id": "68517",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `process_text` method handles the actual text-to-speech conversion. Line 74 uses `engine.say()` to queue the text for speaking, and line 75 calls `engine.runAndWait()` to block execution until speech completes. The text is then passed through to downstream components.",
+      "file": "dimos/stream/audio/tts/node_pytts.py",
+      "highlight": [
+        {
+          "start": 65,
+          "end": 78
+        }
+      ],
+      "title": "",
+      "id": "68518",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/stream/audio/tts/node_openai.py"
+      ],
+      "description": "Next, we'll examine `OpenAITTSNode`, which uses `OpenAI's API` to provide higher-quality, more natural-sounding speech synthesis.",
+      "title": "",
+      "id": "68519",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `OpenAI client` is initialized during setup, creating the connection that will be used to make API calls for speech synthesis.",
+      "file": "dimos/stream/audio/tts/node_openai.py",
+      "highlight": [
+        {
+          "start": 64,
+          "end": 65
+        }
+      ],
+      "title": "",
+      "id": "68520",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The core API interaction happens here. The `client.audio.speech.create()` call sends the text to OpenAI's servers with parameters like `model` (`tts-1`), `voice` (one of six available options), and `speed` to control the speech synthesis quality and characteristics.",
+      "file": "dimos/stream/audio/tts/node_openai.py",
+      "highlight": [
+        {
+          "start": 154,
+          "end": 157
+        }
+      ],
+      "title": "",
+      "id": "68521",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on their implementations, what is a primary difference in how `PyTTSNode` and `OpenAITTSNode` handle the speech synthesis process?\n\nOptions:\n\n A). Both nodes process text asynchronously using background threads to avoid blocking.\n\nB). `PyTTSNode` makes a blocking call to generate speech, while `OpenAITTSNode` uses a background thread and a queue for non-blocking synthesis.\n\nC). `OpenAITTSNode` is the only node that can be configured with parameters like voice and speed.\n\n\nCorrect: B). `PyTTSNode` makes a blocking call to generate speech, while `OpenAITTSNode` uses a background thread and a queue for non-blocking synthesis.\n\nExplanation: `PyTTSNode` uses `engine.runAndWait()`, which is a blocking operation that halts execution until the speech is finished. In contrast, `OpenAITTSNode` uses a dedicated `processing_thread` to manage a queue of text, allowing it to make network requests to the OpenAI API without blocking the main application flow. `PyTTSNode` can also be configured with parameters like rate and volume.",
+      "title": "",
+      "id": "68525",
+      "text": "Based on their implementations, what is a primary difference in how `PyTTSNode` and `OpenAITTSNode` handle the speech synthesis process?",
+      "answers": [
+        "Both nodes process text asynchronously using background threads to avoid blocking.",
+        "`PyTTSNode` makes a blocking call to generate speech, while `OpenAITTSNode` uses a background thread and a queue for non-blocking synthesis.",
+        "`OpenAITTSNode` is the only node that can be configured with parameters like voice and speed."
+      ],
+      "correct": 1,
+      "explanation": "`PyTTSNode` uses `engine.runAndWait()`, which is a blocking operation that halts execution until the speech is finished. In contrast, `OpenAITTSNode` uses a dedicated `processing_thread` to manage a queue of text, allowing it to make network requests to the OpenAI API without blocking the main application flow. `PyTTSNode` can also be configured with parameters like rate and volume."
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/stream/audio/node_output.py"
+      ],
+      "description": "Finally, let's briefly look at `AudioOutputNode`. This component completes the TTS workflow by taking audio generated by TTS nodes and playing it through the system's speakers using the `sounddevice` library.",
+      "title": "",
+      "id": "68522",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The output node creates a `sounddevice` stream with the specified audio parameters and starts it running, ready to receive and play audio data from upstream TTS components.",
+      "file": "dimos/stream/audio/node_output.py",
+      "highlight": [
+        {
+          "start": 67,
+          "end": 75
+        }
+      ],
+      "title": "",
+      "id": "68523",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This **TTS system** provides flexibility through its dual approach: `PyTTSNode` offers immediate offline speech synthesis, while `OpenAITTSNode` delivers high-quality cloud-generated audio. The `AudioOutputNode` completes the pipeline by handling the final playback to speakers.",
+      "title": "",
+      "id": "68524"
+    }
+  ]
+}

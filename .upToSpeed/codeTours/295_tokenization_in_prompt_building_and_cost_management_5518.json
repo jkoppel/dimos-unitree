@@ -1,0 +1,99 @@
+{
+  "title": "29.5: Tokenization in Prompt Building & Cost Management",
+  "id": "pFMwJ796IXKlc6Ld7K52jiYCdZY+rge6Ix8GPhvwIs4=",
+  "originalId": 5518,
+  "position": 112,
+  "steps": [
+    {
+      "type": "highlight",
+      "description": "The `PromptBuilder` class initializes the `AbstractTokenizer` on line 51, defaulting to `OpenAITokenizer` if no tokenizer is provided. This class is responsible for tokenizing and detokenizing text, as well as calculating token counts for both text and images.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 51,
+          "end": 51
+        }
+      ],
+      "title": "",
+      "id": "68394",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `build` method defines default budgets and truncation policies for different parts of the prompt. By default, the token budget is split equally between the system prompt, user query, image, and RAG context. The policies determine how to truncate each part if the total number of tokens exceeds the `max_tokens` limit.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 119,
+          "end": 130
+        }
+      ],
+      "title": "",
+      "id": "68395",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Token counts for each component are calculated using the `token_count` and `image_token_count` methods from the `tokenizer`. The `image_token_count` is only called if a `base64_image` is provided.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 146,
+          "end": 151
+        }
+      ],
+      "title": "",
+      "id": "68396",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "If the total number of tokens exceeds `max_tokens`, the code enters a loop to truncate the different parts of the prompt. The `excess_tokens` are removed according to the truncation policy for each component. For example, the `rag_context` has its end truncated, while the `user_query` is truncated from the middle. The image is not truncated.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 169,
+          "end": 183
+        }
+      ],
+      "title": "",
+      "id": "68397",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Given the logic in the `build` method, if the `rag_context` uses more tokens than its allocated budget (`budgets['rag']`), but the `total_tokens` remains below `self.max_tokens`, what is the outcome?\n\nOptions:\n\n A). The `rag_context` will be truncated to fit its specified budget, according to its policy.\n\nB). The `rag_context` will not be truncated and will be included in the prompt in its entirety.\n\nC). An error will be raised because an individual component's budget was exceeded.\n\nD). The excess tokens from `rag_context` will be removed from the `user_query` budget.\n\n\nCorrect: B). The `rag_context` will not be truncated and will be included in the prompt in its entirety.\n\nExplanation: Correct. The truncation logic, starting at line 171, is only triggered if `excess_tokens > 0`, which means the `total_tokens` has surpassed `self.max_tokens`. The individual `budgets` are only used to determine how to trim content *after* this condition is met. If the total is within the limit, no truncation occurs, regardless of individual component sizes.",
+      "title": "",
+      "id": "68405",
+      "text": "Given the logic in the `build` method, if the `rag_context` uses more tokens than its allocated budget (`budgets['rag']`), but the `total_tokens` remains below `self.max_tokens`, what is the outcome?",
+      "answers": [
+        "The `rag_context` will be truncated to fit its specified budget, according to its policy.",
+        "The `rag_context` will not be truncated and will be included in the prompt in its entirety.",
+        "An error will be raised because an individual component's budget was exceeded.",
+        "The excess tokens from `rag_context` will be removed from the `user_query` budget."
+      ],
+      "correct": 1,
+      "explanation": "Correct. The truncation logic, starting at line 171, is only triggered if `excess_tokens > 0`, which means the `total_tokens` has surpassed `self.max_tokens`. The individual `budgets` are only used to determine how to trim content *after* this condition is met. If the total is within the limit, no truncation occurs, regardless of individual component sizes."
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the `messages` payload is constructed in the format expected by the `OpenAI API`. The system prompt is a single message, while the user-facing content, including the RAG context, user query, and image, are combined into a single user message.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 184,
+          "end": 202
+        }
+      ],
+      "title": "",
+      "id": "68398",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "In a real-world robotics application, a high-resolution camera feed could easily consume a significant portion of the token budget. For example, a 1024x1024 image with high detail costs 769 tokens. If the `max_tokens` limit is small, this leaves little room for the system prompt, user query, and any retrieved context. As a result, the truncation logic ensures the prompt stays within the token limit, preventing API errors and allowing the robot to operate reliably. This precise control over token budgets and truncation policies allows for a balance between visual detail and other contextual information.",
+      "title": "",
+      "id": "68399"
+    }
+  ]
+}

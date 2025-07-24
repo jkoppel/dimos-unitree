@@ -1,0 +1,127 @@
+{
+  "title": "34.6: Web Backend: The Alternative FlaskServer",
+  "id": "2TI/MPtTY6OFaqkHyqm/ftN0b7GdSKf5ejHYzOZBW0M=",
+  "originalId": 5568,
+  "position": 132,
+  "steps": [
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/web/flask_server.py"
+      ],
+      "description": "As an alternative to the `FastAPIServer`, `dimos` also provides a simpler web server implementation using the Flask framework. This `FlaskServer` is less feature-rich but easier to understand and deploy for basic video streaming needs.",
+      "title": "",
+      "id": "69137",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `FlaskServer` class inherits from `EdgeIO`, just like `FastAPIServer`. Its `__init__` method follows a similar pattern, accepting video `streams` as keyword arguments and storing them for later use.",
+      "file": "dimos/web/flask_server.py",
+      "highlight": [
+        {
+          "start": 23,
+          "end": 29
+        }
+      ],
+      "title": "",
+      "id": "69138",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Like `FastAPIServer`, it processes each video stream by applying frame processing and sharing operations. However, notice the key difference: there's no handling for text streams or query processing capabilities - this is purely focused on video streaming.",
+      "file": "dimos/web/flask_server.py",
+      "highlight": [
+        {
+          "start": 31,
+          "end": 38
+        }
+      ],
+      "title": "",
+      "id": "69139",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `setup_routes` method defines the web application routes. The root route renders the `index_flask.html` template, passing the available stream keys so the template can display them dynamically.",
+      "file": "dimos/web/flask_server.py",
+      "highlight": [
+        {
+          "start": 47,
+          "end": 51
+        }
+      ],
+      "title": "",
+      "id": "69140",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "It then dynamically creates URL rules for each video feed using `Flask`'s `add_url_rule` method. Each stream gets its own endpoint like `/video_feed/camera1`, allowing the web page to access individual video feeds.",
+      "file": "dimos/web/flask_server.py",
+      "highlight": [
+        {
+          "start": 84,
+          "end": 88
+        }
+      ],
+      "title": "",
+      "id": "69141",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `stream_generator` function works similarly to the `FastAPIServer` version. It uses a `Queue` to buffer frames from the reactive stream, then yields them in the multipart HTTP format required for video streaming.",
+      "file": "dimos/web/flask_server.py",
+      "highlight": [
+        {
+          "start": 54,
+          "end": 75
+        }
+      ],
+      "title": "",
+      "id": "69142",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/web/templates/index_flask.html"
+      ],
+      "description": "Now let's examine the corresponding HTML template that the Flask server uses to display the video streams.",
+      "title": "",
+      "id": "69143",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This template is much simpler than the `FastAPI` version. It uses `Jinja2` templating to loop through the stream keys and create an `<img>` tag for each video feed. Notice there's no JavaScript for handling user queries or displaying text streams - this reinforces that the `Flask` server is a more basic, video-only implementation.",
+      "file": "dimos/web/templates/index_flask.html",
+      "highlight": [
+        {
+          "start": 102,
+          "end": 109
+        }
+      ],
+      "title": "",
+      "id": "69144",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Given the implementation of `FlaskServer`, what would happen if a client tried to connect to a text stream endpoint, similar to the functionality available in `FastAPIServer`?\n\nOptions:\n\n A). The server would process the request, but the text stream would remain empty as it's not a video feed.\n\nB). The server would return a 404 Not Found error because no routes are defined for text streams or queries.\n\nC). The client-side JavaScript in `index_flask.html` would prevent the request from being sent.\n\nD). The `EdgeIO` parent class would handle the request and route it to a default text processor.\n\n\nCorrect: B). The server would return a 404 Not Found error because no routes are defined for text streams or queries.\n\nExplanation: The `FlaskServer` implementation only defines routes for the root URL ('/') and video feeds ('/video_feed/{key}'). It does not contain any logic or endpoints to handle text streams or queries. An attempt to access an undefined route, such as one for a text stream, would result in a 404 Not Found error from the server. The `index_flask.html` template also lacks the client-side code to initiate such requests.",
+      "title": "",
+      "id": "69145",
+      "text": "Given the implementation of `FlaskServer`, what would happen if a client tried to connect to a text stream endpoint, similar to the functionality available in `FastAPIServer`?",
+      "answers": [
+        "The server would process the request, but the text stream would remain empty as it's not a video feed.",
+        "The server would return a 404 Not Found error because no routes are defined for text streams or queries.",
+        "The client-side JavaScript in `index_flask.html` would prevent the request from being sent.",
+        "The `EdgeIO` parent class would handle the request and route it to a default text processor."
+      ],
+      "correct": 1,
+      "explanation": "The `FlaskServer` implementation only defines routes for the root URL ('/') and video feeds ('/video_feed/{key}'). It does not contain any logic or endpoints to handle text streams or queries. An attempt to access an undefined route, such as one for a text stream, would result in a 404 Not Found error from the server. The `index_flask.html` template also lacks the client-side code to initiate such requests."
+    }
+  ]
+}

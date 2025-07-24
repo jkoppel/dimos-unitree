@@ -1,0 +1,99 @@
+{
+  "title": "21.2: 2D Object Detection: YOLO Implementation",
+  "id": "WdgnqsyiTTt6/pDgxJwaXfNWzKI4EI954CC+P0EwTKk=",
+  "originalId": 5482,
+  "position": 71,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to this tour of **YOLO-based detection and tracking**. We'll explore the `Yolo2DDetector` class, the primary implementation for 2D object detection in this component.",
+      "title": "",
+      "id": "67985"
+    },
+    {
+      "type": "highlight",
+      "description": "Our first stop is the class initialization. The `__init__` method takes two key parameters: `model_path` (defaulting to a TensorRT engine file for optimal performance) and `device` (`CUDA` or `CPU`). Notice how it constructs the path to the tracker configuration file, which we'll examine later.",
+      "file": "dimos/perception/detection2d/yolo_2d_det.py",
+      "highlight": [
+        {
+          "start": 9,
+          "end": 21
+        }
+      ],
+      "title": "",
+      "id": "67986",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Next is the core detection method. The `process_image` method uses `model.track()` rather than just `model.predict()` to enable object tracking. Key parameters include confidence threshold (0.5), IoU threshold (0.6), and `persist=True` to maintain tracks across frames. The method returns a standardized tuple of detection results processed by the `extract_detection_results` utility.",
+      "file": "dimos/perception/detection2d/yolo_2d_det.py",
+      "highlight": [
+        {
+          "start": 23,
+          "end": 53
+        }
+      ],
+      "title": "",
+      "id": "67987",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's the tracker configuration that controls the `BoT-SORT` algorithm behavior. The `tracker_type` is set to `botsort`, while the various thresholds control track association: `track_high_thresh` and `track_low_thresh` for detection-to-track matching, `new_track_thresh` for creating new tracks, and `track_buffer` defining how long tracks persist without detections (100 frames).",
+      "file": "dimos/perception/detection2d/config/custom_tracker.yaml",
+      "highlight": [
+        {
+          "start": 7,
+          "end": 12
+        }
+      ],
+      "title": "",
+      "id": "67988",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "The `custom_tracker.yaml` file sets `track_buffer: 100`. In the context of the `process_image` method, what is the functional consequence of this setting?\n\nOptions:\n\n A). It limits the total number of active tracks to 100 at any given time.\n\nB). It allows a track to be maintained for up to 100 frames even if the object is not detected.\n\nC). It sets the initial confidence threshold for new tracks to 1.00 (100%).\n\nD). It buffers 100 frames before starting the tracking process to improve initial accuracy.\n\n\nCorrect: B). It allows a track to be maintained for up to 100 frames even if the object is not detected.\n\nExplanation: Yes, that's correct. The `track_buffer` value of 100 means a track's history is kept for 100 frames. If the object isn't seen again within that window, the track is then removed. This helps maintain stable tracking even if an object is temporarily occluded. The other options describe different concepts. Option A is about a total track limit, which isn't what this parameter does. Option C confuses the buffer with a confidence score, and option D describes a sort of pre-processing delay, which is not how this tracker works. It's a simple but effective way to handle temporary disappearances.",
+      "title": "",
+      "id": "67993",
+      "text": "The `custom_tracker.yaml` file sets `track_buffer: 100`. In the context of the `process_image` method, what is the functional consequence of this setting?",
+      "answers": [
+        "It limits the total number of active tracks to 100 at any given time.",
+        "It allows a track to be maintained for up to 100 frames even if the object is not detected.",
+        "It sets the initial confidence threshold for new tracks to 1.00 (100%).",
+        "It buffers 100 frames before starting the tracking process to improve initial accuracy."
+      ],
+      "correct": 1,
+      "explanation": "Yes, that's correct. The `track_buffer` value of 100 means a track's history is kept for 100 frames. If the object isn't seen again within that window, the track is then removed. This helps maintain stable tracking even if an object is temporarily occluded. The other options describe different concepts. Option A is about a total track limit, which isn't what this parameter does. Option C confuses the buffer with a confidence score, and option D describes a sort of pre-processing delay, which is not how this tracker works. It's a simple but effective way to handle temporary disappearances."
+    },
+    {
+      "type": "highlight",
+      "description": "For visualization, the `visualize_results` method delegates to the shared `plot_results` function from the `utils` module. This demonstrates how visualization logic is shared between different detector implementations, promoting code reuse and consistency.",
+      "file": "dimos/perception/detection2d/yolo_2d_det.py",
+      "highlight": [
+        {
+          "start": 55,
+          "end": 70
+        }
+      ],
+      "title": "",
+      "id": "67989",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the `main()` function provides a complete usage example. It initializes video capture from the camera, creates a detector instance, processes frames in a loop, and applies person filtering using the `filter_detections` utility. This shows the typical workflow: capture → detect → filter → visualize → display.",
+      "file": "dimos/perception/detection2d/yolo_2d_det.py",
+      "highlight": [
+        {
+          "start": 73,
+          "end": 99
+        }
+      ],
+      "title": "",
+      "id": "67990",
+      "hideAreas": []
+    }
+  ]
+}

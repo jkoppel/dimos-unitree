@@ -1,0 +1,73 @@
+{
+  "title": "12.1: Core Logic: REST Skills: Overview",
+  "id": "zrxAEO8Oc57Ua7N4JGVHNLzL6zxNTJhrj/EosFm4wl4=",
+  "originalId": 5455,
+  "position": 43,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough will introduce the `Core Logic: REST Skills` component. This component empowers robots to communicate with external services using `REST APIs`.",
+      "title": "",
+      "id": "67725"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/skills/rest/rest.py"
+      ],
+      "description": "The primary logic is contained in the `rest.py` file. The corresponding `__init__.py` file is empty, which is a common Python practice to mark a directory as a package.",
+      "title": "",
+      "id": "67726",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The central component is the `GenericRestSkill` class. This class provides robots with the ability to make **REST API** calls to external services. It inherits from `AbstractSkill`, making it part of the DimOS skill system.",
+      "file": "dimos/skills/rest/rest.py",
+      "highlight": [
+        {
+          "start": 22,
+          "end": 32
+        }
+      ],
+      "title": "",
+      "id": "67727",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The class defines three main attributes: `url` for the target endpoint, `method` for the HTTP verb, and `timeout` for request duration limits. These are defined using `Pydantic` `Field` validation.",
+      "file": "dimos/skills/rest/rest.py",
+      "highlight": [
+        {
+          "start": 41,
+          "end": 43
+        }
+      ],
+      "title": "",
+      "id": "67728",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This `GenericRestSkill` enables robots to integrate with web services and APIs as part of their capabilities, extending their functionality beyond local operations to include interactions with external systems.",
+      "title": "",
+      "id": "67729"
+    },
+    {
+      "type": "mcq",
+      "description": "A developer needs to configure a robot to retrieve data from an external web API. According to the `DimOS` architecture, which component is the intended, standard way to accomplish this?\n\nOptions:\n\n A). AbstractSkill\n\nB). GenericRestSkill\n\nC). requests.request\n\nD). A custom skill that directly imports and uses the `requests` library.\n\n\nCorrect: B). GenericRestSkill\n\nExplanation: `GenericRestSkill` is the correct choice because it is the designated, reusable skill within DimOS for performing REST API calls. While you could create a custom skill or use the `requests` library directly, the `GenericRestSkill` provides a standardized, configurable, and integrated way to achieve this, following the intended architectural pattern. `AbstractSkill` is a base class and is not intended for direct use.",
+      "title": "",
+      "id": "67734",
+      "text": "A developer needs to configure a robot to retrieve data from an external web API. According to the `DimOS` architecture, which component is the intended, standard way to accomplish this?",
+      "answers": [
+        "AbstractSkill",
+        "GenericRestSkill",
+        "requests.request",
+        "A custom skill that directly imports and uses the `requests` library."
+      ],
+      "correct": 1,
+      "explanation": "`GenericRestSkill` is the correct choice because it is the designated, reusable skill within DimOS for performing REST API calls. While you could create a custom skill or use the `requests` library directly, the `GenericRestSkill` provides a standardized, configurable, and integrated way to achieve this, following the intended architectural pattern. `AbstractSkill` is a base class and is not intended for direct use."
+    }
+  ]
+}

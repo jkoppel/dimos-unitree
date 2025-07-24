@@ -1,0 +1,220 @@
+{
+  "title": "9.3: Audio Processing Nodes",
+  "id": "0c6pZ1kvVhefQe708snbSio/07beLb4Ebw2et6Vil+0=",
+  "originalId": 5442,
+  "position": 31,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour covers intermediate audio processing nodes that modify or analyze the audio stream before it reaches downstream components like `speech-to-text systems`.",
+      "title": "",
+      "id": "67763"
+    },
+    {
+      "type": "textOnly",
+      "description": "We'll explore three key files: `node_normalizer.py` contains **AudioNormalizer** for consistent volume levels, `volume.py` provides measurement functions, and `node_volume_monitor.py` contains **VolumeMonitorNode** for speech activity detection.",
+      "title": "",
+      "id": "67764"
+    },
+    {
+      "type": "highlight",
+      "description": "`AudioNormalizer` inherits from `AbstractAudioTransform`, which combines both consuming and emitting audio. This allows it to sit in the middle of an audio processing pipeline, receiving audio from upstream nodes and passing processed audio downstream.",
+      "file": "dimos/stream/audio/base.py",
+      "highlight": [
+        {
+          "start": 35,
+          "end": 41
+        }
+      ],
+      "title": "",
+      "id": "67765",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `AudioNormalizer` class implements dynamic volume normalization. It remembers the maximum volume encountered and rescales audio frames to maintain a consistent target level.",
+      "file": "dimos/stream/audio/node_normalizer.py",
+      "highlight": [
+        {
+          "start": 21,
+          "end": 27
+        }
+      ],
+      "title": "",
+      "id": "67766",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The constructor accepts key parameters: `target_level` sets the desired output volume, `max_gain` prevents excessive amplification, `decay_factor` controls how quickly the normalizer adapts to volume changes, and `volume_func` chooses between **RMS** or **peak** measurement.",
+      "file": "dimos/stream/audio/node_normalizer.py",
+      "highlight": [
+        {
+          "start": 29,
+          "end": 37
+        }
+      ],
+      "title": "",
+      "id": "67767",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **_normalize_audio** method begins processing by ensuring audio is in `float32` format (lines 72-73), then calculates the current volume using the configured function (line 76). The running maximum volume is updated with decay (line 79) to adapt over time.",
+      "file": "dimos/stream/audio/node_normalizer.py",
+      "highlight": [
+        {
+          "start": 71,
+          "end": 79
+        }
+      ],
+      "title": "",
+      "id": "67768",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The normalization algorithm calculates ideal gain when `max_volume` exceeds the `threshold` (lines 82-88), then smoothly adapts the current gain toward this ideal using the `adapt_speed` parameter (lines 91-93). This prevents jarring volume jumps.",
+      "file": "dimos/stream/audio/node_normalizer.py",
+      "highlight": [
+        {
+          "start": 81,
+          "end": 94
+        }
+      ],
+      "title": "",
+      "id": "67769",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the `AudioNormalizer`'s `_normalize_audio` method, what is the distinct purpose of `decay_factor` compared to `adapt_speed`?\n\nOptions:\n\n A). Both parameters control the rate of normalization; `decay_factor` is for fast changes and `adapt_speed` is for slow changes.\n\nB). `decay_factor` controls the normalization of loud sounds, and `adapt_speed` handles quiet sounds.\n\nC). `decay_factor` manages the memory of the maximum historical volume, while `adapt_speed` smooths the application of the normalization gain.\n\n\nCorrect: C). `decay_factor` manages the memory of the maximum historical volume, while `adapt_speed` smooths the application of the normalization gain.\n\nExplanation: Correct. `decay_factor` is used to gradually 'forget' the historical `max_volume`, allowing the normalizer to adapt if the overall input volume decreases. `adapt_speed` is used separately to smoothly transition the `current_gain` towards the calculated `ideal_gain`, preventing abrupt, jarring changes in the output audio.",
+      "title": "",
+      "id": "67792",
+      "text": "In the `AudioNormalizer`'s `_normalize_audio` method, what is the distinct purpose of `decay_factor` compared to `adapt_speed`?",
+      "answers": [
+        "Both parameters control the rate of normalization; `decay_factor` is for fast changes and `adapt_speed` is for slow changes.",
+        "`decay_factor` controls the normalization of loud sounds, and `adapt_speed` handles quiet sounds.",
+        "`decay_factor` manages the memory of the maximum historical volume, while `adapt_speed` smooths the application of the normalization gain."
+      ],
+      "correct": 2,
+      "explanation": "Correct. `decay_factor` is used to gradually 'forget' the historical `max_volume`, allowing the normalizer to adapt if the overall input volume decreases. `adapt_speed` is used separately to smoothly transition the `current_gain` towards the calculated `ideal_gain`, preventing abrupt, jarring changes in the output audio."
+    },
+    {
+      "type": "highlight",
+      "description": "The final step applies the calculated gain (line 96) and clips the result to prevent distortion (line 99). A new `AudioEvent` is created with the normalized data while preserving all original metadata like **sample rate** and **timestamp**.",
+      "file": "dimos/stream/audio/node_normalizer.py",
+      "highlight": [
+        {
+          "start": 95,
+          "end": 107
+        }
+      ],
+      "title": "",
+      "id": "67770",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Volume measurement is fundamental to both normalization and speech detection. The `volume.py` file provides two different approaches to measuring audio levels.",
+      "title": "",
+      "id": "67771"
+    },
+    {
+      "type": "highlight",
+      "description": "`calculate_rms_volume` computes the root mean square of audio samples. It flattens multi-channel data (lines 16-18), computes `sqrt(mean(square(audio)))` (line 21), and normalizes `int16` data to [0,1] range (line 25). RMS correlates well with perceived loudness.",
+      "file": "dimos/stream/audio/volume.py",
+      "highlight": [
+        {
+          "start": 5,
+          "end": 27
+        }
+      ],
+      "title": "",
+      "id": "67772",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`calculate_peak_volume` finds the absolute maximum sample value. It flattens channels (lines 41-43), computes `max(abs(audio))` (line 46), and normalizes `int16` data (line 50). Peak volume is more sensitive to transients and helps prevent clipping.",
+      "file": "dimos/stream/audio/volume.py",
+      "highlight": [
+        {
+          "start": 30,
+          "end": 52
+        }
+      ],
+      "title": "",
+      "id": "67773",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "The tour plan mentioned a `Volume` class with an `is_speech` method, but this doesn't exist in the codebase. Instead, speech activity detection is handled by `VolumeMonitorNode` using threshold-based logic.",
+      "title": "",
+      "id": "67774"
+    },
+    {
+      "type": "highlight",
+      "description": "`VolumeMonitorNode` inherits from both `AbstractAudioConsumer` and `AbstractTextEmitter`, allowing it to consume audio and emit text descriptions. The constructor accepts a `threshold` for activity detection and a `volume_func` (defaulting to peak volume).",
+      "file": "dimos/stream/audio/node_volume_monitor.py",
+      "highlight": [
+        {
+          "start": 14,
+          "end": 24
+        }
+      ],
+      "title": "",
+      "id": "67775",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`create_volume_text` implements the speech detection logic. It calculates filled segments for visualization (line 50), creates a progress bar (line 53), checks if volume exceeds the threshold (line 56), and labels audio as **\"active\"** or **\"silent\"** (line 60).",
+      "file": "dimos/stream/audio/node_volume_monitor.py",
+      "highlight": [
+        {
+          "start": 39,
+          "end": 61
+        }
+      ],
+      "title": "",
+      "id": "67776",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The audio processing pipeline calculates volume for each `AudioEvent` (line 93), generates a text representation (line 96), and emits it (line 99). This threshold-based approach provides real-time speech activity detection to optimize downstream processing.",
+      "file": "dimos/stream/audio/node_volume_monitor.py",
+      "highlight": [
+        {
+          "start": 90,
+          "end": 102
+        }
+      ],
+      "title": "",
+      "id": "67777",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's how these nodes are used in practice: an audio source feeds into the normalizer, which then connects to both an output device and volume monitor. This creates a complete preprocessing pipeline with normalization, monitoring, and speech detection.",
+      "file": "dimos/stream/audio/node_normalizer.py",
+      "highlight": [
+        {
+          "start": 186,
+          "end": 205
+        }
+      ],
+      "title": "",
+      "id": "67778",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "These intermediate processing nodes form a preprocessing pipeline. `AudioNormalizer` ensures consistent volume levels across different input sources, while `VolumeMonitorNode` filters silence and detects speech activity, creating a foundation for downstream speech recognition systems.",
+      "title": "",
+      "id": "67779"
+    }
+  ]
+}

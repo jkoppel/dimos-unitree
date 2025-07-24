@@ -1,0 +1,275 @@
+{
+  "title": "24.2: Spatial Memory and Vector Database",
+  "id": "XYT+8Om99pJZ5oF6UySGZEXIXe/pRKkbz5OKQOJrxGk=",
+  "originalId": 5553,
+  "position": 86,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour explores the `SpatialMemory` class in `dimos/perception/spatial_perception.py`, detailing how it constructs, saves, and queries a semantic map of the robot's surroundings.",
+      "title": "",
+      "id": "69011"
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__` method of the `SpatialMemory` class is where the dependencies and configuration for the spatial memory system are injected. Let's examine its key parameters.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 52,
+          "end": 67
+        }
+      ],
+      "title": "",
+      "id": "69012",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `min_distance_threshold` and `min_time_threshold` parameters are used to prevent the storage of redundant information. A new frame is only stored if the robot has moved a certain distance or if a specific amount of time has passed since the last frame was saved. This ensures that the memory isn't cluttered with near-identical snapshots of the same location.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 52,
+          "end": 67
+        }
+      ],
+      "title": "",
+      "id": "69013",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "A robot remains stationary for an extended period, but its camera continues to stream frames. Which of the following best describes how `SpatialMemory` avoids storing a large number of redundant, nearly identical frames?\n\nOptions:\n\n A). `chromadb.PersistentClient` automatically rejects new vectors that are too similar to existing ones.\n\nB). The `video_stream` observable is configured to automatically debounce incoming frames, sending only one frame per second.\n\nC). Frames are skipped because the conditions defined by `min_distance_threshold` and `min_time_threshold` are not met.\n\n\nCorrect: C). Frames are skipped because the conditions defined by `min_distance_threshold` and `min_time_threshold` are not met.\n\nExplanation: The correct answer is that frames are filtered based on `min_distance_threshold` and `min_time_threshold`. As we will see later in `process_stream`, the system explicitly checks if the robot has moved a sufficient distance or if enough time has passed since the last saved frame. If neither condition is met, the frame is skipped. ChromaDB does not automatically deduplicate incoming vectors in this implementation, and the RxPY stream itself is not responsible for this specific filtering logic; it is handled within the `SpatialMemory` class.",
+      "title": "",
+      "id": "69027",
+      "text": "A robot remains stationary for an extended period, but its camera continues to stream frames. Which of the following best describes how `SpatialMemory` avoids storing a large number of redundant, nearly identical frames?",
+      "answers": [
+        "`chromadb.PersistentClient` automatically rejects new vectors that are too similar to existing ones.",
+        "The `video_stream` observable is configured to automatically debounce incoming frames, sending only one frame per second.",
+        "Frames are skipped because the conditions defined by `min_distance_threshold` and `min_time_threshold` are not met."
+      ],
+      "correct": 2,
+      "explanation": "The correct answer is that frames are filtered based on `min_distance_threshold` and `min_time_threshold`. As we will see later in `process_stream`, the system explicitly checks if the robot has moved a sufficient distance or if enough time has passed since the last saved frame. If neither condition is met, the frame is skipped. ChromaDB does not automatically deduplicate incoming vectors in this implementation, and the RxPY stream itself is not responsible for this specific filtering logic; it is handled within the `SpatialMemory` class."
+    },
+    {
+      "type": "highlight",
+      "description": "Persistence is controlled by the `new_memory` flag, `db_path`, and `visual_memory_path`. When `new_memory` is set to `True`, any existing database at the specified paths is cleared, allowing the system to start fresh. The `db_path` and `visual_memory_path` define the storage locations for the vector database and the raw visual data (images), respectively.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 52,
+          "end": 67
+        }
+      ],
+      "title": "",
+      "id": "69014",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `video_stream` and `transform_provider` are the primary inputs to the `SpatialMemory` system. The `video_stream` is an RxPY `Observable` that emits a continuous sequence of image frames from the robot's camera. The `transform_provider` supplies the robot's pose (position and orientation) at any given time, which is used to geolocate the image frames.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 52,
+          "end": 67
+        }
+      ],
+      "title": "",
+      "id": "69015",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The setup of the `ChromaDB` client is a critical step in the initialization process. When `new_memory` is `True`, the system first removes any old database files. This is handled by the code at lines 99–110, which deletes the contents of `db_path` and `visual_memory_path`. Following this cleanup, a `chromadb.PersistentClient` is created, which provides an on-disk storage solution for the vector embeddings. This ensures that the robot's spatial memory is preserved across sessions.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 93,
+          "end": 119
+        }
+      ],
+      "title": "",
+      "id": "69016",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "A `SpatialMemory` instance is initialized with `new_memory=True` and a valid `db_path` where a previous database exists. What is the expected outcome during initialization?\n\nOptions:\n\n A). The system will raise an error to prevent accidental data loss.\n\nB). The system will delete the existing database files before creating a new one.\n\nC). The system will ignore the `new_memory` flag and append data to the existing database.\n\nD). The system will create an in-memory database for the new session, leaving the on-disk database untouched.\n\n\nCorrect: B). The system will delete the existing database files before creating a new one.\n\nExplanation: The correct answer is that the system deletes existing files. The code at lines 99-110 explicitly checks if `new_memory` is `True` and if the `db_path` exists. If both conditions are met, it iterates through and removes the contents of the directory before initializing the new `chromadb.PersistentClient`. This ensures the memory starts entirely fresh as requested.",
+      "title": "",
+      "id": "69028",
+      "text": "A `SpatialMemory` instance is initialized with `new_memory=True` and a valid `db_path` where a previous database exists. What is the expected outcome during initialization?",
+      "answers": [
+        "The system will raise an error to prevent accidental data loss.",
+        "The system will delete the existing database files before creating a new one.",
+        "The system will ignore the `new_memory` flag and append data to the existing database.",
+        "The system will create an in-memory database for the new session, leaving the on-disk database untouched."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that the system deletes existing files. The code at lines 99-110 explicitly checks if `new_memory` is `True` and if the `db_path` exists. If both conditions are met, it iterates through and removes the contents of the directory before initializing the new `chromadb.PersistentClient`. This ensures the memory starts entirely fresh as requested."
+    },
+    {
+      "type": "highlight",
+      "description": "The `ImageEmbeddingProvider` is responsible for converting raw image data into numerical representations, or embeddings. The choice of `model_name` determines which underlying model—such as `CLIP` or `ResNet`—is used for this conversion. The `dimensions` parameter specifies the size of the resulting embedding vectors, which is a key consideration for the vector database's performance and storage requirements.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 143,
+          "end": 146
+        }
+      ],
+      "title": "",
+      "id": "69017",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "The `process_stream` method includes checks based on `min_distance_threshold` and `min_time_threshold` (lines 290-296). What is the main reason for this filtering logic?\n\nOptions:\n\n A). To ensure the vector database can index new entries without falling behind.\n\nB). To prevent storing near-duplicate frames, which keeps the database efficient and relevant.\n\nC). To validate that the robot's position and rotation data are available and not corrupted.\n\nD). To synchronize the video stream with the transform provider's update frequency.\n\n\nCorrect: B). To prevent storing near-duplicate frames, which keeps the database efficient and relevant.\n\nExplanation: This logic's purpose is to avoid storing redundant information. By checking the distance moved and time elapsed, the system only saves frames that are likely to contain new visual information. This keeps the database efficient. Validating transform data happens earlier in the RxPY pipeline, and this check is not directly for managing database indexing or synchronizing streams.",
+      "title": "",
+      "id": "69029",
+      "text": "The `process_stream` method includes checks based on `min_distance_threshold` and `min_time_threshold` (lines 290-296). What is the main reason for this filtering logic?",
+      "answers": [
+        "To ensure the vector database can index new entries without falling behind.",
+        "To prevent storing near-duplicate frames, which keeps the database efficient and relevant.",
+        "To validate that the robot's position and rotation data are available and not corrupted.",
+        "To synchronize the video stream with the transform provider's update frequency."
+      ],
+      "correct": 1,
+      "explanation": "This logic's purpose is to avoid storing redundant information. By checking the distance moved and time elapsed, the system only saves frames that are likely to contain new visual information. This keeps the database efficient. Validating transform data happens earlier in the RxPY pipeline, and this check is not directly for managing database indexing or synchronizing streams."
+    },
+    {
+      "type": "highlight",
+      "description": "The `start_continuous_processing` method kicks off the core logic of the `SpatialMemory` system. It establishes an `RxPY` pipeline that processes the incoming stream of video frames. The pipeline begins by mapping each frame, attaching the corresponding robot transform, filtering out any invalid frames, and then passing the result to the `process_stream` method. The entire pipeline is managed by a `CompositeDisposable`, which ensures that the subscription is properly cleaned up when the system is shut down.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 182,
+          "end": 218
+        }
+      ],
+      "title": "",
+      "id": "69018",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `process_stream` method contains some non-obvious filtering logic at **lines 290–296**. Before processing a new frame, the system checks whether the robot has moved a sufficient distance or if enough time has elapsed since the last save. This optimization prevents the database from being flooded with redundant data.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 290,
+          "end": 296
+        }
+      ],
+      "title": "",
+      "id": "69019",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the filtering logic in `process_stream`, under which condition is a new video frame processed and stored in spatial memory?\n\nOptions:\n\n A). When the robot has moved more than `min_distance_threshold` OR the time since the last record is greater than `min_time_threshold`.\n\nB). When the robot has moved more than `min_distance_threshold` AND the time since the last record is greater than `min_time_threshold`.\n\nC). Only when the robot's movement exceeds `min_distance_threshold`, as time is a secondary check.\n\nD). As long as the frame has a valid position, regardless of distance or time thresholds.\n\n\nCorrect: B). When the robot has moved more than `min_distance_threshold` AND the time since the last record is greater than `min_time_threshold`.\n\nExplanation: The correct answer is based on the logic in `process_stream`. The code has two separate `if` statements that can cause the function to exit early by returning `None`. For a frame to be processed, it must pass both checks. The first check skips the frame if the distance moved is *less than* the threshold. The second check skips the frame if the time elapsed is *less than* the threshold. Therefore, a frame is only processed if the distance moved is greater than or equal to the distance threshold AND the time elapsed is greater than or equal to the time threshold.",
+      "title": "",
+      "id": "69030",
+      "text": "Based on the filtering logic in `process_stream`, under which condition is a new video frame processed and stored in spatial memory?",
+      "answers": [
+        "When the robot has moved more than `min_distance_threshold` OR the time since the last record is greater than `min_time_threshold`.",
+        "When the robot has moved more than `min_distance_threshold` AND the time since the last record is greater than `min_time_threshold`.",
+        "Only when the robot's movement exceeds `min_distance_threshold`, as time is a secondary check.",
+        "As long as the frame has a valid position, regardless of distance or time thresholds."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is based on the logic in `process_stream`. The code has two separate `if` statements that can cause the function to exit early by returning `None`. For a frame to be processed, it must pass both checks. The first check skips the frame if the distance moved is *less than* the threshold. The second check skips the frame if the time elapsed is *less than* the threshold. Therefore, a frame is only processed if the distance moved is greater than or equal to the distance threshold AND the time elapsed is greater than or equal to the time threshold."
+    },
+    {
+      "type": "highlight",
+      "description": "Once a frame passes the filtering stage, the system proceeds to create the embedding and metadata. At lines 300–314, the image is passed to the embedding provider to generate a vector representation. Simultaneously, relevant metadata—such as the robot's location, timestamp, and a unique identifier—is prepared for storage alongside the embedding.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 300,
+          "end": 314
+        }
+      ],
+      "title": "",
+      "id": "69020",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the generated vector embedding and its associated metadata are inserted into the **vector database**. This is accomplished by the `self.vector_db.add_image_vector(...)` call at lines 316–322. This operation stores the semantic representation of the visual scene, making it available for future queries.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 316,
+          "end": 322
+        }
+      ],
+      "title": "",
+      "id": "69021",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This method retrieves memories based on their geographical proximity to a given point, allowing a robot to find objects it has seen within a certain radius.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 167,
+          "end": 181
+        }
+      ],
+      "title": "",
+      "id": "69022",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `query_by_image` method enables the system to find stored images that are visually similar to a given query image. This is useful for **object recognition** and **place recognition** tasks.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 344,
+          "end": 356
+        }
+      ],
+      "title": "",
+      "id": "69023",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `query_by_text` method allows searching the spatial memory using natural language. The system can retrieve images that are semantically related to a given text query, such as **\"a red chair\"** or **\"a wooden table.\"**",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 358,
+          "end": 374
+        }
+      ],
+      "title": "",
+      "id": "69024",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `SpatialMemory` class also provides methods for managing named robot locations. The `add_robot_location` method allows for storing significant places with a human-readable name, such as \"charging station\" or \"kitchen.\" The `find_robot_location` method can then retrieve these locations by name, and it performs a case-insensitive match to ensure that queries like \"Kitchen\" and \"kitchen\" are treated as equivalent.",
+      "file": "dimos/perception/spatial_perception.py",
+      "highlight": [
+        {
+          "start": 375,
+          "end": 420
+        }
+      ],
+      "title": "",
+      "id": "69025",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "In conclusion, the `SpatialMemory` class provides a comprehensive suite of tools for building, persisting, and querying a semantic map of a robot's environment. By combining visual data with spatial information, it allows the robot to understand its surroundings in a way that is both rich and context-aware. These query and storage APIs can be leveraged by higher-level robot navigation and interaction skills to retrieve environmental context, enabling more intelligent and autonomous behavior.",
+      "title": "",
+      "id": "69026"
+    }
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "title": "23.1: Perception Streams: Overview",
+  "id": "Bp7DVi/Fb9V4fh88MypXz6IOxcffr5k7WghwXq+CJfU=",
+  "originalId": 5490,
+  "position": 79,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "## **DimOS** Perception Architecture Overview\n\nWelcome to this walkthrough of the **DimOS** perception system! We'll explore how **DimOS** uses reactive programming with `RxPY` to deliver real-time video processing through four specialized perception streams, each designed for different computer vision tasks.",
+      "title": "",
+      "id": "68207"
+    },
+    {
+      "type": "textOnly",
+      "description": "## Reactive Video Streams with RxPY\n\nDimOS leverages `RxPY Observables` as the foundation for real-time video processing. This reactive approach allows video frames to flow from robot cameras directly into AI agents as continuous data streams, enabling responsive and asynchronous processing.",
+      "title": "",
+      "id": "68208"
+    },
+    {
+      "type": "highlight",
+      "description": "Every `DimOS` robot provides a method to create video streams as `RxPY Observables`. The `get_ros_video_stream()` method creates a rate-limited video Observable that agents can subscribe to for processing frames.",
+      "file": "dimos/robot/robot.py",
+      "highlight": [
+        {
+          "start": 146,
+          "end": 150
+        }
+      ],
+      "title": "",
+      "id": "68209",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's how an OpenAI agent connects to a robot's video stream. The `input_video_stream` parameter accepts the `Observable` from the robot's camera, creating a direct pipeline from camera to AI processing.",
+      "file": "tests/simple_agent_test.py",
+      "highlight": [
+        {
+          "start": 15,
+          "end": 20
+        }
+      ],
+      "title": "",
+      "id": "68210",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `LLMAgent` base class accepts three types of input streams. The `input_video_stream` is specifically designed to handle continuous video frames from robot cameras via `RxPY` Observables.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 154,
+          "end": 156
+        }
+      ],
+      "title": "",
+      "id": "68211",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "## The Four Perception Streams\n\n`DimOS` provides four specialized perception streams, each optimized for different computer vision tasks. Let's examine each stream's purpose and implementation, starting with object detection.",
+      "title": "",
+      "id": "68212"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/object_detection_stream.py"
+      ],
+      "description": "## `ObjectDetectionStream`\n\nThe first perception stream handles **multi-object detection with depth estimation and 3D projection**. This stream combines 2D object detection with monocular depth estimation to provide full 3D spatial understanding.",
+      "title": "",
+      "id": "68213",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `ObjectDetectionStream`'s docstring clearly outlines its four-step process: detect objects using `Detic` or `YOLO`, estimate depth with `Metric3D`, calculate 3D positions using camera intrinsics, and transform coordinates to the map frame.",
+      "file": "dimos/perception/object_detection_stream.py",
+      "highlight": [
+        {
+          "start": 18,
+          "end": 26
+        }
+      ],
+      "title": "",
+      "id": "68214",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The core processing pipeline starts with **object detection**. For each frame, it runs detection to get bounding boxes, track IDs, class IDs, confidences, and object names, then processes each detection individually.",
+      "file": "dimos/perception/object_detection_stream.py",
+      "highlight": [
+        {
+          "start": 92,
+          "end": 100
+        }
+      ],
+      "title": "",
+      "id": "68215",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "For each detected object, the stream calculates depth using the `Metric3D` model, then derives 3D position and physical dimensions. This transforms 2D detections into full 3D spatial understanding with real-world measurements.",
+      "file": "dimos/perception/object_detection_stream.py",
+      "highlight": [
+        {
+          "start": 112,
+          "end": 123
+        }
+      ],
+      "title": "",
+      "id": "68216",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/semantic_seg.py"
+      ],
+      "description": "## SemanticSegmentationStream\n\nThe second stream provides **per-pixel class masks with optional monocular depth**. Unlike **object detection**'s bounding boxes, this stream segments every pixel in the image to understand scene composition at the finest detail.",
+      "title": "",
+      "id": "68217",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `SemanticSegmentationStream` initialization shows its key capabilities. It uses `Sam2DSegmenter` for pixel-level segmentation and can optionally enable monocular depth processing to provide depth information for each segmented region.",
+      "file": "dimos/perception/semantic_seg.py",
+      "highlight": [
+        {
+          "start": 35,
+          "end": 46
+        }
+      ],
+      "title": "",
+      "id": "68218",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The segmentation pipeline processes each frame through `Sam2DSegmenter` to get `masks`, `bounding boxes`, `target IDs`, `probabilities`, and `names`. It then runs analysis to improve object naming and creates rich visualizations.",
+      "file": "dimos/perception/semantic_seg.py",
+      "highlight": [
+        {
+          "start": 94,
+          "end": 102
+        }
+      ],
+      "title": "",
+      "id": "68219",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "When monocular depth is enabled, the stream calculates average depth for each segmented mask. This combines pixel-perfect segmentation with spatial depth information, providing both `what` and `where` for every pixel.",
+      "file": "dimos/perception/semantic_seg.py",
+      "highlight": [
+        {
+          "start": 115,
+          "end": 129
+        }
+      ],
+      "title": "",
+      "id": "68220",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/object_tracker.py"
+      ],
+      "description": "## `ObjectTrackingStream`\n\nThe third stream handles **single-object tracking using CSRT and ORB-based re-identification**. This stream follows one specific object across frames, maintaining tracking even through occlusions or temporary losses.",
+      "title": "",
+      "id": "68221",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **docstring** of `ObjectTrackingStream` explains its dual approach: OpenCV's `CSRT` tracker for frame-to-frame tracking, combined with `ORB` feature matching for re-identification when tracking fails. This allows it to re-acquire an object after a temporary loss.",
+      "file": "dimos/perception/object_tracker.py",
+      "highlight": [
+        {
+          "start": 11,
+          "end": 26
+        }
+      ],
+      "title": "",
+      "id": "68222",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The tracking process begins with the `track()` method, which sets an initial bounding box. The method can optionally accept a frame for depth estimation and known distance or size parameters for improved tracking accuracy.",
+      "file": "dimos/perception/object_tracker.py",
+      "highlight": [
+        {
+          "start": 59,
+          "end": 71
+        }
+      ],
+      "title": "",
+      "id": "68223",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The re-identification system uses `ORB features` to verify the tracked object is still the same target. It compares current features against original features using `Lowe's ratio test`, providing a confidence metric for tracking continuity.",
+      "file": "dimos/perception/object_tracker.py",
+      "highlight": [
+        {
+          "start": 141,
+          "end": 166
+        }
+      ],
+      "title": "",
+      "id": "68224",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/person_tracker.py"
+      ],
+      "description": "## PersonTrackingStream\n\nThe fourth stream specializes in **per-frame human detection using `YOLO`, then distance/angle estimation**. This stream is optimized specifically for tracking people and estimating their spatial relationship to the robot.",
+      "title": "",
+      "id": "68225",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `PersonTrackingStream` `docstring` shows it combines `YOLO`-based person detection with specialized distance estimation. It requires camera intrinsics, pitch angle, and height to accurately calculate real-world distances and angles to detected people.",
+      "file": "dimos/perception/person_tracker.py",
+      "highlight": [
+        {
+          "start": 19,
+          "end": 32
+        }
+      ],
+      "title": "",
+      "id": "68226",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The processing pipeline starts with `YOLO` detection on each frame, then filters results to keep only person detections. This focused approach ensures the stream only processes human targets, optimizing performance and accuracy.",
+      "file": "dimos/perception/person_tracker.py",
+      "highlight": [
+        {
+          "start": 70,
+          "end": 81
+        }
+      ],
+      "title": "",
+      "id": "68227",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "For each detected person, the stream calculates distance and angle using the `PersonDistanceEstimator`. This provides spatial awareness that robots need for human-robot interaction, enabling behaviors like following or maintaining appropriate distances.",
+      "file": "dimos/perception/person_tracker.py",
+      "highlight": [
+        {
+          "start": 94,
+          "end": 104
+        }
+      ],
+      "title": "",
+      "id": "68228",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "## Stream Integration in DimOS\n\nThese four perception streams work together in the DimOS architecture:\n\n* `ObjectDetectionStream` provides comprehensive scene understanding with 3D object locations\n* `SemanticSegmentationStream` offers pixel-level scene parsing with depth information  \n* `ObjectTrackingStream` maintains persistent object identity across time\n* `PersonTrackingStream` specializes in human-robot spatial interaction\n\nAll streams connect to agents via `RxPY` **Observables**, enabling real-time reactive processing that scales from simple detection to complex multi-modal perception systems.",
+      "title": "",
+      "id": "68229"
+    },
+    {
+      "type": "mcq",
+      "description": "An agent needs to identify all instances of a `cup` in the `camera's view` and determine their precise 3D position, rotation, and physical dimensions. Which perception stream is best suited for this task?\n\nOptions:\n\n A). SemanticSegmentationStream\n\nB). ObjectDetectionStream\n\nC). ObjectTrackingStream\n\nD). PersonTrackingStream\n\n\nCorrect: B). ObjectDetectionStream\n\nExplanation: `ObjectDetectionStream` is the correct choice because its documented purpose is to perform multi-object detection and then calculate the 3D position, rotation, and physical size for each detected object. `SemanticSegmentationStream` provides pixel masks and average depth, not a full 3D pose. `ObjectTrackingStream` follows a single, pre-identified object. `PersonTrackingStream` is specialized for detecting humans.",
+      "title": "",
+      "id": "68230",
+      "text": "An agent needs to identify all instances of a `cup` in the `camera's view` and determine their precise 3D position, rotation, and physical dimensions. Which perception stream is best suited for this task?",
+      "answers": [
+        "SemanticSegmentationStream",
+        "ObjectDetectionStream",
+        "ObjectTrackingStream",
+        "PersonTrackingStream"
+      ],
+      "correct": 1,
+      "explanation": "`ObjectDetectionStream` is the correct choice because its documented purpose is to perform multi-object detection and then calculate the 3D position, rotation, and physical size for each detected object. `SemanticSegmentationStream` provides pixel masks and average depth, not a full 3D pose. `ObjectTrackingStream` follows a single, pre-identified object. `PersonTrackingStream` is specialized for detecting humans."
+    }
+  ]
+}

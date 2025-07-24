@@ -1,0 +1,85 @@
+{
+  "title": "40.3: Root Component Structure and Layout",
+  "id": "O5eI9BcR2FdiLQchSfbYDfm7UXE2Uf+oPGSKgOAOnFw=",
+  "originalId": 5544,
+  "position": 162,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough of `App.svelte` will examine **component imports**, **analytics injection**, **theme reactivity**, and **responsive layout** in the main application component.",
+      "title": "",
+      "id": "68886"
+    },
+    {
+      "type": "highlight",
+      "description": "`App.svelte` opens with a TypeScript script block containing imports for component dependencies: `Ps1` renders the command prompt symbol, `Input` handles user input, `History` displays command history, `StreamViewer` shows video content, and `theme` provides reactive styling variables. These are the component dependencies that work together to create the **terminal interface**.",
+      "file": "dimos/web/dimos_interface/src/App.svelte",
+      "highlight": [
+        {
+          "start": 1,
+          "end": 6
+        }
+      ],
+      "title": "",
+      "id": "68887",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `<svelte:head>` block conditionally injects an analytics tracking script into the document head. The condition checks a Vite environment variable, allowing analytics to be toggled based on the build environment—perfect for enabling tracking in production while keeping development clean.",
+      "file": "dimos/web/dimos_interface/src/App.svelte",
+      "highlight": [
+        {
+          "start": 9,
+          "end": 17
+        }
+      ],
+      "title": "",
+      "id": "68888",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `<main>` element combines Tailwind CSS classes for layout with dynamic inline styles. The `style` attribute binds to `$theme.background`, `$theme.foreground`, and `$theme.green`. Due to **Svelte's reactivity**, these styles automatically update whenever the theme store changes, enabling real-time theme switching.",
+      "file": "dimos/web/dimos_interface/src/App.svelte",
+      "highlight": [
+        {
+          "start": 20,
+          "end": 23
+        }
+      ],
+      "title": "",
+      "id": "68889",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The layout creates a responsive terminal-like interface with this exact structure: `<StreamViewer />` at the top for video content, `<History />` for command history, and a flexbox container holding `<Ps1 />` and `<Input />`. The container uses `flex-col` (vertical stacking) on mobile but switches to `md:flex-row` (horizontal layout) on medium screens and larger, making the terminal responsive.",
+      "file": "dimos/web/dimos_interface/src/App.svelte",
+      "highlight": [
+        {
+          "start": 24,
+          "end": 30
+        }
+      ],
+      "title": "",
+      "id": "68890",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the `div` on line 27, how does the layout of the `Ps1` and `Input` components change with screen size?\n\nOptions:\n\n A). They are arranged horizontally by default and switch to a vertical stack on medium screens and larger.\n\nB). They are stacked vertically by default and switch to a horizontal arrangement on medium screens and larger.\n\nC). They are hidden on small screens and only appear on medium screens and larger.\n\nD). The entire main component, including `StreamViewer` and `History`, switches from vertical to horizontal.\n\n\nCorrect: B). They are stacked vertically by default and switch to a horizontal arrangement on medium screens and larger.\n\nExplanation: The correct answer is that the components are stacked vertically by default and switch to horizontal on medium screens. The class `flex-col` sets the default layout to a vertical column. The `md:flex-row` class is a responsive prefix that overrides the default on screens that are medium size or larger, changing the layout to a horizontal row. The other options are incorrect because the classes only apply to the `div` containing `Ps1` and `Input`, not the entire component, and they do not control visibility.",
+      "title": "",
+      "id": "68891",
+      "text": "Based on the `div` on line 27, how does the layout of the `Ps1` and `Input` components change with screen size?",
+      "answers": [
+        "They are arranged horizontally by default and switch to a vertical stack on medium screens and larger.",
+        "They are stacked vertically by default and switch to a horizontal arrangement on medium screens and larger.",
+        "They are hidden on small screens and only appear on medium screens and larger.",
+        "The entire main component, including `StreamViewer` and `History`, switches from vertical to horizontal."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that the components are stacked vertically by default and switch to horizontal on medium screens. The class `flex-col` sets the default layout to a vertical column. The `md:flex-row` class is a responsive prefix that overrides the default on screens that are medium size or larger, changing the layout to a horizontal row. The other options are incorrect because the classes only apply to the `div` containing `Ps1` and `Input`, not the entire component, and they do not control visibility."
+    }
+  ]
+}

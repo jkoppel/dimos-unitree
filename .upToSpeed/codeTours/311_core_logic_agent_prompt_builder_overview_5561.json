@@ -1,0 +1,167 @@
+{
+  "title": "31.1: Core Logic: Agent Prompt Builder: Overview",
+  "id": "KoTQh2OwXvYk7u3VgKIonKoeRKapEGgdjRJFnv8m4Bw=",
+  "originalId": 5561,
+  "position": 118,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to a comprehensive tour of the `PromptBuilder` component in the `DIMOS agent framework`. This walkthrough will explore how **LLM prompts** are constructed, managed, and used across different agent implementations.",
+      "title": "",
+      "id": "69063"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/prompt_builder/__init__.py"
+      ],
+      "description": "The PromptBuilder lives in its own dedicated directory at `dimos/agents/prompt_builder`. The `__init__.py` file is empty, keeping the module structure clean and simple.",
+      "title": "",
+      "id": "69064",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/prompt_builder/impl.py"
+      ],
+      "description": "The core implementation resides in `impl.py`. This file contains the complete **PromptBuilder** class that handles all aspects of prompt construction for LLM interactions.",
+      "title": "",
+      "id": "69065",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's the core `PromptBuilder` class definition. This class is responsible for constructing **LLM** prompts with integrated **token management**, **budget allocation**, and support for **multimodal inputs** including **images** and **RAG context**.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 24,
+          "end": 39
+        }
+      ],
+      "title": "",
+      "id": "69066",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The constructor shows how `PromptBuilder` is configured. It takes a model name, maximum token limit, and an optional `tokenizer`. The `tokenizer` defaults to `OpenAITokenizer`, reflecting the current OpenAI-specific design noted in the **TODO comments**.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 41,
+          "end": 51
+        }
+      ],
+      "title": "",
+      "id": "69067",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `build` method is the main interface for prompt construction. It accepts system prompts, user queries, images, RAG context, budgets, and policies. The method returns messages formatted for the `OpenAI API`, demonstrating its current specialization for OpenAI's message format.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 82,
+          "end": 112
+        }
+      ],
+      "title": "",
+      "id": "69068",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Now let's see how `PromptBuilder` is used. In `OpenAIAgent`'s **constructor**, the `PromptBuilder` is initialized with the `model name` and `tokenizer`. This happens at lines 764-766 where a new `PromptBuilder` instance is created if none is provided.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 762,
+          "end": 768
+        }
+      ],
+      "title": "",
+      "id": "69069",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's where the magic happens. Within `_observable_query`, the `_build_prompt` method calls `self.prompt_builder.build()` with all the necessary components: user query, images, RAG context, budgets, and policies. This is the critical point where all prompt construction occurs before sending to the LLM.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 296,
+          "end": 307
+        }
+      ],
+      "title": "",
+      "id": "69070",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`ClaudeAgent` also accepts a `prompt_builder` parameter in its constructor, showing the intended design for compatibility across different LLM providers. However, as we'll see next, `Claude` requires a different approach.",
+      "file": "dimos/agents/claude_agent.py",
+      "highlight": [
+        {
+          "start": 96,
+          "end": 106
+        }
+      ],
+      "title": "",
+      "id": "69071",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's the key difference: ClaudeAgent overrides `_build_prompt` instead of using `PromptBuilder.build()`. This is because Claude's API expects a different message format than OpenAI's. The method signature shows it builds prompts specifically for `Claude API` requirements.",
+      "file": "dimos/agents/claude_agent.py",
+      "highlight": [
+        {
+          "start": 258,
+          "end": 278
+        }
+      ],
+      "title": "",
+      "id": "69072",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Within Claude's `_build_prompt`, we see it constructs `claude_params` directly rather than using the `PromptBuilder`. This bypasses the **OpenAI**-specific formatting and token management, creating Claude-compatible message structures instead.",
+      "file": "dimos/agents/claude_agent.py",
+      "highlight": [
+        {
+          "start": 309,
+          "end": 322
+        }
+      ],
+      "title": "",
+      "id": "69073",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the code tour, why does `ClaudeAgent` implement its own `_build_prompt` method instead of using the shared `PromptBuilder.build()` method?\n\nOptions:\n\n A). `ClaudeAgent` uses a proprietary tokenizer that is incompatible with the `OpenAITokenizer` used by `PromptBuilder`.\n\nB). The Claude API requires a different message structure (e.g., `system` prompt as a top-level parameter) than the OpenAI API, for which the `PromptBuilder` is currently specialized.\n\nC). `PromptBuilder` is optimized for multimodal inputs (images and text), whereas `ClaudeAgent` only supports text-based prompts.\n\nD). `ClaudeAgent` inherits from a different base class than `OpenAIAgent`, which lacks the necessary methods to integrate with `PromptBuilder`.\n\n\nCorrect: B). The Claude API requires a different message structure (e.g., `system` prompt as a top-level parameter) than the OpenAI API, for which the `PromptBuilder` is currently specialized.\n\nExplanation: The correct answer is that the Claude API requires a different message structure. As shown in the tour, `PromptBuilder` is tailored to the OpenAI API's format, which uses a `messages` array for all content. In contrast, the Claude API expects the system prompt as a separate top-level parameter, necessitating a custom build method in `ClaudeAgent`.",
+      "title": "",
+      "id": "69075",
+      "text": "Based on the code tour, why does `ClaudeAgent` implement its own `_build_prompt` method instead of using the shared `PromptBuilder.build()` method?",
+      "answers": [
+        "`ClaudeAgent` uses a proprietary tokenizer that is incompatible with the `OpenAITokenizer` used by `PromptBuilder`.",
+        "The Claude API requires a different message structure (e.g., `system` prompt as a top-level parameter) than the OpenAI API, for which the `PromptBuilder` is currently specialized.",
+        "`PromptBuilder` is optimized for multimodal inputs (images and text), whereas `ClaudeAgent` only supports text-based prompts.",
+        "`ClaudeAgent` inherits from a different base class than `OpenAIAgent`, which lacks the necessary methods to integrate with `PromptBuilder`."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that the Claude API requires a different message structure. As shown in the tour, `PromptBuilder` is tailored to the OpenAI API's format, which uses a `messages` array for all content. In contrast, the Claude API expects the system prompt as a separate top-level parameter, necessitating a custom build method in `ClaudeAgent`."
+    },
+    {
+      "type": "textOnly",
+      "description": "## Summary\n\nThe PromptBuilder component serves as a sophisticated prompt construction system that:\n\n- **Lives in its own directory** at `dimos/agents/prompt_builder` for clean organization\n- **Manages token budgets** across system prompts, user queries, images, and RAG context\n- **Handles multimodal inputs** including text, images, and retrieved context\n- **Is used by** `OpenAIAgent` **through the standard** `build()` **method**\n- **Is bypassed by** `ClaudeAgent` **due to API format differences**\n- **Gets invoked after memory retrieval** and before the actual LLM API call\n\nThis design allows for centralized prompt logic while accommodating the specific requirements of different LLM providers.",
+      "title": "",
+      "id": "69074"
+    }
+  ]
+}

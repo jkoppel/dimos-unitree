@@ -1,0 +1,203 @@
+{
+  "title": "21.3: 2D Object Detection: Detic Implementation",
+  "id": "i41mfXfQLwY9mPSpXm0MFOvjNP4Hg22vhifPbP4Wyos=",
+  "originalId": 5484,
+  "position": 72,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to our tour of `Detic2DDetector`, which solves a fundamental limitation of `YOLO`: **vocabulary flexibility**. While `YOLO` is locked to 80 `COCO` classes, Detic can detect thousands of objects from `LVIS` (1203 classes), `Objects365` (365 classes), or any custom vocabulary you define.",
+      "title": "",
+      "id": "68047"
+    },
+    {
+      "type": "highlight",
+      "description": "**Tour Stop 1: Breaking Free from Fixed Dependencies**\n\nUnlike `YOLO`'s self-contained approach, `Detic` requires dynamic path manipulation (lines 9-12) to access external `Detectron2` and `Detic` libraries. The **PIL compatibility patch** (lines 15-17) handles version conflicts that `YOLO` avoids by using simpler image processing.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 8,
+          "end": 17
+        }
+      ],
+      "title": "",
+      "id": "68048",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Tour Stop 2: The Power of Open Vocabularies**\n\nThe constructor's `vocabulary` parameter is Detic's key advantage over YOLO. Instead of being locked to 80 COCO classes, you can specify `lvis` for 1203 classes, `objects365` for 365 classes, or provide custom lists like `['red car', 'damaged tire', 'construction helmet']` for specialized applications.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 135,
+          "end": 143
+        }
+      ],
+      "title": "",
+      "id": "68049",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This `builtin_datasets` dictionary is what enables **instant vocabulary switching** - something impossible with `YOLO`'s fixed architecture. Each entry maps to pre-computed `CLIP` embeddings, allowing `Detic` to understand semantic relationships between text and images without retraining.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 186,
+          "end": 204
+        }
+      ],
+      "title": "",
+      "id": "68050",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Tour Stop 3: Built-in Vocabularies - Efficiency Through Pre-computation**\n\nFor built-in datasets, `Detic` leverages pre-computed CLIP embeddings (`line 236`) rather than generating them on-demand. This architectural choice enables real-time vocabulary switching - imagine changing from general object detection to medical equipment detection with a single parameter change.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 232,
+          "end": 238
+        }
+      ],
+      "title": "",
+      "id": "68051",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Custom Vocabularies - Ultimate Flexibility**\n\nHere's where `Detic` truly surpasses `YOLO`'s limitations. Line `260` generates `CLIP` embeddings for arbitrary class lists, while line `264` reconfigures the entire detection head. This means you could detect domain-specific objects like `['solar panel defect', 'roof damage', 'gutter blockage']` without retraining the entire model.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 254,
+          "end": 264
+        }
+      ],
+      "title": "",
+      "id": "68052",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**The `CLIP` Bridge**\n\nThis method demonstrates how Detic bridges text and vision through `CLIP` embeddings. Line 280 applies prompt engineering (`'a ' + class_name`) to improve embedding quality - a sophisticated technique that `YOLO`'s fixed vocabulary approach cannot leverage.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 267,
+          "end": 282
+        }
+      ],
+      "title": "",
+      "id": "68053",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "A developer initializes `Detic2DDetector` with a custom list: `vocabulary=['cracked_pipe', 'loose_bolt']`. Based on the `setup_vocabulary` method, what is the architectural process for handling this list?\n\nOptions:\n\n A). The detector looks up pre-computed embeddings for 'cracked_pipe' and 'loose_bolt' in the `builtin_datasets` dictionary.\n\nB). The detector generates new CLIP embeddings on-the-fly using `_get_clip_embeddings` and reconfigures the model's classification head with `reset_cls_test`.\n\nC). The detector triggers a fine-tuning process on the entire model backbone using the new class names as training labels.\n\nD). The detector uses the `SimpleTracker` to dynamically add the new classes to the model's vocabulary during inference.\n\n\nCorrect: B). The detector generates new CLIP embeddings on-the-fly using `_get_clip_embeddings` and reconfigures the model's classification head with `reset_cls_test`.\n\nExplanation: Correct. For custom vocabularies, `setup_vocabulary` calls `_get_clip_embeddings` to generate text embeddings for the new classes. It then uses `reset_cls_test` to replace the model's final classification layer with these new embeddings, enabling detection without retraining. The other options are incorrect: `builtin_datasets` is only for predefined vocabularies like 'lvis', full retraining is not required, and the `SimpleTracker` handles object tracking, not vocabulary management.",
+      "title": "",
+      "id": "68061",
+      "text": "A developer initializes `Detic2DDetector` with a custom list: `vocabulary=['cracked_pipe', 'loose_bolt']`. Based on the `setup_vocabulary` method, what is the architectural process for handling this list?",
+      "answers": [
+        "The detector looks up pre-computed embeddings for 'cracked_pipe' and 'loose_bolt' in the `builtin_datasets` dictionary.",
+        "The detector generates new CLIP embeddings on-the-fly using `_get_clip_embeddings` and reconfigures the model's classification head with `reset_cls_test`.",
+        "The detector triggers a fine-tuning process on the entire model backbone using the new class names as training labels.",
+        "The detector uses the `SimpleTracker` to dynamically add the new classes to the model's vocabulary during inference."
+      ],
+      "correct": 1,
+      "explanation": "Correct. For custom vocabularies, `setup_vocabulary` calls `_get_clip_embeddings` to generate text embeddings for the new classes. It then uses `reset_cls_test` to replace the model's final classification layer with these new embeddings, enabling detection without retraining. The other options are incorrect: `builtin_datasets` is only for predefined vocabularies like 'lvis', full retraining is not required, and the `SimpleTracker` handles object tracking, not vocabulary management."
+    },
+    {
+      "type": "highlight",
+      "description": "**Tour Stop 4: Self-Contained Tracking vs External Dependencies**\n\nWhile YOLO relies on external tracking libraries (`ByteTrack`, `DeepSORT`), Detic includes its own `SimpleTracker`. This design choice reduces dependencies but trades sophistication for simplicity - perfect for understanding tracking fundamentals.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 25,
+          "end": 32
+        }
+      ],
+      "title": "",
+      "id": "68054",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The tracking logic enforces both spatial (`IoU`) and semantic (`class`) consistency. Lines 93-94 ensure objects don't change identity between frames - a `person` track won't suddenly become a `car`. This contrasts with `YOLO`'s more sophisticated motion models but provides interpretable, deterministic behavior.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 76,
+          "end": 99
+        }
+      ],
+      "title": "",
+      "id": "68055",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Bridging Detection and Tracking**\n\nNew track creation (lines 117-126) demonstrates how `Detic` maintains temporal consistency across its flexible vocabularies. Whether detecting `COCO` objects or custom industrial equipment, the same tracking logic applies - showcasing the power of standardized interfaces.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 117,
+          "end": 129
+        }
+      ],
+      "title": "",
+      "id": "68056",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Tour Stop 5: Interface Compatibility Despite Architectural Differences**\n\nDespite the completely different underlying model, the `process_image` method's return format, detailed in the highlighted docstring, is identical to `YOLO`'s. This design enables **drop-in replacement**, allowing you to switch from `YOLO`'s 80-class detection to `Detic`'s 1200+ class detection with zero code changes in your application.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 290,
+          "end": 298
+        }
+      ],
+      "title": "",
+      "id": "68057",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Detectron2 vs YOLO Inference Pipeline**\n\nUnlike `YOLO`'s end-to-end inference, Detic uses `Detectron2`'s more complex pipeline (line 300-301). The CPU transfer (line 301) and manual box conversion (lines 312-315) reflect `Detectron2`'s research-oriented design versus `YOLO`'s production-optimized architecture.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 299,
+          "end": 318
+        }
+      ],
+      "title": "",
+      "id": "68058",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Consistent Tracking and Output Formatting**\n\nThe final integration shows how tracking and output formatting are handled. This logic is independent of the detection vocabulary; regardless of whether you're detecting 80 `COCO` classes or 1203 `LVIS` classes, the tracking and output formatting remain identical. This consistency enables vocabulary experimentation without system redesign.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 330,
+          "end": 347
+        }
+      ],
+      "title": "",
+      "id": "68059",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "**The Detic Advantage: Vocabulary Freedom with Interface Consistency**\n\n`Detic2DDetector` showcases how open-vocabulary detection can coexist with familiar interfaces. Its `CLIP`-powered vocabulary system enables detection of arbitrary objects - from standard datasets to domain-specific classes - while maintaining the same output format as traditional detectors like `YOLO`. This flexibility opens new possibilities: industrial inspection, medical imaging, and specialized monitoring applications that were previously limited by fixed vocabularies.",
+      "title": "",
+      "id": "68060"
+    }
+  ]
+}

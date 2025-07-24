@@ -1,0 +1,133 @@
+{
+  "title": "17.2: Depth Estimation Workflow with Metric3D",
+  "id": "oLDUZCxqiEnlDjV3ypBpidDvaV2YmPbcjHYBce6jI9o=",
+  "originalId": 5474,
+  "position": 61,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour will explore the implementation of the `Metric3D` class, focusing on how it performs metric depth estimation. We will examine the key methods involved in the pipeline, from model initialization to depth inference and evaluation.",
+      "title": "",
+      "id": "67891"
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__` method initializes the `Metric3D` class. It loads the pre-trained `metric3d_vit_small` model from `torch.hub` and sets it to evaluation mode. It also establishes default camera intrinsics.",
+      "file": "dimos/models/depth/metric3d.py",
+      "highlight": [
+        {
+          "start": 28,
+          "end": 36
+        }
+      ],
+      "title": "",
+      "id": "67892",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The default camera intrinsic parameters (`fx`, `fy`, `cx`, `cy`) are defined, along with the ground-truth depth scale. These parameters provide the geometric context for the 2D image, allowing the model to infer depth in real-world units (meters). The `gt_depth_scale` is used for evaluating the predicted depth against a ground-truth depth map.",
+      "file": "dimos/models/depth/metric3d.py",
+      "highlight": [
+        {
+          "start": 38,
+          "end": 42
+        }
+      ],
+      "title": "",
+      "id": "67893",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `infer_depth` method is the primary entry point for depth estimation. It first handles the input, which can be either a file path to an image or a pre-loaded `numpy` array. It then calls `rescale_input` to preprocess the image. The model performs inference within a `torch.no_grad()` context to save memory. Finally, it uses `unpad_transform_depth` for post-processing and converts the output to a 16-bit `PIL` image.",
+      "file": "dimos/models/depth/metric3d.py",
+      "highlight": [
+        {
+          "start": 58,
+          "end": 81
+        }
+      ],
+      "title": "",
+      "id": "67894",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `rescale_input` method prepares the image for the `ViT` model. It resizes the input to a fixed size of 616x1064 while maintaining the aspect ratio, and then pads it. The camera intrinsics are scaled accordingly, and the padding information is stored for later use. The image is also normalized using the mean and standard deviation from the **model**'s training configuration.",
+      "file": "dimos/models/depth/metric3d.py",
+      "highlight": [
+        {
+          "start": 90,
+          "end": 117
+        }
+      ],
+      "title": "",
+      "id": "67895",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `unpad_transform_depth` method reverses the preprocessing steps. It removes the padding using the stored `pad_info` and upsamples the depth map back to the original image dimensions. It converts the depth from the model's canonical space to real-world metric units by scaling it with the camera's focal length. The result is a metric depth map clamped at a maximum of 1000 meters.",
+      "file": "dimos/models/depth/metric3d.py",
+      "highlight": [
+        {
+          "start": 118,
+          "end": 133
+        }
+      ],
+      "title": "",
+      "id": "67896",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the `Metric3D` class, `rescale_input` calculates `self.intrinsic_scaled` (line 99). What is the purpose of this scaled value in the depth estimation pipeline?\n\nOptions:\n\n A). To determine the padding values required to match the model's fixed input size.\n\nB). To provide the correct focal length for converting the model's canonical depth output to a real-world metric scale.\n\nC). To normalize the input image tensor by adjusting for the camera's specific lens distortion.\n\nD). To be passed directly into the model's `inference` call to guide the prediction.\n\n\nCorrect: B). To provide the correct focal length for converting the model's canonical depth output to a real-world metric scale.\n\nExplanation: The correct answer is the second option. The model outputs depth in a canonical space, which is a normalized representation. To convert this to a real-world metric scale (e.g., meters), it must be transformed using the camera's focal length. Since the input image is resized in `rescale_input`, the camera intrinsics (including focal length) must be scaled by the same ratio. This scaled value is then used in `unpad_transform_depth` (line 131) to correctly interpret the model's output. Padding is based on image dimensions, normalization uses static mean/std values, and the intrinsics are used for post-processing, not during the core model inference.",
+      "title": "",
+      "id": "67900",
+      "text": "In the `Metric3D` class, `rescale_input` calculates `self.intrinsic_scaled` (line 99). What is the purpose of this scaled value in the depth estimation pipeline?",
+      "answers": [
+        "To determine the padding values required to match the model's fixed input size.",
+        "To provide the correct focal length for converting the model's canonical depth output to a real-world metric scale.",
+        "To normalize the input image tensor by adjusting for the camera's specific lens distortion.",
+        "To be passed directly into the model's `inference` call to guide the prediction."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is the second option. The model outputs depth in a canonical space, which is a normalized representation. To convert this to a real-world metric scale (e.g., meters), it must be transformed using the camera's focal length. Since the input image is resized in `rescale_input`, the camera intrinsics (including focal length) must be scaled by the same ratio. This scaled value is then used in `unpad_transform_depth` (line 131) to correctly interpret the model's output. Padding is based on image dimensions, normalization uses static mean/std values, and the intrinsics are used for post-processing, not during the core model inference."
+    },
+    {
+      "type": "highlight",
+      "description": "The `update_intrinsic` method allows for dynamically setting new camera intrinsics. This is important when working with different cameras or image sources. The method includes a check to ensure the intrinsic parameters are in the correct format. Note that there is a duplicate, less verbose definition of this method on lines 137-139.",
+      "file": "dimos/models/depth/metric3d.py",
+      "highlight": [
+        {
+          "start": 48,
+          "end": 56
+        }
+      ],
+      "title": "",
+      "id": "67897",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `eval_predicted_depth` method is used for quantitative evaluation. It loads a ground-truth depth map, scales it appropriately, and compares it with the predicted depth. The primary metric computed is the **mean absolute relative error**, which provides a measure of the prediction's accuracy.",
+      "file": "dimos/models/depth/metric3d.py",
+      "highlight": [
+        {
+          "start": 140,
+          "end": 149
+        }
+      ],
+      "title": "",
+      "id": "67898",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Putting it all together in a usage example.\n\nThis concludes our tour of the `Metric3D` implementation. We've seen how it processes images, infers depth, and handles camera parameters to produce accurate metric depth maps.",
+      "title": "",
+      "id": "67899"
+    }
+  ]
+}

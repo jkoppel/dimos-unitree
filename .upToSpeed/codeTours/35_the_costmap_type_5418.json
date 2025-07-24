@@ -1,0 +1,132 @@
+{
+  "title": "3.5: The `Costmap` Type",
+  "id": "xMNBM1h4llWVF1xzOtgv9NLVghVvz1Yo1lahnrpMWFw=",
+  "originalId": 5418,
+  "position": 8,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to this tour of the `Costmap` class, a fundamental component in our robot's navigation system. A costmap is a 2D grid that represents the environment, where each cell has a \"cost\" that indicates how difficult or dangerous it is to traverse. This information is used for path planning and obstacle avoidance.\n\nWe'll be exploring the `dimos/types/costmap.py` file to understand how it all works.",
+      "title": "",
+      "id": "67353"
+    },
+    {
+      "type": "highlight",
+      "description": "Let's begin with the `Costmap` class constructor. The `__init__` method sets up the core attributes:\n\n- `grid`: A `NumPy` array where each element represents the cost of a cell in the map\n- `resolution`: The size of each grid cell in meters (e.g., 0.05 means 5x5 centimeters)\n- `origin`: The real-world coordinate of the bottom-left corner, anchoring the grid in world space\n- `origin_theta`: The rotation of the costmap\n- `width` and `height`: The dimensions of the grid in cells",
+      "file": "dimos/types/costmap.py",
+      "highlight": [
+        {
+          "start": 49,
+          "end": 62
+        }
+      ],
+      "title": "",
+      "id": "67354",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "A `Costmap` is typically created from a ROS `OccupancyGrid` message, which is the standard way to represent maps in robotics. The `from_msg` class method handles this conversion.\n\nIt extracts the dimensions, resolution, and origin from the message, then reshapes the flat data array into a 2D grid. Notice on line 96 how it calculates the orientation from a quaternion representation.",
+      "file": "dimos/types/costmap.py",
+      "highlight": [
+        {
+          "start": 75,
+          "end": 107
+        }
+      ],
+      "title": "",
+      "id": "67355",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "To be useful, a costmap needs to relate its grid cells to real-world coordinates. These transformation methods are the bridge between the abstract grid and physical space:\n\n- `world_to_grid` (line 145): Converts world coordinates to grid coordinates by subtracting the origin and dividing by resolution\n- `grid_to_world` (line 148): Does the reverse transformation",
+      "file": "dimos/types/costmap.py",
+      "highlight": [
+        {
+          "start": 136,
+          "end": 149
+        }
+      ],
+      "title": "",
+      "id": "67356",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's a practical application of coordinate transformation: the `is_occupied` method determines if a world point is an obstacle.\n\nIt first converts the world point to grid coordinates (line 160), checks if it's within bounds (line 162), then examines the cost value. Anything above the threshold or outside the map is considered occupied for safety.",
+      "file": "dimos/types/costmap.py",
+      "highlight": [
+        {
+          "start": 150,
+          "end": 166
+        }
+      ],
+      "title": "",
+      "id": "67357",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the `is_occupied` method, what is the return value if a world point converts to grid coordinates that are outside the `costmap`'s boundaries?\n\nOptions:\n\n A). An `IndexError` is raised when accessing the grid.\n\nB). True, as out-of-bounds areas are considered occupied.\n\nC). False, because the point does not correspond to a known obstacle.\n\n\nCorrect: B). True, as out-of-bounds areas are considered occupied.\n\nExplanation: The correct answer is `True`. The method explicitly checks if the coordinates are within bounds on line 162. If they are not, the method returns `True` on line 166, treating any point outside the known map area as occupied to ensure safe navigation.",
+      "title": "",
+      "id": "67362",
+      "text": "In the `is_occupied` method, what is the return value if a world point converts to grid coordinates that are outside the `costmap`'s boundaries?",
+      "answers": [
+        "An `IndexError` is raised when accessing the grid.",
+        "True, as out-of-bounds areas are considered occupied.",
+        "False, because the point does not correspond to a known obstacle."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is `True`. The method explicitly checks if the coordinates are within bounds on line 162. If they are not, the method returns `True` on line 166, treating any point outside the known map area as occupied to ensure safe navigation."
+    },
+    {
+      "type": "highlight",
+      "description": "Now for the most complex method: `smudge`. This **\"inflates\"** obstacles by creating a buffer zone around them, preventing the robot from getting too close to hazards.\n\nThe method parameters control the expansion: `kernel_size` determines the shape, `iterations` controls how far to expand, `decay_factor` reduces cost with distance, and `threshold` sets the minimum cost to consider as an obstacle.",
+      "file": "dimos/types/costmap.py",
+      "highlight": [
+        {
+          "start": 183,
+          "end": 203
+        }
+      ],
+      "title": "",
+      "id": "67358",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The core of the **smudge algorithm** uses **binary dilation**. It creates a binary map of obstacles (line 223), then iteratively expands them using a **circular kernel** (lines 225-230).\n\nEach iteration adds a new `\"ring\"` around existing obstacles with decaying cost values. The result is a gradient of costs radiating outward from obstacles, which path planners use to find safe routes.",
+      "file": "dimos/types/costmap.py",
+      "highlight": [
+        {
+          "start": 219,
+          "end": 256
+        }
+      ],
+      "title": "",
+      "id": "67359",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the `__str__` method provides a human-readable summary of the costmap's properties. It calculates occupancy statistics (lines 294-298) and displays dimensions, resolution, origin, and the percentage of occupied (▣), free (□), and unknown (◌) cells.\n\nThis compact representation is invaluable for debugging and monitoring the robot's understanding of its environment.",
+      "file": "dimos/types/costmap.py",
+      "highlight": [
+        {
+          "start": 287,
+          "end": 316
+        }
+      ],
+      "title": "",
+      "id": "67360",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "That concludes our tour of the `Costmap` class. We've seen how it's initialized, created from `ROS` messages, handles coordinate transformations, and processes obstacles for safer navigation. This class is a cornerstone of the robot's ability to understand and navigate its environment safely.",
+      "title": "",
+      "id": "67361"
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "title": "23.5: Person Tracking: Per-Frame Human Detection",
+  "id": "EluHrIipp5dmYudSSDtZorDMMNVwxfA0E2NTZsu+s/Y=",
+  "originalId": 5497,
+  "position": 83,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour will contrast the `PersonTrackingStream` with generic object tracking, highlighting its approach to multi-person robustness and the associated performance trade-offs.\n\nWe will examine the `person_tracker.py` file to understand how it's designed for this specific task.",
+      "title": "",
+      "id": "68130"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/person_tracker.py"
+      ],
+      "description": "Let's start with the constructor of `PersonTrackingStream`. It initializes a `Yolo2DDetector` for object detection and a `PersonDistanceEstimator`. The distance estimator is configured with camera-specific parameters and an assumed height for a person, which is a key simplification for efficiency.",
+      "title": "",
+      "id": "68131",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here in the `__init__` method, you can see the `Yolo2DDetector` being set up. This is a general-purpose object detector.",
+      "file": "dimos/perception/person_tracker.py",
+      "highlight": [
+        {
+          "start": 11,
+          "end": 18
+        }
+      ],
+      "title": "",
+      "id": "68132",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `PersonDistanceEstimator` is initialized with camera intrinsics (`K`), `camera_pitch`, and `camera_height`. This setup allows for estimating the distance to a person based on their bounding box size and position, avoiding the need for a more computationally expensive full-frame depth inference. It assumes a standard height for people, which is a reasonable trade-off for this application.",
+      "file": "dimos/perception/person_tracker.py",
+      "highlight": [
+        {
+          "start": 38,
+          "end": 58
+        }
+      ],
+      "title": "",
+      "id": "68133",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Now, let's look at `create_stream`. This method defines the core per-frame processing pipeline. For each frame from the `video_stream`, it performs detection, filtering, and estimation.",
+      "file": "dimos/perception/person_tracker.py",
+      "highlight": [
+        {
+          "start": 60,
+          "end": 69
+        }
+      ],
+      "title": "",
+      "id": "68134",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Inside the `process_frame` function, the first step is to run the `YOLO` detector on the entire frame. Immediately after, `filter_detections` is called to isolate only the detections classified as `\"person\"` (class ID `0`). This is a key step that specializes the generic object detector for our specific purpose.",
+      "file": "dimos/perception/person_tracker.py",
+      "highlight": [
+        {
+          "start": 72,
+          "end": 81
+        }
+      ],
+      "title": "",
+      "id": "68135",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Inside the loop, the distance and angle for each person are estimated. This calculation uses the bounding box geometry and pre-configured camera parameters, which avoids the computational cost of processing the entire frame's depth information.",
+      "file": "dimos/perception/person_tracker.py",
+      "highlight": [
+        {
+          "start": 94,
+          "end": 105
+        }
+      ],
+      "title": "",
+      "id": "68136",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The results are then visualized. Bounding boxes are drawn around each person, and the estimated distance and angle are overlaid as text using `cv2.putText`. This provides immediate visual feedback.",
+      "file": "dimos/perception/person_tracker.py",
+      "highlight": [
+        {
+          "start": 107,
+          "end": 125
+        }
+      ],
+      "title": "",
+      "id": "68137",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "The primary trade-off with this per-frame re-detection approach is performance versus robustness.\n\n- **Robustness**: By re-detecting in every frame, the system handles multiple people entering or leaving the scene without requiring complex tracking logic. This makes the approach robust to occlusions and tracking failures, as it does not rely on maintaining a continuous track of each individual over time.\n\n- **Performance**: The drawback is the computational cost. Running a `YOLO` detector on every frame is more expensive than typical single-object tracking algorithms (e.g., **correlation filters**), which only need to search a small region of interest around the object's last known position.\n\nThis design choice prioritizes robust tracking of multiple, unpredictable targets over achieving a higher frame rate.",
+      "title": "",
+      "id": "68138"
+    },
+    {
+      "type": "mcq",
+      "description": "What is the main architectural trade-off of the `PersonTrackingStream`'s approach, which involves re-detecting persons in every frame?\n\nOptions:\n\n A). It lowers computational cost by avoiding stateful tracking, but is less robust when people are occluded.\n\nB). It improves robustness in handling multiple people entering and leaving the scene, at the cost of higher computational load per frame.\n\nC). It increases the accuracy of distance estimation but makes it difficult to filter detections by class.\n\n\nCorrect: B). It improves robustness in handling multiple people entering and leaving the scene, at the cost of higher computational load per frame.\n\nExplanation: The correct answer is that this approach improves robustness at the cost of computation. Running a detector like YOLO on every frame is computationally more expensive than using a lighter-weight tracker on a region of interest. However, this re-detection strategy makes the system robust because it doesn't need to maintain a complex state for each person, easily handling individuals entering or leaving the camera's view without the risk of losing a track.",
+      "title": "",
+      "id": "68139",
+      "text": "What is the main architectural trade-off of the `PersonTrackingStream`'s approach, which involves re-detecting persons in every frame?",
+      "answers": [
+        "It lowers computational cost by avoiding stateful tracking, but is less robust when people are occluded.",
+        "It improves robustness in handling multiple people entering and leaving the scene, at the cost of higher computational load per frame.",
+        "It increases the accuracy of distance estimation but makes it difficult to filter detections by class."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that this approach improves robustness at the cost of computation. Running a detector like YOLO on every frame is computationally more expensive than using a lighter-weight tracker on a region of interest. However, this re-detection strategy makes the system robust because it doesn't need to maintain a complex state for each person, easily handling individuals entering or leaving the camera's view without the risk of losing a track."
+    }
+  ]
+}

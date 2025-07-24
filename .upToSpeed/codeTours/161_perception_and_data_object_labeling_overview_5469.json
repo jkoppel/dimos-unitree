@@ -1,0 +1,58 @@
+{
+  "title": "16.1: Perception & Data: Object Labeling: Overview",
+  "id": "lYg8SPaEU6svVwkI6GrA9DPYC7XbdpIPHKLf31MlpH0=",
+  "originalId": 5469,
+  "position": 58,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "**In VSCode**'s sidebar, let's look at the file tree under `dimos/models/labels`.",
+      "title": "",
+      "id": "68087"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/models/labels/__init__.py"
+      ],
+      "description": "The `__init__.py` file is empty, serving as a package marker to make `dimos/models/labels` a `Python` package.",
+      "title": "",
+      "id": "68088",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here are lines 1\u001230 of `llava-34b.py`, showing the **Apache 2.0 license header**, imports (`json`, `os`, `Llama`, `Llava15ChatHandler`, and `image_to_base64_data_uri`), and the `Llava` class declaration with its constructor initializing a LLaVA vision\u0013language model with configurable multimodal projection (`mmproj`) and GPU acceleration (`n_gpu_layers`).",
+      "file": "dimos/models/labels/llava-34b.py",
+      "highlight": [
+        {
+          "start": 1,
+          "end": 30
+        }
+      ],
+      "title": "",
+      "id": "68089",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This component wraps a vision–language model (`LLaVA`) to convert robot camera frames into structured object descriptions.",
+      "title": "",
+      "id": "68090"
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the `Llava` class constructor, what is the role of the `mmproj` parameter?\n\nOptions:\n\n A). It defines the path to the main language model file.\n\nB). It specifies the path to the multimodal projection model used by the chat handler.\n\nC). It is a boolean flag to enable or disable GPU acceleration.\n\n\nCorrect: B). It specifies the path to the multimodal projection model used by the chat handler.\n\nExplanation: The `mmproj` parameter (line 25) provides the path to the CLIP model, which is used by `Llava15ChatHandler` (line 26) to process image data. The main language model is specified by `model_path`, and GPU acceleration is controlled by the `gpu` boolean flag.",
+      "title": "",
+      "id": "68091",
+      "text": "Based on the `Llava` class constructor, what is the role of the `mmproj` parameter?",
+      "answers": [
+        "It defines the path to the main language model file.",
+        "It specifies the path to the multimodal projection model used by the chat handler.",
+        "It is a boolean flag to enable or disable GPU acceleration."
+      ],
+      "correct": 1,
+      "explanation": "The `mmproj` parameter (line 25) provides the path to the CLIP model, which is used by `Llava15ChatHandler` (line 26) to process image data. The main language model is specified by `model_path`, and GPU acceleration is controlled by the `gpu` boolean flag."
+    }
+  ]
+}

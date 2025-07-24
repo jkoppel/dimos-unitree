@@ -1,0 +1,734 @@
+{
+  "title": "35.2: FastAPI Server Architecture and Streaming",
+  "id": "3XFb4420AouFiqqgUn0NAUtO4ruSw4Zd3cHyX5RHneA=",
+  "originalId": 5569,
+  "position": 134,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to this deep dive tour of the `FastAPI` server implementation in `DimOS`. This server handles real-time video and text streaming, manages client connections, and integrates with the `DimOS` agent pipeline.\n\nWe'll explore how it leverages `FastAPI`, `RxPY` observables, and **multipart HTTP streaming** to deliver a responsive web interface.",
+      "title": "",
+      "id": "69540"
+    },
+    {
+      "type": "highlight",
+      "description": "The developers have included important warnings at the top of the file. These highlight critical limitations: `Flask` compatibility issues, potential signalling problems with multiple streams, and `Chrome`’s 6-stream limitation that affects testing and deployment.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 19,
+          "end": 26
+        }
+      ],
+      "title": "",
+      "id": "69558",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The developers have included important warnings at the top of the file. These highlight critical limitations: `Flask` compatibility issues, potential signalling problems with multiple streams, and `Chrome`’s 6-stream limitation that affects testing and deployment.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 19,
+          "end": 26
+        }
+      ],
+      "title": "",
+      "id": "69541",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "There’s also a **TODO** note indicating that threading and start/stop stream functionality still needs resolution, showing this file is under active development.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 45,
+          "end": 48
+        }
+      ],
+      "title": "",
+      "id": "69559",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "There’s also a TODO note indicating that threading and start/stop stream functionality still needs resolution, showing this file is under active development.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 45,
+          "end": 48
+        }
+      ],
+      "title": "",
+      "id": "69542",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__` method begins by creating the `FastAPI` application instance and calling `super()` on `EdgeIO`. This establishes the server as a bidirectional component in the DimOS architecture.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 52,
+          "end": 60
+        }
+      ],
+      "title": "",
+      "id": "69560",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__` method begins by creating the `FastAPI` application instance and calling `super()` on `EdgeIO`. This establishes the server as a bidirectional component in the DimOS architecture.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 52,
+          "end": 60
+        }
+      ],
+      "title": "",
+      "id": "69520",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__` method begins by creating the `FastAPI` application instance and calling `super()` on `EdgeIO`. This establishes the server as a bidirectional component in the DimOS architecture.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 52,
+          "end": 60
+        }
+      ],
+      "title": "",
+      "id": "69543",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`CORS middleware` is configured with permissive `\"*\"` origins for development. While convenient for testing, allowing any origin can expose the server to cross-site attacks if left unchanged in production.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 63,
+          "end": 70
+        }
+      ],
+      "title": "",
+      "id": "69561",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "CORS middleware is configured with permissive `\"*\"` origins for development. While convenient for testing, allowing any origin can expose the server to cross-site attacks if left unchanged in production.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 63,
+          "end": 70
+        }
+      ],
+      "title": "",
+      "id": "69503",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`CORS middleware` is configured with permissive `\"*\"` origins for development. While convenient for testing, allowing any origin can expose the server to cross-site attacks if left unchanged in production.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 63,
+          "end": 70
+        }
+      ],
+      "title": "",
+      "id": "69535",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 89–96 show how a `RxPY` **Subject** is created for handling text queries and then each video stream is transformed into an **observable** with `process_frame_fastapi` and shared among subscribers.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 89,
+          "end": 96
+        }
+      ],
+      "title": "",
+      "id": "69573",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "The `CORSMiddleware` in `server.py` is configured with `allow_origins=[\"*\"]`. From a security auditing perspective, what is the most significant risk associated with this configuration in a production environment?\n\nOptions:\n\n A). It blocks all cross-origin requests, preventing the frontend from communicating with the API.\n\nB). It permits any website to send requests to the API, potentially enabling Cross-Site Request Forgery (CSRF) if state-changing actions are not otherwise protected.\n\nC). It forces all connections to use HTTPS, which can cause certificate errors if not properly configured.\n\nD). It exposes internal server IP addresses in the `Access-Control-Allow-Origin` header, leaking network topology.\n\n\nCorrect: B). It permits any website to send requests to the API, potentially enabling Cross-Site Request Forgery (CSRF) if state-changing actions are not otherwise protected.\n\nExplanation: The `allow_origins=[\"*\"]` configuration is a wildcard that permits requests from any domain. In a production setting, this is a security concern because it can facilitate Cross-Site Request Forgery (CSRF) attacks. If a user is authenticated with the service, a malicious website could potentially make requests to the API on their behalf. Best practice is to whitelist specific, trusted domains. CORS does not enforce HTTPS, nor does it inherently leak network information in the manner described.",
+      "title": "",
+      "id": "69544",
+      "text": "The `CORSMiddleware` in `server.py` is configured with `allow_origins=[\"*\"]`. From a security auditing perspective, what is the most significant risk associated with this configuration in a production environment?",
+      "answers": [
+        "It blocks all cross-origin requests, preventing the frontend from communicating with the API.",
+        "It permits any website to send requests to the API, potentially enabling Cross-Site Request Forgery (CSRF) if state-changing actions are not otherwise protected.",
+        "It forces all connections to use HTTPS, which can cause certificate errors if not properly configured.",
+        "It exposes internal server IP addresses in the `Access-Control-Allow-Origin` header, leaking network topology."
+      ],
+      "correct": 1,
+      "explanation": "The `allow_origins=[\"*\"]` configuration is a wildcard that permits requests from any domain. In a production setting, this is a security concern because it can facilitate Cross-Site Request Forgery (CSRF) attacks. If a user is authenticated with the service, a malicious website could potentially make requests to the API on their behalf. Best practice is to whitelist specific, trusted domains. CORS does not enforce HTTPS, nor does it inherently leak network information in the manner described."
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 89–96 show how a `RxPY` **Subject** is created for handling text queries and then each video stream is transformed into an **observable** with `process_frame_fastapi` and shared among subscribers.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 89,
+          "end": 96
+        }
+      ],
+      "title": "",
+      "id": "69545",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `process_frame_fastapi` method converts **OpenCV** frames into `JPEG`-encoded bytes. This format is required for multipart HTTP streaming to browsers.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 115,
+          "end": 119
+        }
+      ],
+      "title": "",
+      "id": "69574",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `stream_generator`’s initialization creates a `Queue(maxsize=10)` to buffer frames per client. It also prepares a `SingleAssignmentDisposable` for cleanup when the client disconnects.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 125,
+          "end": 133
+        }
+      ],
+      "title": "",
+      "id": "69575",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `process_frame_fastapi` method converts `OpenCV` frames into **JPEG**-encoded bytes. This format is required for multipart **HTTP** streaming to browsers.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 115,
+          "end": 119
+        }
+      ],
+      "title": "",
+      "id": "69546",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `stream_generator`’s initialization creates a `Queue(maxsize=10)` to buffer frames per client. It also prepares a `SingleAssignmentDisposable` for cleanup when the client disconnects.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 125,
+          "end": 133
+        }
+      ],
+      "title": "",
+      "id": "69547",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "In `subscribe()`, each incoming frame is pushed into the `queue`. Null frames signal errors or completion, ensuring the generator can terminate gracefully.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 146,
+          "end": 150
+        }
+      ],
+      "title": "",
+      "id": "69576",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This factory method creates an async endpoint for a specific video stream. The inner `video_feed` function wraps the generator from the previous step in FastAPI's `StreamingResponse`. The `media_type` argument instructs the browser to render the data as a continuous MJPEG stream.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 170,
+          "end": 178
+        }
+      ],
+      "title": "",
+      "id": "69577",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "In `subscribe()`, each incoming frame is pushed into the `queue`. **Null frames** signal errors or completion, ensuring the **generator** can terminate gracefully.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 146,
+          "end": 150
+        }
+      ],
+      "title": "",
+      "id": "69548",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "In `subscribe()`, each incoming frame is pushed into the **queue**. Null frames signal errors or completion, ensuring the generator can terminate gracefully.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 146,
+          "end": 150
+        }
+      ],
+      "title": "",
+      "id": "69562",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`text_stream_generator` uses **Server-Sent Events (SSE)** via `EventSourceResponse`. Each client is assigned a unique ID for connection tracking and cleanup.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 180,
+          "end": 188
+        }
+      ],
+      "title": "",
+      "id": "69578",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This factory function returns an `async` endpoint for a specific stream. The inner `video_feed` function calls our `stream_generator` and wraps its output in FastAPI's `StreamingResponse`. The `media_type` argument instructs the browser to render a continuous MJPEG stream.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 170,
+          "end": 178
+        }
+      ],
+      "title": "",
+      "id": "69563",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This factory function creates and returns an `async` endpoint for a specific stream. The endpoint itself wraps the stream generator from the previous step in a FastAPI `StreamingResponse`. Note the `media_type` argument, which is key for instructing the browser to render a continuous MJPEG stream.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 170,
+          "end": 178
+        }
+      ],
+      "title": "",
+      "id": "69549",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In `create_video_feed_route` (lines 170-178), the `StreamingResponse` is configured with `media_type=\"multipart/x-mixed-replace; boundary=frame\"`. What is the primary role of this media type in enabling real-time video playback in the browser?\n\nOptions:\n\n A). It establishes a Server-Sent Events (SSE) channel, where each frame is sent as a separate server-pushed event.\n\nB). It initiates a WebSocket handshake to upgrade the connection for low-latency, bidirectional frame transport.\n\nC). It signals the browser to replace the displayed image with each new `frame` part of the multipart response, creating an MJPEG video effect.\n\nD). It enables HTTP chunked transfer encoding, allowing the server to send the video as a single, progressively loaded file.\n\n\nCorrect: C). It signals the browser to replace the displayed image with each new `frame` part of the multipart response, creating an MJPEG video effect.\n\nExplanation: The correct answer is that `media_type=\"multipart/x-mixed-replace; boundary=frame\"` implements Motion JPEG (MJPEG) streaming over HTTP. This standard instructs the browser to expect a multipart response where each part, delimited by the boundary, is a complete JPEG image. The `x-mixed-replace` directive tells the browser to replace the content of the previous part with the new one, creating a video stream. SSE is used for the text stream, not video. The code does not implement a WebSocket handshake. While related to streaming, the specific mechanism is the replacement of parts, not just chunked encoding of a single resource.",
+      "title": "",
+      "id": "69550",
+      "text": "In `create_video_feed_route` (lines 170-178), the `StreamingResponse` is configured with `media_type=\"multipart/x-mixed-replace; boundary=frame\"`. What is the primary role of this media type in enabling real-time video playback in the browser?",
+      "answers": [
+        "It establishes a Server-Sent Events (SSE) channel, where each frame is sent as a separate server-pushed event.",
+        "It initiates a WebSocket handshake to upgrade the connection for low-latency, bidirectional frame transport.",
+        "It signals the browser to replace the displayed image with each new `frame` part of the multipart response, creating an MJPEG video effect.",
+        "It enables HTTP chunked transfer encoding, allowing the server to send the video as a single, progressively loaded file."
+      ],
+      "correct": 2,
+      "explanation": "The correct answer is that `media_type=\"multipart/x-mixed-replace; boundary=frame\"` implements Motion JPEG (MJPEG) streaming over HTTP. This standard instructs the browser to expect a multipart response where each part, delimited by the boundary, is a complete JPEG image. The `x-mixed-replace` directive tells the browser to replace the content of the previous part with the new one, creating a video stream. SSE is used for the text stream, not video. The code does not implement a WebSocket handshake. While related to streaming, the specific mechanism is the replacement of parts, not just chunked encoding of a single resource."
+    },
+    {
+      "type": "highlight",
+      "description": "**Server-Sent Events** (`SSE`) via `EventSourceResponse`. Each client is assigned a unique ID for connection tracking and cleanup.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 180,
+          "end": 188
+        }
+      ],
+      "title": "",
+      "id": "69564",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "During idle periods, the `generator` yields `ping events` every `0.1 s`. These `keep-alive messages` prevent `SSE connections` from timing out in browsers.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 203,
+          "end": 207
+        }
+      ],
+      "title": "",
+      "id": "69579",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "During idle periods, the **generator** yields **ping events** every 0.1 s. These **keep-alive messages** prevent **SSE connections** from timing out in browsers.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 203,
+          "end": 207
+        }
+      ],
+      "title": "",
+      "id": "69565",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Server-Sent Events** (`SSE`) via `EventSourceResponse`. Each client is assigned a unique ID for connection tracking and cleanup.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 180,
+          "end": 188
+        }
+      ],
+      "title": "",
+      "id": "69514",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `/streams` and `/text_streams` endpoints advertise available video and text streams. The frontend uses these to dynamically build UI controls for each stream key.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 211,
+          "end": 216
+        }
+      ],
+      "title": "",
+      "id": "69580",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "During idle periods, the `generator` yields `ping events` every 0.1 s. These keep-alive messages prevent **SSE connections** from timing out in browsers.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 203,
+          "end": 207
+        }
+      ],
+      "title": "",
+      "id": "69516",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The index route renders a **Jinja2** template (`index_fastapi.html`), passing `stream_keys` and `text_stream_keys`. The template then generates video and text panes dynamically.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 221,
+          "end": 230
+        }
+      ],
+      "title": "",
+      "id": "69581",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `/streams` and `/text_streams` endpoints advertise available video and text streams. The frontend uses these to dynamically build UI controls for each stream key.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 211,
+          "end": 216
+        }
+      ],
+      "title": "",
+      "id": "69566",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `/submit_query` endpoint extracts the `query` form field and emits it into `query_subject` via `on_next()`. This bridges user text input into the **DimOS agent pipeline**.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 231,
+          "end": 239
+        }
+      ],
+      "title": "",
+      "id": "69582",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The index route renders a Jinja2 template (`index_fastapi.html`), passing `stream_keys` and `text_stream_keys`. The template then generates video and text panes dynamically.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 221,
+          "end": 230
+        }
+      ],
+      "title": "",
+      "id": "69567",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `/streams` and `/text_streams` endpoints advertise available video and text streams. The frontend uses these to dynamically build UI controls for each stream key.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 211,
+          "end": 216
+        }
+      ],
+      "title": "",
+      "id": "69551",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The index route renders a **Jinja2** template (`index_fastapi.html`), passing `stream_keys` and `text_stream_keys`. The template then generates video and text panes dynamically.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 221,
+          "end": 230
+        }
+      ],
+      "title": "",
+      "id": "69552",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `/submit_query` endpoint extracts the “`query`” form field and emits it into `query_subject` via `on_next()`. This bridges user text input into the `DimOS` agent pipeline.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 231,
+          "end": 239
+        }
+      ],
+      "title": "",
+      "id": "69568",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "When a user submits data to the `/submit_query` endpoint, how is that query propagated to the backend agent pipeline?\n\nOptions:\n\n A). The server sends the query directly to an agent-specific function.\n\nB). The query is pushed into the `query_subject` observable stream using `on_next()`, allowing subscribed components to react to it.\n\nC). The query is added to a shared `asyncio.Queue` that the agent pipeline continuously monitors for new items.\n\n\nCorrect: B). The query is pushed into the `query_subject` observable stream using `on_next()`, allowing subscribed components to react to it.\n\nExplanation: The correct approach is using the RxPY `query_subject`. Calling `on_next()` emits the query to all subscribed components in the agent pipeline. This decouples the web server from the specific agent logic, allowing for a flexible and reactive architecture. Direct function calls would create tight coupling, and while an `asyncio.Queue` is a valid pattern, this system uses RxPY observables for its stream processing.",
+      "title": "",
+      "id": "69583",
+      "text": "When a user submits data to the `/submit_query` endpoint, how is that query propagated to the backend agent pipeline?",
+      "answers": [
+        "The server sends the query directly to an agent-specific function.",
+        "The query is pushed into the `query_subject` observable stream using `on_next()`, allowing subscribed components to react to it.",
+        "The query is added to a shared `asyncio.Queue` that the agent pipeline continuously monitors for new items."
+      ],
+      "correct": 1,
+      "explanation": "The correct approach is using the RxPY `query_subject`. Calling `on_next()` emits the query to all subscribed components in the agent pipeline. This decouples the web server from the specific agent logic, allowing for a flexible and reactive architecture. Direct function calls would create tight coupling, and while an `asyncio.Queue` is a valid pattern, this system uses RxPY observables for its stream processing."
+    },
+    {
+      "type": "highlight",
+      "description": "**Exception handling** wraps the **form submission**, ensuring that any errors still yield a valid `JSONResponse`. This prevents client-side failures due to malformed server errors.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 246,
+          "end": 252
+        }
+      ],
+      "title": "",
+      "id": "69584",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Exception handling wraps the form submission, ensuring that any errors still yield a valid `JSONResponse`. This prevents client-side failures due to malformed server errors.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 246,
+          "end": 252
+        }
+      ],
+      "title": "",
+      "id": "69569",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `/unitree/status` endpoint provides a simple health check **JSON** indicating the Unitree service is online. The `/unitree/command` endpoint processes **JSON** commands from the terminal frontend, publishes them to `query_subject`, and returns a structured result or error.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 254,
+          "end": 270
+        }
+      ],
+      "title": "",
+      "id": "69585",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Instead of defining routes manually, this loop programmatically creates an endpoint for each available video stream. This dynamic registration makes the server adaptable, automatically exposing new streams without requiring code changes.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 296,
+          "end": 299
+        }
+      ],
+      "title": "",
+      "id": "69586",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Exception handling wraps the form submission, ensuring that any errors still yield a valid `JSONResponse`. This prevents client-side failures due to malformed server errors.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 246,
+          "end": 252
+        }
+      ],
+      "title": "",
+      "id": "69553",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This loop dynamically registers a video feed endpoint for each available stream. By generating routes programmatically, the server avoids needing manual updates whenever streams are added or removed.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 296,
+          "end": 299
+        }
+      ],
+      "title": "",
+      "id": "69570",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `/unitree/status` endpoint provides a simple health check **JSON** indicating the Unitree service is online. The `/unitree/command` endpoint processes **JSON** commands from the terminal frontend, publishes them to `query_subject`, and returns a structured result or error.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 254,
+          "end": 270
+        }
+      ],
+      "title": "",
+      "id": "69554",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The run method calls `uvicorn.run(self.app, host, port)`. A `TODO` comment reminds developers that worker integration is still outstanding.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 300,
+          "end": 304
+        }
+      ],
+      "title": "",
+      "id": "69571",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The run method calls `uvicorn.run(self.app, host, port)`. A TODO comment reminds developers that worker integration is still outstanding.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 300,
+          "end": 304
+        }
+      ],
+      "title": "",
+      "id": "69587",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This `FastAPI` server demonstrates sophisticated real-time streaming capabilities using modern `Python` `async` patterns. Key architectural decisions include queue-based buffering per client, proper resource cleanup with `RxPY` disposables, `SSE` for text streaming with keep-alive pings, and dynamic route generation for flexible deployments.",
+      "title": "",
+      "id": "69588"
+    },
+    {
+      "type": "highlight",
+      "description": "The server dynamically creates a unique video feed endpoint for each available stream. This loop automates the registration, which avoids having to manually define routes when stream sources change.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 296,
+          "end": 299
+        }
+      ],
+      "title": "",
+      "id": "69555",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This `FastAPI` server demonstrates **sophisticated real-time streaming** capabilities using modern `Python` **async patterns**. Key architectural decisions include queue-based buffering per client, proper resource cleanup with `RxPY` disposables, `SSE` for text streaming with keep-alive pings, and dynamic route generation for flexible deployments.",
+      "title": "",
+      "id": "69572"
+    },
+    {
+      "type": "highlight",
+      "description": "The run method calls `uvicorn.run(self.app, host, port)`. A TODO comment reminds developers that worker integration is still outstanding.",
+      "file": "dimos/web/dimos_interface/api/server.py",
+      "highlight": [
+        {
+          "start": 300,
+          "end": 304
+        }
+      ],
+      "title": "",
+      "id": "69556",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This `FastAPI` server demonstrates sophisticated real-time streaming capabilities using modern `Python` `async` patterns. Key architectural decisions include queue-based buffering per client, proper resource cleanup with `RxPY` disposables, `SSE` for text streaming with keep-alive pings, and dynamic route generation for flexible deployments.",
+      "title": "",
+      "id": "69557"
+    }
+  ]
+}

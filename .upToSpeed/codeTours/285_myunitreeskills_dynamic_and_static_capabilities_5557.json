@@ -1,0 +1,215 @@
+{
+  "title": "28.5: MyUnitreeSkills: Dynamic and Static Capabilities",
+  "id": "DOS0zSiyA4jsOUlTn6jtEoR39bpBls0H0U/QITdtg3U=",
+  "originalId": 5557,
+  "position": 106,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Let's explore how `MyUnitreeSkills` provides both generated and hand-coded robot capabilities. This system elegantly combines pre-defined `WebRTC` commands with direct `ROS` velocity controls to create a comprehensive skill library.",
+      "title": "",
+      "id": "69086"
+    },
+    {
+      "type": "highlight",
+      "description": "The foundation starts with `UNITREE_ROS_CONTROLS` - a list of tuples defining available robot behaviors. Each tuple contains a skill name, unique `app_id`, and description. Notice the diverse range from basic positioning like `Damp` (`1001`) to balance control and recovery commands.",
+      "file": "dimos/robot/unitree/unitree_skills.py",
+      "highlight": [
+        {
+          "start": 34,
+          "end": 50
+        }
+      ],
+      "title": "",
+      "id": "69087",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Hello` skill (1016) demonstrates the **tuple structure** perfectly - a friendly gesture command that showcases how simple behaviors are defined through the `WebRTC` interface.",
+      "file": "dimos/robot/unitree/unitree_skills.py",
+      "highlight": [
+        {
+          "start": 73,
+          "end": 75
+        }
+      ],
+      "title": "",
+      "id": "69088",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `FrontFlip` skill (1030) represents the system's most sophisticated capabilities - complex acrobatic maneuvers that would be impossible to implement through simple velocity commands.",
+      "file": "dimos/robot/unitree/unitree_skills.py",
+      "highlight": [
+        {
+          "start": 112,
+          "end": 114
+        }
+      ],
+      "title": "",
+      "id": "69089",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `StandUp` command (`1004`) shows basic postural control - transitioning the robot from sitting to standing position through a single `WebRTC` call.",
+      "file": "dimos/robot/unitree/unitree_skills.py",
+      "highlight": [
+        {
+          "start": 41,
+          "end": 43
+        }
+      ],
+      "title": "",
+      "id": "69090",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Dance1` skill (1022) illustrates entertainment capabilities - pre-programmed dance routines that demonstrate the robot's expressive potential beyond utilitarian movement.",
+      "file": "dimos/robot/unitree/unitree_skills.py",
+      "highlight": [
+        {
+          "start": 91,
+          "end": 93
+        }
+      ],
+      "title": "",
+      "id": "69091",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `MyUnitreeSkills` class inherits from `SkillLibrary`, establishing the architectural foundation for managing both dynamically generated and hand-coded robot capabilities.",
+      "file": "dimos/robot/unitree/unitree_skills.py",
+      "highlight": [
+        {
+          "start": 161,
+          "end": 162
+        }
+      ],
+      "title": "",
+      "id": "69092",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `create_skills_live()` method is where the magic happens - it programmatically generates skill classes rather than requiring manual coding of each one. This approach scales elegantly as new behaviors are added to the `UNITREE_ROS_CONTROLS` list.",
+      "file": "dimos/robot/unitree/unitree_skills.py",
+      "highlight": [
+        {
+          "start": 202,
+          "end": 205
+        }
+      ],
+      "title": "",
+      "id": "69093",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`BaseUnitreeSkill` serves as the template for all dynamically created skills. On line 219, it uses `self._app_id` to make `webrtc_req` calls, directly connecting each skill to its corresponding robot behavior through the WebRTC interface.",
+      "file": "dimos/robot/unitree/unitree_skills.py",
+      "highlight": [
+        {
+          "start": 206,
+          "end": 222
+        }
+      ],
+      "title": "",
+      "id": "69094",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This is the dynamic class creation loop. Using Python's `type()` function, it creates 50+ skill classes programmatically. Lines 226-228 show the `type()` constructor: class name, base class (`BaseUnitreeSkill`), and class attributes, including the `_app_id` that links to the `WebRTC` command.",
+      "file": "dimos/robot/unitree/unitree_skills.py",
+      "highlight": [
+        {
+          "start": 225,
+          "end": 233
+        }
+      ],
+      "title": "",
+      "id": "69095",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This programmatic approach eliminates the need to hand-code dozens of similar skill classes. Instead of writing repetitive boilerplate for each WebRTC command, the system generates them automatically from the `UNITREE_ROS_CONTROLS` data structure.",
+      "title": "",
+      "id": "69096"
+    },
+    {
+      "type": "highlight",
+      "description": "In contrast to generated skills, the `Move` class represents hand-coded capabilities. Notice line 249: it calls `robot.move_vel()` directly, using `ROS` velocity commands rather than `WebRTC` `app_ids`. This provides fine-grained parameter control over basic movement.",
+      "file": "dimos/robot/unitree/unitree_skills.py",
+      "highlight": [
+        {
+          "start": 239,
+          "end": 249
+        }
+      ],
+      "title": "",
+      "id": "69097",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Reverse` class demonstrates parameter transformation in hand-coded skills. Line `262` shows the key insight: it negates the `x` parameter (`-self.x`) to convert forward velocity into backward movement, showcasing how static skills can manipulate parameters intelligently before passing them to the robot.",
+      "file": "dimos/robot/unitree/unitree_skills.py",
+      "highlight": [
+        {
+          "start": 251,
+          "end": 262
+        }
+      ],
+      "title": "",
+      "id": "69098",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "The architectural difference is that dynamic skills use `WebRTC` `app_id` commands for complex, pre-programmed behaviors like flips and dances, while static skills use direct `ROS` velocity commands for basic movement with real-time parameter control.",
+      "title": "",
+      "id": "69099"
+    },
+    {
+      "type": "highlight",
+      "description": "The `initialize_skills()` method orchestrates the entire system. Line 192 registers the dynamically created skills, lines 195-197 create instances for each skill class with robot binding, and line 200 refreshes the class skills to make them executable.",
+      "file": "dimos/robot/unitree/unitree_skills.py",
+      "highlight": [
+        {
+          "start": 190,
+          "end": 200
+        }
+      ],
+      "title": "",
+      "id": "69100",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This hybrid architecture provides the best of both worlds: automated generation for consistent `WebRTC` behaviors, and hand-coded flexibility for direct `ROS` control. The result is a scalable, maintainable skill library that can grow without exponential code complexity.",
+      "title": "",
+      "id": "69101"
+    },
+    {
+      "type": "mcq",
+      "description": "What is the fundamental difference in how a dynamically generated skill like `FrontFlip` and a hand-coded skill like `Move` execute their actions on the robot?\n\nOptions:\n\n A). Dynamic skills like `FrontFlip` are created using Python's `type()` function, while hand-coded skills like `Move` are defined with standard `class` syntax.\n\nB). Dynamic skills use direct ROS commands for complex maneuvers, while hand-coded skills use the WebRTC API for simple movements.\n\nC). Dynamic skills use a pre-defined `_app_id` to trigger a `webrtc_req` call, while hand-coded skills directly invoke methods like `robot.move_vel`.\n\nD). Dynamic skills cannot accept runtime arguments, whereas hand-coded skills are designed to be configurable with parameters like velocity and duration.\n\n\nCorrect: C). Dynamic skills use a pre-defined `_app_id` to trigger a `webrtc_req` call, while hand-coded skills directly invoke methods like `robot.move_vel`.\n\nExplanation: The correct answer accurately identifies the core architectural distinction. Dynamically generated skills, as shown in `BaseUnitreeSkill`, are wrappers around the WebRTC interface, using an `_app_id` to trigger pre-programmed robot behaviors. In contrast, hand-coded skills like `Move` and `Reverse` directly call methods on the robot object, such as `move_vel`, to send specific ROS commands. Option A describes class creation, not action execution. Option B reverses the roles of the two mechanisms. Option D, while partially true for the examples shown, misses the more fundamental difference in the command execution pathway.",
+      "title": "",
+      "id": "69102",
+      "text": "What is the fundamental difference in how a dynamically generated skill like `FrontFlip` and a hand-coded skill like `Move` execute their actions on the robot?",
+      "answers": [
+        "Dynamic skills like `FrontFlip` are created using Python's `type()` function, while hand-coded skills like `Move` are defined with standard `class` syntax.",
+        "Dynamic skills use direct ROS commands for complex maneuvers, while hand-coded skills use the WebRTC API for simple movements.",
+        "Dynamic skills use a pre-defined `_app_id` to trigger a `webrtc_req` call, while hand-coded skills directly invoke methods like `robot.move_vel`.",
+        "Dynamic skills cannot accept runtime arguments, whereas hand-coded skills are designed to be configurable with parameters like velocity and duration."
+      ],
+      "correct": 2,
+      "explanation": "The correct answer accurately identifies the core architectural distinction. Dynamically generated skills, as shown in `BaseUnitreeSkill`, are wrappers around the WebRTC interface, using an `_app_id` to trigger pre-programmed robot behaviors. In contrast, hand-coded skills like `Move` and `Reverse` directly call methods on the robot object, such as `move_vel`, to send specific ROS commands. Option A describes class creation, not action execution. Option B reverses the roles of the two mechanisms. Option D, while partially true for the examples shown, misses the more fundamental difference in the command execution pathway."
+    }
+  ]
+}

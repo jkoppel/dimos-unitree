@@ -1,0 +1,321 @@
+{
+  "title": "3.7: The `Sample` Data Model",
+  "id": "rmwGNEeK7nOfG9WGs7cQ/sfcJ8hI5WhzNHZUSE9S61U=",
+  "originalId": 5421,
+  "position": 10,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour covers the `Sample` class, an extensible, strongly-typed base model for representing, serializing, and manipulating data within the `DimOS` framework.",
+      "title": "",
+      "id": "67495"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/types/sample.py"
+      ],
+      "description": "Open the file to examine the `Sample` class definition.",
+      "title": "",
+      "id": "67496",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Complete main docstring for `Sample` outlines its goals: an extensible, strongly-typed data container integrating with `JSON`, `Gymnasium`, `numpy`, `PyTorch`, `HuggingFace`, and more. It also shows an end-to-end example of `flatten`/`unflatten`, demonstrating round-trip serialization of nested structures.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 38,
+          "end": 72
+        }
+      ],
+      "title": "",
+      "id": "67497",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The constructor's conditional logic provides a unified API for creating instances. Notice how it handles three distinct cases for the `datum` argument: it can clone an existing `Sample`, import data directly from a dictionary, or wrap any other value. This design makes it intuitive to convert raw data or other `Sample`s into new instances without writing boilerplate code.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 84,
+          "end": 93
+        }
+      ],
+      "title": "",
+      "id": "67498",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Next, let's examine the `flatten` method and why it’s so versatile.",
+      "title": "",
+      "id": "67499"
+    },
+    {
+      "type": "highlight",
+      "description": "The `flatten` signature offers four output formats—`dict`, `np`, `pt`, or `list`—and a `non_numerical` policy (`ignore`, `forbid`, `allow`). This single method lets you produce JSON-ready `dicts`, numeric arrays for ML, tensors for training, or raw lists for generic use.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 164,
+          "end": 169
+        }
+      ],
+      "title": "",
+      "id": "67500",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Internally, `flatten_recursive` handles:\n1. `Sample` or `dict`: recurses into each key.\n2. `list|tuple`: recurses by index path.\n3. Array-like objects (with their own `.flatten()`): flattens and merges.\n4. Primitives (**int**, **float**, **bool**): appends or assigns by key.\n5. `non_numerical` modes to ignore or forbid non-numeric values.\n\nThis algorithm ensures a deterministic traversal order and produces structures ready for different frameworks.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 171,
+          "end": 196
+        }
+      ],
+      "title": "",
+      "id": "67501",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Practical use case: call `sample.flatten(\"np\", non_numerical=\"ignore\")` to obtain a pure-numeric `numpy` vector for a model input, automatically skipping text fields.",
+      "title": "",
+      "id": "67502"
+    },
+    {
+      "type": "highlight",
+      "description": "Docstring example: A nested `Sample(x=1, y=2, z={a:3,b:4}, extra_field=5)` flattens to `[1,2,3,4,5]` and then unflattens back. This round-trip illustrates reliable serialization of nested structures.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 63,
+          "end": 71
+        }
+      ],
+      "title": "",
+      "id": "67503",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/types/sample.py"
+      ],
+      "description": "Now, examine the `unflatten` method and how it uses a schema to reverse flattening.",
+      "title": "",
+      "id": "67504",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`unflatten(flat_data, schema)` reconstructs nested data by consuming entries from a flat list or dict, using the provided schema blueprint. If no schema is supplied, it defaults to `cls().schema()`, making reconstruction automatic.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 116,
+          "end": 127
+        }
+      ],
+      "title": "",
+      "id": "67505",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`unflatten_recursive` inspects schema parts:\n- For `type: object`, it iterates `properties`, recursing for each field.\n- For `type: array`, it loops over `maxItems` or remaining entries, recursing on `items`.\n- For primitives, it pops the next value from the flat list.\n\nThis ensures `flatten` and `unflatten` are true inverses when using the same schema.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 145,
+          "end": 162
+        }
+      ],
+      "title": "",
+      "id": "67506",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "A **schema** is a JSON-style blueprint describing field names, types, and nested shapes. `Unflatten` needs it to know how many values belong to each nested part.",
+      "title": "",
+      "id": "67507"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/types/sample.py"
+      ],
+      "description": "Let's explore how the schema is generated at runtime.",
+      "title": "",
+      "id": "67508",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`schema()` begins by calling Pydantic’s `model_json_schema()`, which reflects static type annotations. It then removes `additionalProperties` and resolves or strips JSON references and descriptions, yielding a clean base schema.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 234,
+          "end": 247
+        }
+      ],
+      "title": "",
+      "id": "67509",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Next, it overlays actual instance data:\n- Nested `Sample` values call their own `.schema()` recursively.\n- Other values invoke the `obj_to_schema` helper.\n\nThis dynamic step ensures schemas include runtime extra fields not declared statically.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 258,
+          "end": 266
+        }
+      ],
+      "title": "",
+      "id": "67510",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`obj_to_schema` maps raw Python values to minimal JSON schema:\n- `dict`→`{type:\"object\", properties:…}`\n- `list|tuple|ndarray`→`{type:\"array\", items:…}` from the first element\n- `str|int|float|bool`→primitive JSON types\n- Fallback→empty schema `{}`\n\nThis helper fills in schema entries for undeclared fields automatically.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 209,
+          "end": 232
+        }
+      ],
+      "title": "",
+      "id": "67511",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "A `Sample` instance is created with a field that was not statically declared in its `Pydantic` model definition. When `instance.schema()` is called, how is the schema for this extra field determined?\n\nOptions:\n\n A). It is excluded from the schema because Pydantic's `model_json_schema()` only includes declared fields.\n\nB). It raises a `ValidationError` because the field is not part of the model and `extra` is not configured.\n\nC). It inspects the runtime value of the extra field and generates a corresponding schema fragment using the `obj_to_schema` static method.\n\nD). It assigns a generic `{\"type\": \"object\"}` schema to any undeclared field, regardless of its actual type.\n\n\nCorrect: C). It inspects the runtime value of the extra field and generates a corresponding schema fragment using the `obj_to_schema` static method.\n\nExplanation: The correct answer is that the schema is determined dynamically. The `schema()` method first gets the base schema from Pydantic, but then it iterates through all of the instance's attributes (`for key, value in self.dict().items()`). For any attribute not already in the schema (like an extra field), it calls `Sample.obj_to_schema(value)` to generate a schema based on the value's type at runtime. The `model_config` has `extra='allow'`, so no `ValidationError` is raised.",
+      "title": "",
+      "id": "67522",
+      "text": "A `Sample` instance is created with a field that was not statically declared in its `Pydantic` model definition. When `instance.schema()` is called, how is the schema for this extra field determined?",
+      "answers": [
+        "It is excluded from the schema because Pydantic's `model_json_schema()` only includes declared fields.",
+        "It raises a `ValidationError` because the field is not part of the model and `extra` is not configured.",
+        "It inspects the runtime value of the extra field and generates a corresponding schema fragment using the `obj_to_schema` static method.",
+        "It assigns a generic `{\"type\": \"object\"}` schema to any undeclared field, regardless of its actual type."
+      ],
+      "correct": 2,
+      "explanation": "The correct answer is that the schema is determined dynamically. The `schema()` method first gets the base schema from Pydantic, but then it iterates through all of the instance's attributes (`for key, value in self.dict().items()`). For any attribute not already in the schema (like an extra field), it calls `Sample.obj_to_schema(value)` to generate a schema based on the value's type at runtime. The `model_config` has `extra='allow'`, so no `ValidationError` is raised."
+    },
+    {
+      "type": "textOnly",
+      "description": "**Schema** not only enables `flatten/unflatten` but also drives `Gymnasium` space generation—no extra boilerplate code.",
+      "title": "",
+      "id": "67512"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/types/sample.py"
+      ],
+      "description": "Observe how `Sample` integrates with `Gymnasium spaces` for **reinforcement learning**.",
+      "title": "",
+      "id": "67513",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`space()` constructs a `spaces.Dict` by iterating each field:\n- If the value is a nested `Sample`, it calls that instance’s `.space()`.\n- Otherwise, it uses `space_for()`.\n\nThe resulting **Gym space** mirrors your data layout, letting you set `env.observation_space = sample.space()` without manual definitions.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 536,
+          "end": 547
+        }
+      ],
+      "title": "",
+      "id": "67514",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`space_for` covers common types:\n- `Enum`/`Literal`→`Discrete` with correct cardinality\n- `bool`→`Discrete(2)`\n- `dict`|`Sample`→nested `spaces.Dict`\n- `str`→`spaces.Text(max_length)`\n\nThis default logic eliminates repetitive space definitions in RL.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 343,
+          "end": 364
+        }
+      ],
+      "title": "",
+      "id": "67515",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "For numeric values and arrays, `space_for` tries `np.asfarray` to infer shape, dtype, and bounds, returning a `spaces.Box`. If that fails, it gracefully falls back to `spaces.Tuple`, either of `spaces.Dict` or repeated element spaces, handling irregular sequences.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 365,
+          "end": 390
+        }
+      ],
+      "title": "",
+      "id": "67516",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "With `sample.space()` and `sample.random_sample()`, you can auto-generate valid observations and actions directly from data.",
+      "title": "",
+      "id": "67517"
+    },
+    {
+      "type": "textOnly",
+      "description": "Finally, the `to()` method unifies all conversion needs under one API.",
+      "title": "",
+      "id": "67518"
+    },
+    {
+      "type": "highlight",
+      "description": "`to(container)` dispatches based on the container specifier:\n- `'dict'`, `'list'`, `'np'`, `'pt'` → calls `dict()` or `flatten()`\n- `'space'`, `'schema'`, `'json'` → calls `space()`, `schema()`, or `model_dump_json()`\n- `'hf'`, `'features'` → converts to a **HuggingFace** `Dataset` or **DSPY** `Features`\n\nThis unified interface means you never need separate converters for each format.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 297,
+          "end": 307
+        }
+      ],
+      "title": "",
+      "id": "67519",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Example scenarios:\n- `sample.to(\"np\")` to feed a model,\n- `sample.to(\"hf\")` to build HuggingFace datasets,\n- `sample.to(\"json\")` for storage or APIs,\n- `sample.to(MySampleSubclass)` to morph between Sample variants.\n\nUse a single class everywhere.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 313,
+          "end": 331
+        }
+      ],
+      "title": "",
+      "id": "67520",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This completes the tour. You now understand how `Sample` provides a unified, schema-driven way to serialize, manipulate, convert, and integrate data across multiple libraries with minimal boilerplate.",
+      "title": "",
+      "id": "67521"
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "title": "8.3: Basic Frame Operations",
+  "id": "sJiDYEE69EvOhN0xlpM5NAQfOIfKyHiuGiJSqgG2BoM=",
+  "originalId": 5440,
+  "position": 26,
+  "steps": [
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/stream/frame_processor.py"
+      ],
+      "description": "The `FrameProcessor` class in `dimos/stream/frame_processor.py` is designed to handle per-frame computer vision operations. Let's start by examining its initialization method.",
+      "title": "",
+      "id": "67557",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__` method sets up the output directory for processed frames.\n\nIt takes two arguments:\n- `output_dir`: The directory to save frames, defaulting to a subdirectory in the current working directory.\n- `delete_on_init`: A boolean that, if `True`, triggers a cleanup of all `.jpg` files in the `output_dir`.\n\nThe method includes error handling to catch **OSError** if the directory cannot be created or if file deletion fails. It creates the directory using `os.makedirs` with `exist_ok=True` to avoid errors if the directory already exists.",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 25,
+          "end": 48
+        }
+      ],
+      "title": "",
+      "id": "67558",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `to_grayscale` function converts a color frame to grayscale. It first checks if the input `frame` is `None` to prevent errors and then uses `cv2.cvtColor` with the `cv2.COLOR_BGR2GRAY` flag for the conversion.",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 60,
+          "end": 65
+        }
+      ],
+      "title": "",
+      "id": "67559",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`edge_detection` is a straightforward function that applies the Canny edge detection algorithm to a frame using `cv2.Canny`. It takes the frame and two threshold values as arguments.",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 66,
+          "end": 68
+        }
+      ],
+      "title": "",
+      "id": "67560",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `resize` function changes the dimensions of a frame. It uses `cv2.resize` and allows specifying a `scale` factor. `cv2.INTER_AREA` is used for interpolation, which is generally recommended for shrinking images.",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 69,
+          "end": 71
+        }
+      ],
+      "title": "",
+      "id": "67561",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`export_to_jpeg` saves a frame to a JPEG file.\n\nKey features include:\n- **Channel Validation (lines 78-81):** It checks if the frame has a supported number of color channels (1, 3, or 4) before saving.\n- **Save Limit (lines 83-87):** It enforces a `save_limit`. If the number of saved images exceeds this limit and `loop` is `False`, it stops saving. If `loop` is `True`, it resets the counter.\n- **File Naming (line 89):** It constructs a unique filename using an incrementing counter and an optional `suffix`.",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 72,
+          "end": 93
+        }
+      ],
+      "title": "",
+      "id": "67562",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Consider a `FrameProcessor` instance `fp` where `fp.image_count` is `101`. If `fp.export_to_jpeg(frame, save_limit=100, loop=True, suffix='test')` is called, what is the outcome?\n\nOptions:\n\n A). The frame is returned without being saved, and `fp.image_count` remains 101.\n\nB). The file `1_test.jpg` is created in the output directory, and `fp.image_count` becomes 2.\n\nC). The file `101_test.jpg` is created in the output directory, and `fp.image_count` is reset to 1.\n\nD). The function returns `None` and no file is saved.\n\n\nCorrect: B). The file `1_test.jpg` is created in the output directory, and `fp.image_count` becomes 2.\n\nExplanation: The condition `self.image_count > save_limit` (101 > 100) is met. Because `loop` is `True`, `self.image_count` is reset to 1. A new file path is then constructed using the reset value (`1_test.jpg`) and the frame is saved. Finally, `self.image_count` is incremented to 2. If `loop` were `False`, the function would have returned the frame without saving.",
+      "title": "",
+      "id": "67568",
+      "text": "Consider a `FrameProcessor` instance `fp` where `fp.image_count` is `101`. If `fp.export_to_jpeg(frame, save_limit=100, loop=True, suffix='test')` is called, what is the outcome?",
+      "answers": [
+        "The frame is returned without being saved, and `fp.image_count` remains 101.",
+        "The file `1_test.jpg` is created in the output directory, and `fp.image_count` becomes 2.",
+        "The file `101_test.jpg` is created in the output directory, and `fp.image_count` is reset to 1.",
+        "The function returns `None` and no file is saved."
+      ],
+      "correct": 1,
+      "explanation": "The condition `self.image_count > save_limit` (101 > 100) is met. Because `loop` is `True`, `self.image_count` is reset to 1. A new file path is then constructed using the reset value (`1_test.jpg`) and the frame is saved. Finally, `self.image_count` is incremented to 2. If `loop` were `False`, the function would have returned the frame without saving."
+    }
+  ]
+}

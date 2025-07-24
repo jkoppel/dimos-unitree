@@ -1,0 +1,108 @@
+{
+  "title": "9.4: Speech-to-Text with Whisper",
+  "id": "fldtEhQaBF6UIWBzA/w9N8Yk1qL3JhEuJljImYVuqxw=",
+  "originalId": 5445,
+  "position": 32,
+  "steps": [
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/stream/audio/stt/node_whisper.py"
+      ],
+      "description": "Welcome to our tour of the **speech-to-text (STT)** functionality in our application, specifically focusing on the `WhisperNode` class. This class is responsible for taking audio data, transcribing it to text using OpenAI's `Whisper` model, and then making that text available to other parts of the system. Let's start by looking at how a `WhisperNode` is initialized.",
+      "title": "",
+      "id": "67595",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__` method of the `WhisperNode` class is where the Whisper model is loaded and configured. When a `WhisperNode` is created, you can specify the `model` size (e.g., `\"tiny\"`, `\"base\"`, `\"small\"`, `\"medium\"`, `\"large\"`). Smaller models are faster and use less memory but are less accurate, while larger models are more accurate but slower and more resource-intensive. The `modelopts` dictionary allows you to pass in additional parameters to the model, such as the language and whether to use half-precision floating-point numbers (`fp16`) for faster processing on compatible hardware. In this example, we default to the `\"base\"` model, with English as the language and `fp16` disabled.",
+      "file": "dimos/stream/audio/stt/node_whisper.py",
+      "highlight": [
+        {
+          "start": 21,
+          "end": 29
+        }
+      ],
+      "title": "",
+      "id": "67596",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "You might be wondering about audio buffering. The `WhisperNode` itself does not have an internal buffer for accumulating audio chunks. Instead, it relies on upstream nodes to provide it with complete audio recordings. In the main execution block of the script, you can see that the `WhisperNode` consumes audio from a `KeyRecorder` node. The `KeyRecorder` buffers audio data and, when triggered, emits a single `AudioEvent` containing the entire recording. This is the event that the `WhisperNode` will process.",
+      "file": "dimos/stream/audio/stt/node_whisper.py",
+      "highlight": [
+        {
+          "start": 96,
+          "end": 105
+        }
+      ],
+      "title": "",
+      "id": "67597",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Considering the audio processing pipeline shown, how is a complete audio recording prepared for transcription by the `WhisperNode`?\n\nOptions:\n\n A). The `WhisperNode` contains an internal buffer that collects audio chunks until a 30-second segment is formed.\n\nB). An upstream node, `KeyRecorder`, is responsible for buffering audio and emitting a single event with the full recording.\n\nC). Each audio chunk from the source is transcribed individually as it arrives.\n\n\nCorrect: B). An upstream node, `KeyRecorder`, is responsible for buffering audio and emitting a single event with the full recording.\n\nExplanation: This is the correct approach. The `WhisperNode` itself is stateless regarding audio accumulation. As shown in the example usage, `whisper_node.consume_audio(recorder.emit_recording())`(line 105), it processes events from the `KeyRecorder`. The `KeyRecorder` node's purpose is to buffer audio from a stream and emit it as a single, complete recording. This separates the concern of recording from transcription.",
+      "title": "",
+      "id": "67602",
+      "text": "Considering the audio processing pipeline shown, how is a complete audio recording prepared for transcription by the `WhisperNode`?",
+      "answers": [
+        "The `WhisperNode` contains an internal buffer that collects audio chunks until a 30-second segment is formed.",
+        "An upstream node, `KeyRecorder`, is responsible for buffering audio and emitting a single event with the full recording.",
+        "Each audio chunk from the source is transcribed individually as it arrives."
+      ],
+      "correct": 1,
+      "explanation": "This is the correct approach. The `WhisperNode` itself is stateless regarding audio accumulation. As shown in the example usage, `whisper_node.consume_audio(recorder.emit_recording())`(line 105), it processes events from the `KeyRecorder`. The `KeyRecorder` node's purpose is to buffer audio from a stream and emit it as a single, complete recording. This separates the concern of recording from transcription."
+    },
+    {
+      "type": "highlight",
+      "description": "The core logic of the `WhisperNode` resides in the `emit_text` method. This method returns an `Observable` that, when subscribed to, begins the process of transcription. Inside the `on_subscribe` function, we subscribe to the audio observable. When an `AudioEvent` is received, the `on_audio_event` function is called. This is where the magic happens.",
+      "file": "dimos/stream/audio/stt/node_whisper.py",
+      "highlight": [
+        {
+          "start": 53,
+          "end": 72
+        }
+      ],
+      "title": "",
+      "id": "67598",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Inside `on_audio_event`, the audio data from the event, which is a `NumPy` array, is flattened and passed directly to the `model.transcribe` method. While the tour plan mentioned padding or trimming the audio to 30 seconds, this is not done explicitly in our code. The `Whisper` library itself handles the necessary padding and chunking of the audio to work with its internal model architecture, which processes audio in 30-second segments. After transcription, the resulting text is extracted from the `\"text\"` key of the result dictionary and any leading/trailing whitespace is stripped.",
+      "file": "dimos/stream/audio/stt/node_whisper.py",
+      "highlight": [
+        {
+          "start": 58,
+          "end": 62
+        }
+      ],
+      "title": "",
+      "id": "67599",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the transcribed text is pushed to the output observable using `observer.on_next()`. This makes the text available to any downstream nodes that have subscribed to this `WhisperNode`'s `emit_text` observable. In our example application, a `TextPrinterNode` and an `OpenAITTSNode` consume this text.",
+      "file": "dimos/stream/audio/stt/node_whisper.py",
+      "highlight": [
+        {
+          "start": 62,
+          "end": 62
+        }
+      ],
+      "title": "",
+      "id": "67600",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This concludes our tour of the `WhisperNode`. We've seen how it's initialized with a specific `Whisper` model, how it processes audio provided by an upstream node, and how it emits the transcribed text for other nodes to use. This modular design allows for a flexible audio processing pipeline.",
+      "title": "",
+      "id": "67601"
+    }
+  ]
+}

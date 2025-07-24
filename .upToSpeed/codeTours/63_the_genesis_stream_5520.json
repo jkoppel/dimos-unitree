@@ -1,0 +1,84 @@
+{
+  "title": "6.3: The Genesis Stream",
+  "id": "RRhq3XgLr1Tft/9stq1Ri1t1in8Cn+zo3AXOu+l+D0Q=",
+  "originalId": 5520,
+  "position": 20,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough explains how the `GenesisStream` class works to render and stream the simulation. You will have learned about the `GenesisSimulator` in the previous tour.",
+      "title": "",
+      "id": "68509"
+    },
+    {
+      "type": "highlight",
+      "description": "Let's begin with the `__init__` method of the `GenesisStream` class. It takes a `simulator` instance, gets the scene from it on line 37, and then calls `_setup_camera` and `_setup_ffmpeg`. Notice the call to `simulator.build()` on line 47, which constructs the simulation scene after all components are initialized.",
+      "file": "dimos/simulation/genesis/stream.py",
+      "highlight": [
+        {
+          "start": 12,
+          "end": 47
+        }
+      ],
+      "title": "",
+      "id": "68510",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Next, let's examine the `_setup_camera` method. A camera is created and added to the scene using `self.scene.add_camera` on line 56. The camera is positioned at (3.5, 0.0, 2.5) looking at (0, 0, 0.5) with a 30-degree field of view.",
+      "file": "dimos/simulation/genesis/stream.py",
+      "highlight": [
+        {
+          "start": 54,
+          "end": 62
+        }
+      ],
+      "title": "",
+      "id": "68511",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Now, let's move to the `stream` method, which contains the main streaming loop. Inside the `while True` loop are three key steps:\n\n1. `self.scene.step()` on line `81` advances the simulation\n2. `self.camera.render()` gets the rendered image. The method can render different annotator types based on the conditional logic in lines `86-91`: if `annotator_type` is `'rgb'`, it calls `render(rgb=True)`, if it's `'normals'`, it calls `render(normal=True)`\n3. `self.proc.stdin.write()` on line `98` writes the frame to the `FFmpeg` process for streaming",
+      "file": "dimos/simulation/genesis/stream.py",
+      "highlight": [
+        {
+          "start": 69,
+          "end": 114
+        }
+      ],
+      "title": "",
+      "id": "68512",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the `cleanup` method stops the FFmpeg process and closes the simulator. It safely closes the process `stdin` on line 120, waits for the process to terminate on line 121, and then closes the simulator on line 124.",
+      "file": "dimos/simulation/genesis/stream.py",
+      "highlight": [
+        {
+          "start": 116,
+          "end": 127
+        }
+      ],
+      "title": "",
+      "id": "68513",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the `GenesisStream.__init__` method, what is the most direct reason for calling `simulator.build()` *after* `_setup_camera()`?\n\nOptions:\n\n A). To ensure the camera is part of the scene graph before the simulation environment is fully constructed.\n\nB). To start the FFmpeg process only after the simulator has a valid camera.\n\nC). To prevent the `stream` method from starting before the simulator is built.\n\n\nCorrect: A). To ensure the camera is part of the scene graph before the simulation environment is fully constructed.\n\nExplanation: The `simulator.build()` method finalizes the simulation scene. By calling it after `_setup_camera()`, we ensure that the camera object created and added to `self.scene` is included in the final, operational simulation graph. The other setup methods must also complete before the build to ensure their components are included.",
+      "title": "",
+      "id": "68514",
+      "text": "In the `GenesisStream.__init__` method, what is the most direct reason for calling `simulator.build()` *after* `_setup_camera()`?",
+      "answers": [
+        "To ensure the camera is part of the scene graph before the simulation environment is fully constructed.",
+        "To start the FFmpeg process only after the simulator has a valid camera.",
+        "To prevent the `stream` method from starting before the simulator is built."
+      ],
+      "correct": 0,
+      "explanation": "The `simulator.build()` method finalizes the simulation scene. By calling it after `_setup_camera()`, we ensure that the camera object created and added to `self.scene` is included in the final, operational simulation graph. The other setup methods must also complete before the build to ensure their components are included."
+    }
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "title": "22.1: Perception & Data Pipeline: Overview",
+  "id": "Lr0llAZlRx/VYKJxof96w3/FGRwqbG/ecQMkCvN4fGI=",
+  "originalId": 5487,
+  "position": 74,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough explores the data pipeline system's architecture, showing how the `DataPipeline` class orchestrates multiple processing components and manages dependencies between them.",
+      "title": "",
+      "id": "68092"
+    },
+    {
+      "type": "highlight",
+      "description": "The system's interface demonstrates its modular design philosophy. Users configure the pipeline by enabling specific processors through `boolean flags`. This example enables only **depth processing**, showing how the architecture supports selective activation of processing capabilities.",
+      "file": "dimos/data/videostream-data-pipeline.md",
+      "highlight": [
+        {
+          "start": 8,
+          "end": 19
+        }
+      ],
+      "title": "",
+      "id": "68093",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **`DataPipeline` constructor** establishes the system's configuration-driven architecture. Each processor type has a corresponding flag, and the `max_workers` parameter controls parallel processing capacity. The immediate validation and initialization calls ensure the system is properly configured before processing begins.",
+      "file": "dimos/data/data_pipeline.py",
+      "highlight": [
+        {
+          "start": 28,
+          "end": 42
+        }
+      ],
+      "title": "",
+      "id": "68094",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Dependency validation** implements the system's **architectural constraints**. The validation logic prevents impossible configurations - point clouds cannot exist without depth maps, and segmentations require labels. This design ensures data flow integrity throughout the processing chain.",
+      "file": "dimos/data/data_pipeline.py",
+      "highlight": [
+        {
+          "start": 53,
+          "end": 64
+        }
+      ],
+      "title": "",
+      "id": "68095",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the `_validate_pipeline` method, which of the following `DataPipeline` configurations would result in a `ValueError`?\n\nOptions:\n\n A). DataPipeline(video_stream, run_labels=True, run_segmentations=True)\n\nB). DataPipeline(video_stream, run_pointclouds=True, run_depth=False)\n\nC). DataPipeline(video_stream, run_depth=True, run_pointclouds=True)\n\nD). DataPipeline(video_stream, run_depth=False, run_labels=False)\n\n\nCorrect: B). DataPipeline(video_stream, run_pointclouds=True, run_depth=False)\n\nExplanation: The `_validate_pipeline` method (lines 53-57) explicitly checks if `run_pointclouds` is true while `run_depth` is false, raising a `ValueError` in that case. Point cloud generation is dependent on depth map data. The other configurations are valid: one correctly enables a dependent processor, another enables two independent processors, and the last one is valid but will trigger a warning for having no processors enabled.",
+      "title": "",
+      "id": "68120",
+      "text": "Based on the `_validate_pipeline` method, which of the following `DataPipeline` configurations would result in a `ValueError`?",
+      "answers": [
+        "DataPipeline(video_stream, run_labels=True, run_segmentations=True)",
+        "DataPipeline(video_stream, run_pointclouds=True, run_depth=False)",
+        "DataPipeline(video_stream, run_depth=True, run_pointclouds=True)",
+        "DataPipeline(video_stream, run_depth=False, run_labels=False)"
+      ],
+      "correct": 1,
+      "explanation": "The `_validate_pipeline` method (lines 53-57) explicitly checks if `run_pointclouds` is true while `run_depth` is false, raising a `ValueError` in that case. Point cloud generation is dependent on depth map data. The other configurations are valid: one correctly enables a dependent processor, another enables two independent processors, and the last one is valid but will trigger a warning for having no processors enabled."
+    },
+    {
+      "type": "highlight",
+      "description": "The initialization strategy employs **lazy loading** to optimize resource usage. Processors are only imported and instantiated when their corresponding flags are enabled. This approach minimizes memory footprint and startup time when running with limited processing capabilities.",
+      "file": "dimos/data/data_pipeline.py",
+      "highlight": [
+        {
+          "start": 68,
+          "end": 87
+        }
+      ],
+      "title": "",
+      "id": "68096",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The data storage architecture uses separate deques for each processor output type. This separation allows independent access to different data streams and supports sequential appending as frames are processed.",
+      "file": "dimos/data/data_pipeline.py",
+      "highlight": [
+        {
+          "start": 47,
+          "end": 51
+        }
+      ],
+      "title": "",
+      "id": "68097",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The main execution loop demonstrates the **pipeline's frame-by-frame processing model**. Each frame from the video stream passes through the processing chain, with results immediately stored in the corresponding data structures for later retrieval or persistence.",
+      "file": "dimos/data/data_pipeline.py",
+      "highlight": [
+        {
+          "start": 96,
+          "end": 110
+        }
+      ],
+      "title": "",
+      "id": "68098",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Frame processing reveals the dependency chain in action. Basic processors (`depth` and `labels`) run first, followed by dependent processors that consume their outputs. Lines 127 and 130 show how downstream processors receive the typed data they need from upstream components.",
+      "file": "dimos/data/data_pipeline.py",
+      "highlight": [
+        {
+          "start": 121,
+          "end": 132
+        }
+      ],
+      "title": "",
+      "id": "68099",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The persistence layer handles the diverse output formats of different processors. Each data type uses its appropriate storage format - `numpy arrays` for depth data, `JSON` for labels, `PCD` for point clouds, and directory structures for segmentation masks.",
+      "file": "dimos/data/data_pipeline.py",
+      "highlight": [
+        {
+          "start": 139,
+          "end": 153
+        }
+      ],
+      "title": "",
+      "id": "68100",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "The `DataPipeline`'s architecture successfully balances modularity with dependency management, providing a flexible yet safe framework for complex multi-stage video processing workflows.",
+      "title": "",
+      "id": "68101"
+    }
+  ]
+}

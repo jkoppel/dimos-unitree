@@ -1,0 +1,81 @@
+{
+  "title": "20.5: Perception & Data: 2D Segmentation Perception: Tracker Configuration",
+  "id": "px52EgVtSDLvhVACLdkjtRkOkDPH6lOZFqydbvmhFk8=",
+  "originalId": 5481,
+  "position": 69,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour will explain the `custom_tracker.yaml` file, which is a configuration file for the **BoT-SORT tracker** used by the `ultralytics` library.",
+      "title": "",
+      "id": "67912"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/segmentation/config/custom_tracker.yaml"
+      ],
+      "description": "This is the `custom_tracker.yaml` file. It is used to configure the **BoT-SORT** tracker, which is a state-of-the-art object tracker. The file contains a number of configuration options that can be used to tune the performance of the tracker.",
+      "title": "",
+      "id": "67913",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `tracker_type` option specifies the type of tracker to use. In this case, it is set to `botsort`, which is the **BoT-SORT** tracker. The other option is `bytetrack`.",
+      "file": "dimos/perception/segmentation/config/custom_tracker.yaml",
+      "highlight": [
+        {
+          "start": 7,
+          "end": 7
+        }
+      ],
+      "title": "",
+      "id": "67914",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `track_high_thresh` option is the threshold for the first association. This is the **confidence score** that a detection must have in order to be associated with an existing track.",
+      "file": "dimos/perception/segmentation/config/custom_tracker.yaml",
+      "highlight": [
+        {
+          "start": 8,
+          "end": 8
+        }
+      ],
+      "title": "",
+      "id": "67915",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `track_low_thresh` option is the threshold for the second association. This is the confidence score that a detection must have in order to be associated with an existing track after the first association has failed.",
+      "file": "dimos/perception/segmentation/config/custom_tracker.yaml",
+      "highlight": [
+        {
+          "start": 9,
+          "end": 9
+        }
+      ],
+      "title": "",
+      "id": "67916",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the configuration, if a detection has a confidence score of 0.3, how will the tracker initially process it?\n\nOptions:\n\n A). It is immediately discarded because its score is below `track_high_thresh`.\n\nB). It qualifies for the second association round with tracks that were not matched by higher-confidence detections.\n\nC). It immediately starts a new track because its score is above `track_low_thresh`.\n\nD). It is matched in the first association round with the most similar track.\n\n\nCorrect: B). It qualifies for the second association round with tracks that were not matched by higher-confidence detections.\n\nExplanation: The detection's score of 0.3 is below `track_high_thresh` (0.4), so it does not qualify for the first, high-confidence matching round. However, because its score is above `track_low_thresh` (0.2), it is not discarded. Instead, it is retained and considered for a second matching round against tracks that remained unmatched after the first round.",
+      "title": "",
+      "id": "67917",
+      "text": "Based on the configuration, if a detection has a confidence score of 0.3, how will the tracker initially process it?",
+      "answers": [
+        "It is immediately discarded because its score is below `track_high_thresh`.",
+        "It qualifies for the second association round with tracks that were not matched by higher-confidence detections.",
+        "It immediately starts a new track because its score is above `track_low_thresh`.",
+        "It is matched in the first association round with the most similar track."
+      ],
+      "correct": 1,
+      "explanation": "The detection's score of 0.3 is below `track_high_thresh` (0.4), so it does not qualify for the first, high-confidence matching round. However, because its score is above `track_low_thresh` (0.2), it is not discarded. Instead, it is retained and considered for a second matching round against tracks that remained unmatched after the first round."
+    }
+  ]
+}

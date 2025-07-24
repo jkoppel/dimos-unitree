@@ -1,0 +1,161 @@
+{
+  "title": "31.2: Core Logic: Agent Prompt Builder Implementation",
+  "id": "JkRcF7h2X3czMS5DT+h8Voc92lzMq68kqMs1ytQFlQk=",
+  "originalId": 5563,
+  "position": 119,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough explains the `PromptBuilder` class in `dimos/agents/prompt_builder/impl.py`.\n\n`PromptBuilder` constructs prompts for **Large Language Models (LLMs)** in a budget-aware, multimodal pipeline. It manages token limits, handles text and images, and ensures well-formed messages before sending them to the model.",
+      "title": "",
+      "id": "69205"
+    },
+    {
+      "type": "highlight",
+      "description": "The `DEFAULT_SYSTEM_PROMPT` provides baseline instructions when no `system_prompt` is passed. Lines 27–30 set the assistant’s identity and core behavior; lines 36–38 give guidelines for combining visual and textual context and for acknowledging knowledge limitations.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 26,
+          "end": 40
+        }
+      ],
+      "title": "",
+      "id": "69206",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__` method defines three parameters:\n\n- `model_name` (line 45): selects the LLM model, influencing tokenization\n- `max_tokens` (line 46): sets the prompt’s context-window limit\n- `tokenizer` (line 47): an `AbstractTokenizer` for token operations\n\nBy using `AbstractTokenizer` (line 51), tokenizer logic is decoupled from prompt logic, enabling reuse across different LLM backends.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 41,
+          "end": 52
+        }
+      ],
+      "title": "",
+      "id": "69207",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `AbstractTokenizer` interface (line 18) abstracts tokenization. This allows swapping OpenAI’s `tiktoken` (line 19) or other tokenizers without changing prompt-building logic.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 18,
+          "end": 19
+        }
+      ],
+      "title": "",
+      "id": "69208",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Default `budgets` (lines 120–123) split `max_tokens` equally among `system_prompt`, `user_query`, `image`, and `rag` components. `policies` (lines 126–129) assign truncation strategies:\n\n- Line 126: `truncate_end` for system prompts\n- Line 127: `truncate_middle` for user queries\n- Line 128: `do_not_truncate` for images\n- Line 129: `truncate_end` for **RAG** context",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 119,
+          "end": 130
+        }
+      ],
+      "title": "",
+      "id": "69209",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The first step in managing the prompt's size is to count the tokens for each component. The `if` block starting on line 147 handles this, using the `tokenizer` to get individual counts for the RAG context, system prompt, user query, and image.\n\nNotice the `else` block on lines 152–156. If `override_token_limit` is true, these counts are all set to zero, effectively bypassing any token limits.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 147,
+          "end": 157
+        }
+      ],
+      "title": "",
+      "id": "69210",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "After counting, line 169 computes `total_tokens = sum(...)`. Line 170 then calculates `excess_tokens = total_tokens - max_tokens`, determining how many tokens must be trimmed to fit within the model’s limit.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 167,
+          "end": 170
+        }
+      ],
+      "title": "",
+      "id": "69211",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `truncate_tokens` method supports four strategies:\n\n- `truncate_head` (`line 71`): keeps the last N tokens (recent context)\n- `truncate_end` (`line 73`): keeps the first N tokens (introductory context)\n- `truncate_middle` (`lines 75–76`): preserves first N/2 and last N/2 tokens\n- `do_not_truncate` (`line 63`): returns the text unchanged\n\n`truncate_middle` is ideal for user queries because it retains both the main question at the start and any constraints at the end.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 53,
+          "end": 81
+        }
+      ],
+      "title": "",
+      "id": "69212",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `truncate_middle` strategy preserves the beginning and end of a text. This is ideal for user queries, which often contain the main request at the start and key instructions or constraints at the end.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 74,
+          "end": 76
+        }
+      ],
+      "title": "",
+      "id": "69213",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Final prompt assembly (lines 185–201) builds the `messages` array for OpenAI’s chat API:\n\n- Line 185: `role: system` message with system instructions\n- Lines 187–190: `role: user` message combining RAG context and user query\n- Lines 192–199: appends `image_url` entries for multimodal inputs\n\nThis structure lets the model distinguish between system instructions and user content.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 185,
+          "end": 201
+        }
+      ],
+      "title": "",
+      "id": "69214",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "**Design Rationale:**\nIsolating prompt-building logic into its own class promotes consistency and reuse across agents, simplifies future support for new LLMs via tokenizer abstraction, and centralizes token management to prevent API errors and control costs effectively.",
+      "title": "",
+      "id": "69215"
+    },
+    {
+      "type": "mcq",
+      "description": "Given a `PromptBuilder` with `max_tokens=1000`, a `user_query` of 800 tokens, and a `system_prompt` of 400 tokens, the total prompt size is 1200 tokens, resulting in 200 `excess_tokens`. Assuming default policies, how does the `PromptBuilder` resolve this overage?\n\nOptions:\n\n A). It will truncate 200 tokens from the `user_query` using the `truncate_middle` strategy, as it is the largest component.\n\nB). It will raise a `ValueError` because the `user_query` exceeds its default budget of 250 tokens (`1000 // 4`).\n\nC). It will proportionally truncate tokens from both `user_query` and `system_prompt` based on their contribution to the total size, applying their respective policies.\n\nD). It will truncate 100 tokens from the `system_prompt` using `truncate_end` and 100 tokens from the `user_query` using `truncate_middle`.\n\n\nCorrect: C). It will proportionally truncate tokens from both `user_query` and `system_prompt` based on their contribution to the total size, applying their respective policies.\n\nExplanation: The `PromptBuilder` calculates `excess_tokens` based on the `total_tokens` versus `max_tokens`. It then distributes the necessary truncation proportionally across all components that have content, based on each component's share of the total tokens. It does not simply truncate the largest component or raise an error for budget overruns; the budgets guide the proportional truncation logic. Both `system_prompt` and `user_query` will be trimmed according to their respective policies.",
+      "title": "",
+      "id": "69216",
+      "text": "Given a `PromptBuilder` with `max_tokens=1000`, a `user_query` of 800 tokens, and a `system_prompt` of 400 tokens, the total prompt size is 1200 tokens, resulting in 200 `excess_tokens`. Assuming default policies, how does the `PromptBuilder` resolve this overage?",
+      "answers": [
+        "It will truncate 200 tokens from the `user_query` using the `truncate_middle` strategy, as it is the largest component.",
+        "It will raise a `ValueError` because the `user_query` exceeds its default budget of 250 tokens (`1000 // 4`).",
+        "It will proportionally truncate tokens from both `user_query` and `system_prompt` based on their contribution to the total size, applying their respective policies.",
+        "It will truncate 100 tokens from the `system_prompt` using `truncate_end` and 100 tokens from the `user_query` using `truncate_middle`."
+      ],
+      "correct": 2,
+      "explanation": "The `PromptBuilder` calculates `excess_tokens` based on the `total_tokens` versus `max_tokens`. It then distributes the necessary truncation proportionally across all components that have content, based on each component's share of the total tokens. It does not simply truncate the largest component or raise an error for budget overruns; the budgets guide the proportional truncation logic. Both `system_prompt` and `user_query` will be trimmed according to their respective policies."
+    }
+  ]
+}

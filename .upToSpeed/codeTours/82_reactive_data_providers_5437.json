@@ -1,0 +1,173 @@
+{
+  "title": "8.2: Reactive Data Providers",
+  "id": "4mDbmFJ5ynw7P7j4+s46DyEzIp3jFx3c23PyhE2S4Hs=",
+  "originalId": 5437,
+  "position": 25,
+  "steps": [
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/stream/data_provider.py"
+      ],
+      "description": "The `AbstractDataProvider` class serves as the foundation for creating data streams.\n\nIt uses a `Subject` to multicast data to any subscribed observers.\nThe `__init__` method initializes the provider and creates a `_data_subject`, an instance of `Subject`.\nThe `data_stream` property exposes this subject as an `Observable`, hiding the subject's `on_next` method from consumers.",
+      "title": "",
+      "id": "67539",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `push_data` method allows data to be injected into the stream by calling `on_next` on the subject. The `dispose` method is used for resource management, ensuring that the subject is properly terminated and releases any underlying resources when the stream is no longer needed.",
+      "file": "dimos/stream/data_provider.py",
+      "highlight": [
+        {
+          "start": 30,
+          "end": 48
+        }
+      ],
+      "title": "",
+      "id": "67540",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "At the module level, a `ThreadPoolScheduler` is initialized.\n\nThis scheduler manages a pool of threads, with the number of threads equal to the number of `CPU cores` available. It's used to run stream operations concurrently, which can significantly improve performance by preventing long-running tasks from blocking the main thread. This is especially useful for I/O-bound or CPU-bound operations in the pipeline.",
+      "file": "dimos/stream/data_provider.py",
+      "highlight": [
+        {
+          "start": 28,
+          "end": 28
+        }
+      ],
+      "title": "",
+      "id": "67541",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `ROSDataProvider` class extends `AbstractDataProvider` and is designed to handle data from `ROS` (Robot Operating System) topics.\n\nIts `push_data` method includes extra logging statements. These print statements are a form of **instrumentation**, providing visibility into the data flow by indicating the type of data being pushed and confirming when it has been sent to the subject. This is valuable for debugging and monitoring the stream's behavior.",
+      "file": "dimos/stream/data_provider.py",
+      "highlight": [
+        {
+          "start": 50,
+          "end": 62
+        }
+      ],
+      "title": "",
+      "id": "67542",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here, we begin constructing the processing pipeline for the data stream.\n\nThe first operator in the pipeline ensures that all subsequent operations run on a separate thread from our thread pool. This prevents blocking the original data source, maintaining its responsiveness.\n\nThe next operator is used for side-effects, like the debug logging you see highlighted. It allows us to inspect events as they happen—when a new item arrives, if an error occurs, or when the stream completes—all without modifying the data passing through.",
+      "file": "dimos/stream/data_provider.py",
+      "highlight": [
+        {
+          "start": 76,
+          "end": 86
+        }
+      ],
+      "title": "",
+      "id": "67543",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "To control the rate of data flow, `capture_data_as_observable` can apply rate limiting.\n\nIf an `fps` (frames per second) value is provided, the `ops.sample()` operator is added to the pipeline. It emits the most recent item from the source observable within a specified time window (here, `1.0 / fps`), effectively throttling the stream to the desired rate.\n\nFinally, `ops.share()` is used to make the observable \"hot,\" allowing multiple subscribers to share a single subscription to the underlying source. This prevents the entire pipeline from being re-executed for each new subscriber.",
+      "file": "dimos/stream/data_provider.py",
+      "highlight": [
+        {
+          "start": 88,
+          "end": 96
+        }
+      ],
+      "title": "",
+      "id": "67544",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "The `ops.share()` operator is used in `ROSDataProvider.capture_data_as_observable` (line 95). If this operator were removed, what would be the primary consequence when multiple components subscribe to the returned observable?\n\nOptions:\n\n A). Only the first component to subscribe would receive data; all others would receive nothing.\n\nB). Each subscriber would trigger a new, independent execution of the upstream pipeline, causing redundant processing.\n\nC). The stream would automatically buffer data and deliver it to new subscribers when they join.\n\nD). An exception would be raised, as an observable without `share()` cannot have more than one subscriber.\n\n\nCorrect: B). Each subscriber would trigger a new, independent execution of the upstream pipeline, causing redundant processing.\n\nExplanation: The `ops.share()` operator converts a \"cold\" observable into a \"hot\" one. Without it, the observable is cold, meaning it starts executing its pipeline from scratch for every new subscriber. This would cause the `observe_on` and `do_action` logic to be duplicated for each consumer. Option 1 is incorrect; all subscribers would receive data, but from separate pipelines. Option 3 describes the behavior of operators like `replay`. Option 4 is incorrect; an observable can have multiple subscribers without `share()`, but it leads to inefficient re-execution.",
+      "title": "",
+      "id": "67555",
+      "text": "The `ops.share()` operator is used in `ROSDataProvider.capture_data_as_observable` (line 95). If this operator were removed, what would be the primary consequence when multiple components subscribe to the returned observable?",
+      "answers": [
+        "Only the first component to subscribe would receive data; all others would receive nothing.",
+        "Each subscriber would trigger a new, independent execution of the upstream pipeline, causing redundant processing.",
+        "The stream would automatically buffer data and deliver it to new subscribers when they join.",
+        "An exception would be raised, as an observable without `share()` cannot have more than one subscriber."
+      ],
+      "correct": 1,
+      "explanation": "The `ops.share()` operator converts a \"cold\" observable into a \"hot\" one. Without it, the observable is cold, meaning it starts executing its pipeline from scratch for every new subscriber. This would cause the `observe_on` and `do_action` logic to be duplicated for each consumer. Option 1 is incorrect; all subscribers would receive data, but from separate pipelines. Option 3 describes the behavior of operators like `replay`. Option 4 is incorrect; an observable can have multiple subscribers without `share()`, but it leads to inefficient re-execution."
+    },
+    {
+      "type": "highlight",
+      "description": "The `QueryDataProvider` is another implementation of `AbstractDataProvider`, but it generates its own data.\n\nIt is designed to emit a series of formatted text queries at a regular interval. The class docstring explains its purpose: to generate numeric queries within a specified range and emit them based on a timer.",
+      "file": "dimos/stream/data_provider.py",
+      "highlight": [
+        {
+          "start": 104,
+          "end": 111
+        }
+      ],
+      "title": "",
+      "id": "67545",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `start_query_stream` method is where the stream generation logic resides. It takes parameters to define the content and timing of the queries, such as the template for the query string, the frequency of emission, and the range of numbers to generate.",
+      "file": "dimos/stream/data_provider.py",
+      "highlight": [
+        {
+          "start": 127,
+          "end": 135
+        }
+      ],
+      "title": "",
+      "id": "67546",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "We create two source observables here. The `timer` will emit integers at a set `frequency`, starting immediately. The `query_source` converts the `queries` list into a stream that emits each item in sequence.",
+      "file": "dimos/stream/data_provider.py",
+      "highlight": [
+        {
+          "start": 163,
+          "end": 164
+        }
+      ],
+      "title": "",
+      "id": "67547",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`ops.zip` pairs each emission from the timer with a query number from `query_source`. `ops.map` then uses this pair to format the final query string with the provided `query_template`.",
+      "file": "dimos/stream/data_provider.py",
+      "highlight": [
+        {
+          "start": 167,
+          "end": 169
+        }
+      ],
+      "title": "",
+      "id": "67548",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the `query_stream` is activated by subscribing to it.\n\nThe subscriber, defined here as a lambda function, receives each formatted query from the stream. It then calls `self.push_data` to inject the query into the `_data_subject`, making it available on the `data_stream` for any observers.",
+      "file": "dimos/stream/data_provider.py",
+      "highlight": [
+        {
+          "start": 180,
+          "end": 180
+        }
+      ],
+      "title": "",
+      "id": "67549",
+      "hideAreas": []
+    }
+  ]
+}

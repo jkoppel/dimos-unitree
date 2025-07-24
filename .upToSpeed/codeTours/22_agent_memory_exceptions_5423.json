@@ -1,0 +1,105 @@
+{
+  "title": "2.2: Agent Memory Exceptions",
+  "id": "1TKZ1dl/7FzCv8+iZM8R+XQk7lKqxmdc0I0J1D9uiqM=",
+  "originalId": 5423,
+  "position": 3,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour explores the custom exceptions in `dimos/exceptions/agent_memory_exceptions.py`, designed to handle specific errors within the **AgentMemory** component. We will examine the base exception, the inheritance hierarchy, and the purpose of each specialized exception.",
+      "title": "",
+      "id": "67345"
+    },
+    {
+      "type": "highlight",
+      "description": "All custom exceptions for AgentMemory inherit from the `AgentMemoryError` base class. This allows for a unified error handling strategy, as you can catch any specific or general agent memory error by catching this exception.",
+      "file": "dimos/exceptions/agent_memory_exceptions.py",
+      "highlight": [
+        {
+          "start": 17,
+          "end": 27
+        }
+      ],
+      "title": "",
+      "id": "67346",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`AgentMemoryConnectionError` is raised when there's a problem establishing a connection to the database. This could be due to various issues like network failures, incorrect credentials, or the database server being down.\n\nA key feature of this exception is the `cause` parameter, which can store the original exception that led to the connection error, providing valuable context for debugging.",
+      "file": "dimos/exceptions/agent_memory_exceptions.py",
+      "highlight": [
+        {
+          "start": 28,
+          "end": 45
+        }
+      ],
+      "title": "",
+      "id": "67347",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Inheriting from `AgentMemoryConnectionError`, the `UnknownConnectionTypeError` is a more specific exception raised when the code tries to use an unsupported or unrecognized database connection type during the setup of `AgentMemory`.",
+      "file": "dimos/exceptions/agent_memory_exceptions.py",
+      "highlight": [
+        {
+          "start": 46,
+          "end": 55
+        }
+      ],
+      "title": "",
+      "id": "67348",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`DataRetrievalError` is a general exception for when an operation to fetch data from the database fails. This could happen for various reasons, such as a malformed query, a database timeout, or issues with the data itself.",
+      "file": "dimos/exceptions/agent_memory_exceptions.py",
+      "highlight": [
+        {
+          "start": 56,
+          "end": 66
+        }
+      ],
+      "title": "",
+      "id": "67349",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`DataNotFoundError` is a specific type of `DataRetrievalError`. It's raised not when the query fails, but when the query executes successfully but finds no data for the given identifier.\n\nThe `vector_id` parameter is important here, as it clearly indicates which piece of data was being sought but could not be found.",
+      "file": "dimos/exceptions/agent_memory_exceptions.py",
+      "highlight": [
+        {
+          "start": 67,
+          "end": 80
+        }
+      ],
+      "title": "",
+      "id": "67350",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "A function attempts to retrieve a **vector** by its **ID**. The **database query** executes without issue, but no **vector** with the specified **ID** is found. Which **exception** is most appropriate to raise in this specific situation?\n\nOptions:\n\n A). AgentMemoryConnectionError\n\nB). DataRetrievalError\n\nC). DataNotFoundError\n\nD). AgentMemoryError\n\n\nCorrect: C). DataNotFoundError\n\nExplanation: `DataNotFoundError` is the most appropriate exception. It is specifically designed for cases where a query executes successfully but finds no matching data for a given identifier. `DataRetrievalError` is more general and used for failures during the query execution itself. `AgentMemoryConnectionError` is incorrect as the scenario states the query executed, implying a stable connection. `AgentMemoryError` is the base class and is too generic for this specific situation.",
+      "title": "",
+      "id": "67352",
+      "text": "A function attempts to retrieve a **vector** by its **ID**. The **database query** executes without issue, but no **vector** with the specified **ID** is found. Which **exception** is most appropriate to raise in this specific situation?",
+      "answers": [
+        "AgentMemoryConnectionError",
+        "DataRetrievalError",
+        "DataNotFoundError",
+        "AgentMemoryError"
+      ],
+      "correct": 2,
+      "explanation": "`DataNotFoundError` is the most appropriate exception. It is specifically designed for cases where a query executes successfully but finds no matching data for a given identifier. `DataRetrievalError` is more general and used for failures during the query execution itself. `AgentMemoryConnectionError` is incorrect as the scenario states the query executed, implying a stable connection. `AgentMemoryError` is the base class and is too generic for this specific situation."
+    },
+    {
+      "type": "textOnly",
+      "description": "In summary, the **custom exceptions** in `agent_memory_exceptions.py` provide a structure for **error handling** in the `AgentMemory` component. They are organized into an inheritance hierarchy, provide specific error types for different failure scenarios, and include contextual information to aid in debugging.",
+      "title": "",
+      "id": "67351"
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "title": "25.7: Robot Recorder (`recorder.py`)",
+  "id": "XU74k5W1ZPh74sTpSoegvolGoLetR3N+sYMT/fu8Cf0=",
+  "originalId": 5500,
+  "position": 94,
+  "steps": [
+    {
+      "type": "highlight",
+      "description": "The `RobotRecorder` class is marked as **UNDER DEVELOPMENT**, indicating that its API and implementation are subject to change. This warning appears at the top of the file on lines 14-16.",
+      "file": "dimos/robot/recorder.py",
+      "highlight": [
+        {
+          "start": 14,
+          "end": 16
+        }
+      ],
+      "title": "",
+      "id": "68262",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `RobotRecorder` class is designed for asynchronous recording of robot states and observations. The constructor highlights four key arguments: `get_state` and `get_observation` callables to fetch the robot's current state and camera images, `prepare_action` to compute actions between states, and `frequency_hz` to control the recording rate.",
+      "file": "dimos/robot/recorder.py",
+      "highlight": [
+        {
+          "start": 25,
+          "end": 46
+        }
+      ],
+      "title": "",
+      "id": "68263",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Recording uses a two-thread architecture for asynchronous operation.** The `_worker_thread` is a daemon thread that continuously processes the recording queue in the background, while a separate `recording_thread` (created in `start_recording()`) captures data from the robot at fixed intervals. This design prevents the recording process from blocking the robot's main operations.",
+      "file": "dimos/robot/recorder.py",
+      "highlight": [
+        {
+          "start": 69,
+          "end": 80
+        }
+      ],
+      "title": "",
+      "id": "68264",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `record_from_robot()` method implements the main recording loop. It continuously calls `record_current_state()` at the specified frequency, using precise timing calculations to maintain consistent intervals. The `self.recording` flag allows for graceful thread termination.",
+      "file": "dimos/robot/recorder.py",
+      "highlight": [
+        {
+          "start": 100,
+          "end": 109
+        }
+      ],
+      "title": "",
+      "id": "68265",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `record_current_state()` method captures the robot's current state and observation. It skips the first capture to establish a baseline, then proceeds only when the state changes or static recording is enabled. When a change is detected, it calculates the action using `prepare_action()` and enqueues the tuple `(image, instruction, action, state)` for asynchronous processing.",
+      "file": "dimos/robot/recorder.py",
+      "highlight": [
+        {
+          "start": 131,
+          "end": 151
+        }
+      ],
+      "title": "",
+      "id": "68266",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In `record_current_state()`, when a state change is detected, what data is placed onto `self.recording_queue` for the worker thread to process?\n\nOptions:\n\n A). The current image, the task, the calculated action, and the current state.\n\nB). The previous image, the task, the calculated action, and the previous state.\n\nC). The previous image, the task, and the calculated action.\n\nD). The current image, the task, and the current state.\n\n\nCorrect: B). The previous image, the task, the calculated action, and the previous state.\n\nExplanation: The system records state transitions. The `action` is calculated as the transition from `last_recorded_state` to the new `state`. Therefore, the data point recorded corresponds to the state *before* the action was taken (`last_recorded_state`) and the observation from that state (`last_image`). Lines 143-149 show that `self.last_image`, `self.task`, `action`, and `self.last_recorded_state` are the items placed in the queue.",
+      "title": "",
+      "id": "68270",
+      "text": "In `record_current_state()`, when a state change is detected, what data is placed onto `self.recording_queue` for the worker thread to process?",
+      "answers": [
+        "The current image, the task, the calculated action, and the current state.",
+        "The previous image, the task, the calculated action, and the previous state.",
+        "The previous image, the task, and the calculated action.",
+        "The current image, the task, and the current state."
+      ],
+      "correct": 1,
+      "explanation": "The system records state transitions. The `action` is calculated as the transition from `last_recorded_state` to the new `state`. Therefore, the data point recorded corresponds to the state *before* the action was taken (`last_recorded_state`) and the observation from that state (`last_image`). Lines 143-149 show that `self.last_image`, `self.task`, `action`, and `self.last_recorded_state` are the items placed in the queue."
+    },
+    {
+      "type": "highlight",
+      "description": "The `_process_queue()` method runs in the background worker thread, continuously pulling recording data from `self.recording_queue`. Each tuple of `(image, instruction, action, state)` is passed to `self.recorder.record()` with the observation dictionary, action, and state parameters.",
+      "file": "dimos/robot/recorder.py",
+      "highlight": [
+        {
+          "start": 124,
+          "end": 130
+        }
+      ],
+      "title": "",
+      "id": "68267",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `RobotRecorder` implements Python's context manager protocol for clean resource management. The `__enter__` method starts recording, while `__exit__` ensures recording is stopped even if exceptions occur, enabling usage like `with robot_recorder.record(\"task\"):`.",
+      "file": "dimos/robot/recorder.py",
+      "highlight": [
+        {
+          "start": 81,
+          "end": 88
+        }
+      ],
+      "title": "",
+      "id": "68268",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `record()`, `start_recording()`, and `stop_recording()` methods manage the recording lifecycle. `record()` (lines 89-92) sets up a recording session by storing the task description. `start_recording()` (lines 110-116) creates and launches the recording thread that runs `record_from_robot()`. `stop_recording()` (lines 118-122) sets the termination flag and waits for the thread to complete gracefully.",
+      "file": "dimos/robot/recorder.py",
+      "highlight": [
+        {
+          "start": 89,
+          "end": 123
+        }
+      ],
+      "title": "",
+      "id": "68269",
+      "hideAreas": []
+    }
+  ]
+}

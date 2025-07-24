@@ -1,0 +1,163 @@
+{
+  "title": "10.6: Video Streaming: VideoOperators for Processing",
+  "id": "QJU6YIGqh3pcaiKYGnFmgkAkSESB+nokeCr5eTrWsFY=",
+  "originalId": 5452,
+  "position": 40,
+  "steps": [
+    {
+      "type": "highlight",
+      "description": "Welcome to the tour of `video_operators.py`. This file provides a library of custom `reactivex` **operators** specifically designed for processing video streams. These **operators** are intended to be chained together using the `.pipe()` method.\n\nThe **operators** are provided as static methods on the `VideoOperators` class.",
+      "file": "dimos/stream/video_operators.py",
+      "highlight": [
+        {
+          "start": 29,
+          "end": 30
+        }
+      ],
+      "title": "",
+      "id": "67704",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Let's begin with a common video processing task: controlling the frame rate. The `with_fps_sampling` operator is used to downsample a high-frame-rate stream to a more manageable rate. It takes an `fps` (frames per second) argument or a more precise `sample_interval` as a `timedelta`.",
+      "file": "dimos/stream/video_operators.py",
+      "highlight": [
+        {
+          "start": 33,
+          "end": 38
+        }
+      ],
+      "title": "",
+      "id": "67705",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "A critical parameter for this operator is `use_latest`.\n- When `use_latest=True` (the default), it uses `ops.sample`. This is ideal for real-time display, where you always want to see the most recent frame.\n- When `use_latest=False`, it uses `ops.throttle_first`. This takes the *first* frame that appears in a time window. This is better for scenarios where you need to process frames at a consistent interval, rather than just seeing the latest view.",
+      "file": "dimos/stream/video_operators.py",
+      "highlight": [
+        {
+          "start": 100,
+          "end": 104
+        }
+      ],
+      "title": "",
+      "id": "67706",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Next, let's look at an operator that performs a side-effect: writing frames to the filesystem. The `with_jpeg_export` operator saves each frame that passes through it as a **JPEG** image. The frame itself continues down the observable chain unmodified.",
+      "file": "dimos/stream/video_operators.py",
+      "highlight": [
+        {
+          "start": 107,
+          "end": 112
+        }
+      ],
+      "title": "",
+      "id": "67707",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The actual file-writing logic is handled by a `FrameProcessor` object, which is passed in as an argument. This keeps the operator focused on its role within the reactive stream. As you can see in the implementation, it simply uses `ops.map` to call the frame processor's `export_to_jpeg` method for each frame.",
+      "file": "dimos/stream/video_operators.py",
+      "highlight": [
+        {
+          "start": 142,
+          "end": 146
+        }
+      ],
+      "title": "",
+      "id": "67708",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Now for a more complex example that shows how multiple basic operators can be composed to create a sophisticated processing step. The `with_optical_flow` operator is designed to detect motion. Optical flow algorithms analyze consecutive frames in a video to calculate the direction and speed of moving objects.",
+      "file": "dimos/stream/video_operators.py",
+      "highlight": [
+        {
+          "start": 200,
+          "end": 202
+        }
+      ],
+      "title": "",
+      "id": "67709",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This operator is a great example of building a mini-pipeline within a single operator. Let's break down its internal chain:\n1.  `ops.scan`: This is the key to comparing consecutive frames. It maintains an accumulator, which holds the state (including the *previous* frame).\n2.  `ops.map`: It extracts the calculated optical flow data.\n3.  `ops.filter`: It discards any `None` results.\n4.  `ops.map`: It calls `visualize_flow` to convert the raw flow data into a human-viewable image.",
+      "file": "dimos/stream/video_operators.py",
+      "highlight": [
+        {
+          "start": 203,
+          "end": 211
+        }
+      ],
+      "title": "",
+      "id": "67710",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the `with_optical_flow` operator, what is the primary role of the `ops.scan` function?\n\nOptions:\n\n A). It filters out frames where optical flow cannot be computed.\n\nB). It applies the `visualize_flow` function to each frame independently.\n\nC). It maintains state across emissions, allowing the current frame to be compared with the previous frame.\n\nD). It downsamples the stream to a lower frame rate to reduce computational load.\n\n\nCorrect: C). It maintains state across emissions, allowing the current frame to be compared with the previous frame.\n\nExplanation: `ops.scan` is used for stateful operations. In this pipeline, it maintains an accumulator that holds the previous frame's data. This allows the `compute_optical_flow` function to compare the current frame with the previous one, which is necessary for calculating motion. `ops.filter` is used for filtering, and `ops.map` is used for stateless, independent transformations like visualization.",
+      "title": "",
+      "id": "67714",
+      "text": "In the `with_optical_flow` operator, what is the primary role of the `ops.scan` function?",
+      "answers": [
+        "It filters out frames where optical flow cannot be computed.",
+        "It applies the `visualize_flow` function to each frame independently.",
+        "It maintains state across emissions, allowing the current frame to be compared with the previous frame.",
+        "It downsamples the stream to a lower frame rate to reduce computational load."
+      ],
+      "correct": 2,
+      "explanation": "`ops.scan` is used for stateful operations. In this pipeline, it maintains an accumulator that holds the previous frame's data. This allows the `compute_optical_flow` function to compare the current frame with the previous one, which is necessary for calculating motion. `ops.filter` is used for filtering, and `ops.map` is used for stateless, independent transformations like visualization."
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, let's look at an operator that prepares video frames for use in web applications. The `encode_image` operator takes a raw image frame (a `NumPy` array) and converts it into a Base64-encoded JPEG string. This is a very common requirement for sending image data within a JSON payload to a front-end application.",
+      "file": "dimos/stream/video_operators.py",
+      "highlight": [
+        {
+          "start": 234,
+          "end": 241
+        }
+      ],
+      "title": "",
+      "id": "67711",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The implementation defines a helper function, `_encode_image`, which uses `cv2.imencode` to compress the image into the JPEG format and then `base64.b64encode` to convert the binary data into a text string. This function is then applied to every frame in the stream using `ops.map`.",
+      "file": "dimos/stream/video_operators.py",
+      "highlight": [
+        {
+          "start": 243,
+          "end": 256
+        }
+      ],
+      "title": "",
+      "id": "67712",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This file contains several other operators that follow similar patterns, including `with_edge_detection` and `with_zmq_socket` for sending frames over a network.\n\nThis concludes our tour of `video_operators.py`. You've seen how this file provides a toolkit for building declarative, composable video processing pipelines.",
+      "file": "dimos/stream/video_operators.py",
+      "highlight": [
+        {
+          "start": 192,
+          "end": 231
+        }
+      ],
+      "title": "",
+      "id": "67713",
+      "hideAreas": []
+    }
+  ]
+}

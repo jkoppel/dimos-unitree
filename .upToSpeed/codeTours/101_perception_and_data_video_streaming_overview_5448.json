@@ -1,0 +1,187 @@
+{
+  "title": "10.1: Perception & Data: Video Streaming Overview",
+  "id": "U9KPuIgjMz96a1FRPoY4For8ivVWLGjE7wtJdtvByCQ=",
+  "originalId": 5448,
+  "position": 35,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to this tour of the video streaming component in DimOS. We'll start by looking at how video is captured and then explore how the resulting video streams are processed.\n\nOur first stop is the `dimos/stream/video_provider.py` file, which is the foundation for video capture in the system.",
+      "title": "",
+      "id": "67689"
+    },
+    {
+      "type": "highlight",
+      "description": "Here we have the `AbstractVideoProvider`. This abstract class is the blueprint for all video providers in `DimOS`. It establishes a common interface, ensuring that any video source can be handled in a consistent way.",
+      "file": "dimos/stream/video_provider.py",
+      "highlight": [
+        {
+          "start": 57,
+          "end": 58
+        }
+      ],
+      "title": "",
+      "id": "67690",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The key method defined in this abstract class is `capture_video_as_observable`. As you can see from its signature, it returns an `Observable` from the `RxPY` library. This means that every video provider will expose a reactive stream of video frames that other parts of the system can subscribe to.",
+      "file": "dimos/stream/video_provider.py",
+      "highlight": [
+        {
+          "start": 76,
+          "end": 88
+        }
+      ],
+      "title": "",
+      "id": "67691",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Now, let's take a look at the concrete implementations of `AbstractVideoProvider`, each tailored for a different type of video source.",
+      "title": "",
+      "id": "67692"
+    },
+    {
+      "type": "highlight",
+      "description": "First, we have the `VideoProvider` class, also in `video_provider.py`. This class is designed to stream video from local files on the filesystem.",
+      "file": "dimos/stream/video_provider.py",
+      "highlight": [
+        {
+          "start": 103,
+          "end": 103
+        }
+      ],
+      "title": "",
+      "id": "67693",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Next, in `dimos/stream/ros_video_provider.py`, we have the `ROSVideoProvider`. This class allows DimOS to subscribe to a ROS topic that is publishing video frames, integrating with robotic systems that use ROS.",
+      "file": "dimos/stream/ros_video_provider.py",
+      "highlight": [
+        {
+          "start": 35,
+          "end": 35
+        }
+      ],
+      "title": "",
+      "id": "67694",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "For network video streams, there is the `RtspVideoProvider` in `dimos/stream/rtsp_video_provider.py`. It connects to an RTSP URL to capture video from network cameras or other streaming servers.",
+      "file": "dimos/stream/rtsp_video_provider.py",
+      "highlight": [
+        {
+          "start": 41,
+          "end": 41
+        }
+      ],
+      "title": "",
+      "id": "67695",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "And for specialized hardware, we have an example in `dimos/stream/video_providers/unitree.py`. The `UnitreeVideoProvider` class handles video streaming from the camera of a Unitree robot, using **WebRTC** for the connection.",
+      "file": "dimos/stream/video_providers/unitree.py",
+      "highlight": [
+        {
+          "start": 27,
+          "end": 27
+        }
+      ],
+      "title": "",
+      "id": "67696",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "A new camera streaming via a custom `UDP` protocol needs to be integrated. What is the expected approach based on the `DimOS` video architecture?\n\nOptions:\n\n A). Modify the `RtspVideoProvider` to handle the custom UDP protocol as a special case.\n\nB). Create a new `UdpVideoProvider` class that inherits from `AbstractVideoProvider`.\n\nC). Add a new method to the `AbstractVideoProvider` class to handle UDP streams directly.\n\nD). Write a standalone function to capture the UDP stream and bypass the provider system.\n\n\nCorrect: B). Create a new `UdpVideoProvider` class that inherits from `AbstractVideoProvider`.\n\nExplanation: Creating a new class that inherits from `AbstractVideoProvider` is the intended approach. It follows the established provider pattern, promoting modularity and ensuring the new video source integrates consistently with the system's reactive stream architecture. Modifying existing classes or the abstract base class would violate the Open/Closed Principle, and bypassing the provider system would create inconsistent data flows.",
+      "title": "",
+      "id": "67703",
+      "text": "A new camera streaming via a custom `UDP` protocol needs to be integrated. What is the expected approach based on the `DimOS` video architecture?",
+      "answers": [
+        "Modify the `RtspVideoProvider` to handle the custom UDP protocol as a special case.",
+        "Create a new `UdpVideoProvider` class that inherits from `AbstractVideoProvider`.",
+        "Add a new method to the `AbstractVideoProvider` class to handle UDP streams directly.",
+        "Write a standalone function to capture the UDP stream and bypass the provider system."
+      ],
+      "correct": 1,
+      "explanation": "Creating a new class that inherits from `AbstractVideoProvider` is the intended approach. It follows the established provider pattern, promoting modularity and ensuring the new video source integrates consistently with the system's reactive stream architecture. Modifying existing classes or the abstract base class would violate the Open/Closed Principle, and bypassing the provider system would create inconsistent data flows."
+    },
+    {
+      "type": "textOnly",
+      "description": "Once we have these video streams, we often need to perform operations on them. For that, we turn to the `VideoOperators` class.",
+      "title": "",
+      "id": "67697"
+    },
+    {
+      "type": "highlight",
+      "description": "Located in `dimos/stream/video_operators.py`, the `VideoOperators` class is a collection of static methods that provide a toolbox for processing video streams. These are designed to be used with the `pipe` method of `RxPY` Observables.",
+      "file": "dimos/stream/video_operators.py",
+      "highlight": [
+        {
+          "start": 29,
+          "end": 30
+        }
+      ],
+      "title": "",
+      "id": "67698",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "For example, the `with_fps_sampling` operator allows you to control the frame rate of the stream.",
+      "file": "dimos/stream/video_operators.py",
+      "highlight": [
+        {
+          "start": 33,
+          "end": 38
+        }
+      ],
+      "title": "",
+      "id": "67699",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `with_jpeg_export` operator provides a way to save frames from the stream as **JPEG** files.",
+      "file": "dimos/stream/video_operators.py",
+      "highlight": [
+        {
+          "start": 107,
+          "end": 112
+        }
+      ],
+      "title": "",
+      "id": "67700",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "And `with_optical_flow` is an example of a more advanced processing step, calculating the optical flow between frames.",
+      "file": "dimos/stream/video_operators.py",
+      "highlight": [
+        {
+          "start": 200,
+          "end": 202
+        }
+      ],
+      "title": "",
+      "id": "67701",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This concludes our high-level tour of the video streaming component in **DimOS**. We've seen how the system uses a provider model to capture video from various sources as reactive streams, and then uses a set of operators to process those streams.",
+      "title": "",
+      "id": "67702"
+    }
+  ]
+}

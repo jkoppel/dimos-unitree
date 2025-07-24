@@ -1,0 +1,151 @@
+{
+  "title": "39.4: Robot Video Stream Viewer",
+  "id": "3RFINMlVFfAMStCgu3uFWpnjfJ+ZTqYyu5SSeMDqN9E=",
+  "originalId": 5543,
+  "position": 159,
+  "steps": [
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/web/dimos_interface/src/components/StreamViewer.svelte"
+      ],
+      "description": "The `StreamViewer.svelte` component displays one or more robot video feeds. It constructs a dynamic grid of `<img>` elements based on `streamStore` to show live streams from the robot.",
+      "title": "",
+      "id": "68867",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "These `state variables` and `constants` manage per-stream connection state and control retry timing. Each record uses `stream keys` to track individual stream states, while constants define the **2-minute timeout window** with **2-second retry intervals**.",
+      "file": "dimos/web/dimos_interface/src/components/StreamViewer.svelte",
+      "highlight": [
+        {
+          "start": 5,
+          "end": 11
+        }
+      ],
+      "title": "",
+      "id": "68868",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The retry logic forms the heart of connection reliability. When `handleError` detects a failed stream (line 46-50), it calls `retryConnection` which increments counters, updates error messages with progress info, forces fresh requests via timestamps, and schedules the next attempt. After `MAX_RETRIES`, it displays a final error message.",
+      "file": "dimos/web/dimos_interface/src/components/StreamViewer.svelte",
+      "highlight": [
+        {
+          "start": 28,
+          "end": 50
+        }
+      ],
+      "title": "",
+      "id": "68869",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In `StreamViewer.svelte`, under what condition does the component permanently stop retrying a connection for a specific stream and display the final **'Failed to connect...'** message?\n\nOptions:\n\n A). The `TOTAL_TIMEOUT` period expires, which triggers a global timeout handler for that stream.\n\nB). The `retryCount` for the stream reaches the value of `MAX_RETRIES`.\n\nC). The `handleError` function is called consecutively without a successful `handleLoad` in between.\n\nD). The user clicks the \"Stop Streams\" button while a retry is in progress.\n\n\nCorrect: B). The `retryCount` for the stream reaches the value of `MAX_RETRIES`.\n\nExplanation: The correct answer is that the retries stop when `retryCount` reaches `MAX_RETRIES`. The `retryConnection` function (line 28) contains an `if` condition (line 31) that checks `retryCount[streamKey] < MAX_RETRIES`. Once this condition is false, the `else` block (line 41) is executed, which sets the permanent error message and stops further retries. The `TOTAL_TIMEOUT` is used to calculate `MAX_RETRIES` but is not directly checked in a timer. `handleError` only initiates the process, and `stopStream` clears all streams entirely.",
+      "title": "",
+      "id": "68884",
+      "text": "In `StreamViewer.svelte`, under what condition does the component permanently stop retrying a connection for a specific stream and display the final **'Failed to connect...'** message?",
+      "answers": [
+        "The `TOTAL_TIMEOUT` period expires, which triggers a global timeout handler for that stream.",
+        "The `retryCount` for the stream reaches the value of `MAX_RETRIES`.",
+        "The `handleError` function is called consecutively without a successful `handleLoad` in between.",
+        "The user clicks the \"Stop Streams\" button while a retry is in progress."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that the retries stop when `retryCount` reaches `MAX_RETRIES`. The `retryConnection` function (line 28) contains an `if` condition (line 31) that checks `retryCount[streamKey] < MAX_RETRIES`. Once this condition is false, the `else` block (line 41) is executed, which sets the permanent error message and stops further retries. The `TOTAL_TIMEOUT` is used to calculate `MAX_RETRIES` but is not directly checked in a timer. `handleError` only initiates the process, and `stopStream` clears all streams entirely."
+    },
+    {
+      "type": "highlight",
+      "description": "When a stream successfully loads, `handleLoad` immediately clears any error state, resets retry counters to zero, and cancels pending retry timers to prevent unnecessary reconnection attempts.",
+      "file": "dimos/web/dimos_interface/src/components/StreamViewer.svelte",
+      "highlight": [
+        {
+          "start": 52,
+          "end": 56
+        }
+      ],
+      "title": "",
+      "id": "68870",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This reactive block (`$:`) watches for changes in `$streamStore.url` and `$streamStore.streamKeys`. When the stream source changes, it immediately resets all error states, clears retry counts and timers, then stamps fresh timestamps to ensure clean connections to the new stream source.",
+      "file": "dimos/web/dimos_interface/src/components/StreamViewer.svelte",
+      "highlight": [
+        {
+          "start": 64,
+          "end": 71
+        }
+      ],
+      "title": "",
+      "id": "68871",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The computed variables handle URL construction and layout. `streamUrls` (lines 78-81) builds complete URLs with cache-busting timestamps. `gridCols` and `gridRows` (lines 84-85) calculate optimal grid dimensions using square root logic to create visually balanced layouts regardless of stream count.",
+      "file": "dimos/web/dimos_interface/src/components/StreamViewer.svelte",
+      "highlight": [
+        {
+          "start": 78,
+          "end": 85
+        }
+      ],
+      "title": "",
+      "id": "68872",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The template iterates over `streamUrls` to render each stream. The `<img>` elements (lines 95-100) connect to the retry system via `on:error` and `on:load` handlers. Error overlays (lines 102-106) display retry progress or failure messages directly over failed streams.",
+      "file": "dimos/web/dimos_interface/src/components/StreamViewer.svelte",
+      "highlight": [
+        {
+          "start": 92,
+          "end": 107
+        }
+      ],
+      "title": "",
+      "id": "68873",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `stopStream` function provides cleanup by clearing all active retry timers and resetting `streamStore` to its initial state, effectively terminating all video streams and hiding the component.",
+      "file": "dimos/web/dimos_interface/src/components/StreamViewer.svelte",
+      "highlight": [
+        {
+          "start": 58,
+          "end": 61
+        }
+      ],
+      "title": "",
+      "id": "68874",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Stop Streams` button gives users manual control to terminate all video streams by calling `stopStream` on click.",
+      "file": "dimos/web/dimos_interface/src/components/StreamViewer.svelte",
+      "highlight": [
+        {
+          "start": 110,
+          "end": 112
+        }
+      ],
+      "title": "",
+      "id": "68875",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "You now understand how `StreamViewer.svelte` manages per-stream state, implements retry logic, reacts to store changes, dynamically layouts multiple streams, and provides user control over stream lifecycle.",
+      "title": "",
+      "id": "68876"
+    }
+  ]
+}

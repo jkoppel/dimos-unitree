@@ -1,0 +1,173 @@
+{
+  "title": "35.3: Web Interface Frontend and User Interaction",
+  "id": "90RSoCSP9GDV+eZ4hUk6K1w8Ue0//X7cgTQgieWOFTI=",
+  "originalId": 5570,
+  "position": 135,
+  "steps": [
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/web/dimos_interface/api/templates/index_fastapi.html"
+      ],
+      "description": "Welcome to a tour of the Robot Control Dashboard!\n\nThis tour explores `index_fastapi.html`, the front-end template that powers an interactive dashboard for robot control, monitoring, and agent interaction. We will examine how it dynamically generates content, handles user input, and manages real-time data streams.",
+      "title": "",
+      "id": "69217",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "First, let's look at how the page dynamically creates panels for text-based data streams.\n\nThis `Jinja2` template block checks if a list named `text_stream_keys` exists. If it does, it loops through each `key` in the list and renders a dedicated container (`<div>`) for it. Each container includes a title derived from the key, a message area, and connection buttons. This allows the backend to control which text streams are available on the front-end by simply passing a list of keys.",
+      "file": "dimos/web/dimos_interface/api/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 226,
+          "end": 240
+        }
+      ],
+      "title": "",
+      "id": "69218",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Similarly, the template dynamically generates the video feed containers.\n\nIt iterates through `stream_keys`, creating a container for each video stream. Inside each container, it generates a title and an `<img>` element with a unique `id` (e.g., `img_front_camera`). The `src` attribute is initially empty, waiting for JavaScript to activate the stream. This approach makes it easy to add or remove video feeds from the dashboard by modifying the `stream_keys` list in the backend.",
+      "file": "dimos/web/dimos_interface/api/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 243,
+          "end": 254
+        }
+      ],
+      "title": "",
+      "id": "69219",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The dashboard includes a form for sending natural language queries to the robot's agent.\n\nThis HTML block defines the query interface. It consists of a `<form>` with the ID `queryForm`, a text input field for typing questions, and a `\"Send\"` button. When the form is submitted, its data is captured by **JavaScript** to be sent to the backend. A `<div>` with the ID `queryResponse` is reserved for displaying success or error messages from the agent.",
+      "file": "dimos/web/dimos_interface/api/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 216,
+          "end": 223
+        }
+      ],
+      "title": "",
+      "id": "69220",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "CSS media queries make the `.stream-grid` layout responsive, adapting the number of columns to the screen size:\n- **Tablet (`max-width: 900px`):** The minimum column width is reduced to `300px`.\n- **Mobile (`max-width: 600px`):** The layout switches to a single column (`1fr`) for small screens.",
+      "file": "dimos/web/dimos_interface/api/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 108,
+          "end": 119
+        }
+      ],
+      "title": "",
+      "id": "69221",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "To ensure the video feeds are operational as soon as the page is ready, JavaScript automatically starts them.\n\nThe `window.onload` event handler waits for the page to load completely before running. Inside the handler, the `Jinja2` template engine loops through each video feed key provided by the backend. For every key, it generates a unique call to the `startStream` function. This ensures that all camera feeds begin streaming immediately without any user interaction, making the dashboard instantly operational.",
+      "file": "dimos/web/dimos_interface/api/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 259,
+          "end": 263
+        }
+      ],
+      "title": "",
+      "id": "69222",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "JavaScript functions `startStream` and `stopStream` manage the video feed connections.\n\n- `startStream(key)`: This function finds the `<img>` element by its unique ID (e.g., `img_front_camera`) and sets its `src` attribute to the corresponding video feed endpoint (`/video_feed/{key}`). This action initiates the stream from the server.\n- `stopStream(key)`: This function stops the stream by clearing the `src` attribute, which closes the connection to the server endpoint.",
+      "file": "dimos/web/dimos_interface/api/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 266,
+          "end": 274
+        }
+      ],
+      "title": "",
+      "id": "69223",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Real-time text streams** are handled using **Server-Sent Events** (`SSE`).\n\nThe `connectTextStream` function establishes a persistent connection to a text stream endpoint (`/text_stream/{key}`) using `new EventSource()`. An event listener for `message` events is attached to this source. When a message arrives, the listener creates a new **<div>**, sets its content to the event's data, and appends it to the correct message container, automatically scrolling to show the latest update.",
+      "file": "dimos/web/dimos_interface/api/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 342,
+          "end": 361
+        }
+      ],
+      "title": "",
+      "id": "69224",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Client-side cleanup for text streams is handled by these two dedicated functions.\n\nThe first function is responsible for stopping a stream. It closes the connection to the server to prevent further updates and then removes the stream from our active tracking object.\n\nThe second function cleans up the user interface. It finds the correct message container on the page and clears all of its content, effectively erasing the message history from the view.",
+      "file": "dimos/web/dimos_interface/api/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 372,
+          "end": 381
+        }
+      ],
+      "title": "",
+      "id": "69225",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "User queries are captured and sent to the server asynchronously.\n\nAn event listener on the query form intercepts the `submit` event, preventing a full page reload. It constructs a `FormData` object containing the user's query and sends it to the `/submit_query` endpoint using a `fetch` POST request. This allows the query to be processed in the background without interrupting the video or text streams. Basic error handling is included in a `try...catch` block.",
+      "file": "dimos/web/dimos_interface/api/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 281,
+          "end": 297
+        }
+      ],
+      "title": "",
+      "id": "69226",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The front-end provides clear feedback after a query is submitted.\n\nAfter the `fetch` call completes, the code checks if the response was successful (`response.ok`). It parses the JSON result and displays the `message` field in the `queryResponse` element. The element's class is set to `success` or `error` based on the response, changing its color. If the query was successful, the input field is cleared, and the success message automatically hides after three seconds.",
+      "file": "dimos/web/dimos_interface/api/templates/index_fastapi.html",
+      "highlight": [
+        {
+          "start": 302,
+          "end": 326
+        }
+      ],
+      "title": "",
+      "id": "69227",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the implementation, what is the fundamental difference between the communication pattern for receiving `text_stream` data versus submitting a user `query`?\n\nOptions:\n\n A). The text stream uses a WebSocket for bidirectional communication, while the query uses a standard HTTP POST request.\n\nB). The text stream uses a persistent server-to-client connection via `EventSource` (SSE), while the query uses a transient, client-initiated POST request via `fetch`.\n\nC). Both use `fetch`, but the text stream polls a GET endpoint repeatedly, while the query makes a single POST request.\n\nD). Text stream data is rendered server-side with Jinja2 on initial load, while query responses are fetched and rendered entirely on the client-side.\n\n\nCorrect: B). The text stream uses a persistent server-to-client connection via `EventSource` (SSE), while the query uses a transient, client-initiated POST request via `fetch`.\n\nExplanation: The correct answer identifies the two distinct asynchronous patterns used. The `connectTextStream` function (lines 342-350) explicitly creates a new `EventSource`, establishing a persistent Server-Sent Events (SSE) connection where the server can push data to the client. In contrast, the query form's submit handler (lines 281-297) uses `fetch` to make a standard, short-lived HTTP POST request initiated by the client. The other options describe incorrect patterns; the code does not use WebSockets or polling, and the text stream data arrives asynchronously, not during the initial server-side render.",
+      "title": "",
+      "id": "69228",
+      "text": "Based on the implementation, what is the fundamental difference between the communication pattern for receiving `text_stream` data versus submitting a user `query`?",
+      "answers": [
+        "The text stream uses a WebSocket for bidirectional communication, while the query uses a standard HTTP POST request.",
+        "The text stream uses a persistent server-to-client connection via `EventSource` (SSE), while the query uses a transient, client-initiated POST request via `fetch`.",
+        "Both use `fetch`, but the text stream polls a GET endpoint repeatedly, while the query makes a single POST request.",
+        "Text stream data is rendered server-side with Jinja2 on initial load, while query responses are fetched and rendered entirely on the client-side."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer identifies the two distinct asynchronous patterns used. The `connectTextStream` function (lines 342-350) explicitly creates a new `EventSource`, establishing a persistent Server-Sent Events (SSE) connection where the server can push data to the client. In contrast, the query form's submit handler (lines 281-297) uses `fetch` to make a standard, short-lived HTTP POST request initiated by the client. The other options describe incorrect patterns; the code does not use WebSockets or polling, and the text stream data arrives asynchronously, not during the initial server-side render."
+    }
+  ]
+}

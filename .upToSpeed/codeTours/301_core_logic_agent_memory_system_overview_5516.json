@@ -1,0 +1,294 @@
+{
+  "title": "30.1: Core Logic: Agent Memory System: Overview",
+  "id": "q7RvwNp2H8axT9x1oL/CVDKsw4QJDAjQz8IzE5qq7/w=",
+  "originalId": 5516,
+  "position": 113,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to the `Agent Memory System` architecture walkthrough. This system provides a sophisticated foundation for storing, retrieving, and searching through memories using semantic embeddings, visual data, and spatial relationships.",
+      "title": "",
+      "id": "68474"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/memory/base.py"
+      ],
+      "description": "The foundation of the entire memory system is defined in the `base module`. This establishes the **core interface** that all memory implementations must follow.",
+      "title": "",
+      "id": "68475",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `AbstractAgentSemanticMemory` class serves as the blueprint for all semantic memory implementations. It handles connection management and validates connection types, supporting both local and remote database configurations. Notice how the constructor automatically calls `connect()` or `create()` based on the connection type.",
+      "file": "dimos/agents/memory/base.py",
+      "highlight": [
+        {
+          "start": 26,
+          "end": 45
+        }
+      ],
+      "title": "",
+      "id": "68476",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The abstract methods define the core **CRUD** operations that any semantic memory implementation must provide. The `query()` method is particularly important - it performs semantic search and returns documents with similarity scores, forming the backbone of intelligent memory retrieval.",
+      "file": "dimos/agents/memory/base.py",
+      "highlight": [
+        {
+          "start": 56,
+          "end": 87
+        }
+      ],
+      "title": "",
+      "id": "68477",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/memory/chroma_impl.py"
+      ],
+      "description": "The `ChromaDB` implementations bring the abstract interface to life. This module contains three classes that provide concrete vector database functionality using `ChromaDB` as the backend.",
+      "title": "",
+      "id": "68478",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `ChromaAgentSemanticMemory` base class provides common `ChromaDB` functionality. It inherits from our abstract base and sets up the foundation for `ChromaDB`-based implementations. Notice it forces **local** connection type and delegates the actual embedding creation to child classes.",
+      "file": "dimos/agents/memory/chroma_impl.py",
+      "highlight": [
+        {
+          "start": 24,
+          "end": 42
+        }
+      ],
+      "title": "",
+      "id": "68479",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `OpenAISemanticMemory` class provides cloud-based embeddings using OpenAI's text-embedding models. It configures the `OpenAI API` connection and creates a `ChromaDB` instance with OpenAI embeddings. The embeddings are normalized using **cosine similarity** for optimal search performance.",
+      "file": "dimos/agents/memory/chroma_impl.py",
+      "highlight": [
+        {
+          "start": 89,
+          "end": 124
+        }
+      ],
+      "title": "",
+      "id": "68480",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `LocalSemanticMemory` class provides a completely local alternative using `SentenceTransformers`. Lines 150-163 show the custom embedding wrapper that adapts `SentenceTransformer` models to work with `ChromaDB`. This ensures privacy and eliminates external API dependencies while maintaining semantic search capabilities.",
+      "file": "dimos/agents/memory/chroma_impl.py",
+      "highlight": [
+        {
+          "start": 126,
+          "end": 171
+        }
+      ],
+      "title": "",
+      "id": "68481",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/memory/image_embedding.py"
+      ],
+      "description": "The `image embedding module` bridges the gap between visual data and searchable vectors. This component enables the `memory system` to understand and search through images semantically.",
+      "title": "",
+      "id": "68482",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `ImageEmbeddingProvider` class converts images into vector embeddings for semantic search. It supports multiple models like `CLIP` and `ResNet`, with the `CLIP` model enabling text-to-image matching. The class automatically initializes the specified model and prepares it for embedding generation.",
+      "file": "dimos/agents/memory/image_embedding.py",
+      "highlight": [
+        {
+          "start": 34,
+          "end": 58
+        }
+      ],
+      "title": "",
+      "id": "68483",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `get_embedding()` method transforms images into normalized vector representations. It accepts multiple input formats (`numpy arrays`, `file paths`, `base64 strings`) and uses the initialized model to generate embeddings. For `CLIP` models, it extracts and normalizes the image features, enabling semantic similarity comparisons.",
+      "file": "dimos/agents/memory/image_embedding.py",
+      "highlight": [
+        {
+          "start": 85,
+          "end": 112
+        }
+      ],
+      "title": "",
+      "id": "68484",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `get_text_embedding()` method enables cross-modal search by converting text queries into the same embedding space as images. This is the key feature that allows queries like \"find images of a kitchen\" to work semantically. The method only works with `CLIP` models since they're trained to align text and image representations.",
+      "file": "dimos/agents/memory/image_embedding.py",
+      "highlight": [
+        {
+          "start": 136,
+          "end": 168
+        }
+      ],
+      "title": "",
+      "id": "68485",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/memory/visual_memory.py"
+      ],
+      "description": "While embeddings enable semantic search, the actual image data needs separate storage. The `visual memory module` handles the persistence and retrieval of raw image data.",
+      "title": "",
+      "id": "68486",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `VisualMemory` class manages the storage of actual image data, separate from their vector embeddings. It provides optional disk persistence and maintains an in-memory index of encoded images. This separation allows the vector database to focus on similarity search while visual memory handles data persistence.",
+      "file": "dimos/agents/memory/visual_memory.py",
+      "highlight": [
+        {
+          "start": 30,
+          "end": 54
+        }
+      ],
+      "title": "",
+      "id": "68487",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `add()` method encodes images to JPEG format and stores them as base64 strings. This encoding provides a balance between storage efficiency and format compatibility. The base64 encoding ensures the image data can be safely stored in various backends and easily serialized.",
+      "file": "dimos/agents/memory/visual_memory.py",
+      "highlight": [
+        {
+          "start": 55,
+          "end": 75
+        }
+      ],
+      "title": "",
+      "id": "68488",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `get()` method reconstructs the original image from the stored base64 data. It includes error handling for the decoding process, returning `None` if the image data is corrupted or cannot be processed. The method returns standard `OpenCV` `numpy` arrays for integration with computer vision workflows.",
+      "file": "dimos/agents/memory/visual_memory.py",
+      "highlight": [
+        {
+          "start": 76,
+          "end": 99
+        }
+      ],
+      "title": "",
+      "id": "68489",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/memory/spatial_vector_db.py"
+      ],
+      "description": "The spatial vector database brings all components together, adding location awareness to create a comprehensive memory system that understands both semantic content and spatial relationships.",
+      "title": "",
+      "id": "68490",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `SpatialVectorDB` class integrates `ChromaDB` for vector storage with `VisualMemory` for image persistence. It creates or connects to existing collections and provides flexible initialization with optional persistence. The class handles different `ChromaDB` API versions gracefully to ensure compatibility.",
+      "file": "dimos/agents/memory/spatial_vector_db.py",
+      "highlight": [
+        {
+          "start": 38,
+          "end": 84
+        }
+      ],
+      "title": "",
+      "id": "68491",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `add_image_vector()` method demonstrates the integration of all components. It stores the raw image in `VisualMemory` (line 108), then adds the embedding and metadata to `ChromaDB` (lines 111-115). This dual storage approach enables both semantic search through embeddings and full image retrieval.",
+      "file": "dimos/agents/memory/spatial_vector_db.py",
+      "highlight": [
+        {
+          "start": 96,
+          "end": 118
+        }
+      ],
+      "title": "",
+      "id": "68492",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `query_by_location()` method adds spatial awareness to memory search. It retrieves all stored items and filters them by Euclidean distance from the query point (lines 162-171). Results are sorted by distance and limited, enabling location-based memory retrieval. Note the **TODO** comment indicating room for optimization with spatial indexing.",
+      "file": "dimos/agents/memory/spatial_vector_db.py",
+      "highlight": [
+        {
+          "start": 137,
+          "end": 178
+        }
+      ],
+      "title": "",
+      "id": "68493",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **`query_by_text()`** method showcases the power of **cross-modal search**. It uses the `ImageEmbeddingProvider` to convert text queries into the same embedding space as stored images (lines 224-226), then searches for semantically similar content. This enables **natural language queries** like `\"show me the kitchen\"` to find relevant images.",
+      "file": "dimos/agents/memory/spatial_vector_db.py",
+      "highlight": [
+        {
+          "start": 208,
+          "end": 235
+        }
+      ],
+      "title": "",
+      "id": "68494",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "**The Agent Memory System** is designed with a separation of concerns: the abstract base defines interfaces, `ChromaDB` implementations provide vector storage with different embedding backends, image embedding converts visual data to searchable vectors, visual memory handles raw data persistence, and the spatial database orchestrates everything with location awareness. This architecture enables multimodal memory capabilities while maintaining modularity and extensibility.",
+      "title": "",
+      "id": "68495"
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the architecture, when a new image memory is added via the `SpatialVectorDB.add_image_vector` method, which statement accurately describes the flow of data?\n\nOptions:\n\n A). The raw image is encoded and stored directly within the metadata of the ChromaDB collection, bypassing `VisualMemory`.\n\nB). The raw image is passed to the `VisualMemory` instance for storage, while the pre-computed embedding and metadata are separately added to the ChromaDB collection.\n\nC). The method internally calls `ImageEmbeddingProvider` to generate the vector on-the-fly before storing the image and embedding.\n\n\nCorrect: B). The raw image is passed to the `VisualMemory` instance for storage, while the pre-computed embedding and metadata are separately added to the ChromaDB collection.\n\nExplanation: This is the correct flow. The `add_image_vector` method shows the system's separation of concerns: it calls `self.visual_memory.add()` to handle raw image persistence and then `self.image_collection.add()` to store the semantic vector and its metadata in ChromaDB. The other options are incorrect because the system explicitly separates raw image storage from vector storage, and the method signature shows it expects a pre-computed embedding, rather than generating one itself.",
+      "title": "",
+      "id": "68504",
+      "text": "Based on the architecture, when a new image memory is added via the `SpatialVectorDB.add_image_vector` method, which statement accurately describes the flow of data?",
+      "answers": [
+        "The raw image is encoded and stored directly within the metadata of the ChromaDB collection, bypassing `VisualMemory`.",
+        "The raw image is passed to the `VisualMemory` instance for storage, while the pre-computed embedding and metadata are separately added to the ChromaDB collection.",
+        "The method internally calls `ImageEmbeddingProvider` to generate the vector on-the-fly before storing the image and embedding."
+      ],
+      "correct": 1,
+      "explanation": "This is the correct flow. The `add_image_vector` method shows the system's separation of concerns: it calls `self.visual_memory.add()` to handle raw image persistence and then `self.image_collection.add()` to store the semantic vector and its metadata in ChromaDB. The other options are incorrect because the system explicitly separates raw image storage from vector storage, and the method signature shows it expects a pre-computed embedding, rather than generating one itself."
+    }
+  ]
+}

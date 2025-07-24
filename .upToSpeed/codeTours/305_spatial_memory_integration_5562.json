@@ -1,0 +1,125 @@
+{
+  "title": "30.5: Spatial Memory Integration",
+  "id": "efciAY0aM+lFYJ9lxUWrIyKlJhAXYrDafxnT1furmTU=",
+  "originalId": 5562,
+  "position": 117,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This document explains the `SpatialVectorDB` class from `dimos/agents/memory/spatial_vector_db.py`, which provides a spatial-aware memory system for agents. We will explore its initialization, how it stores and retrieves data, and the different ways it can be queried.",
+      "title": "",
+      "id": "69076"
+    },
+    {
+      "type": "highlight",
+      "description": "### Initialization\n\nThe `SpatialVectorDB` class is initialized with an optional `collection_name`, `chroma_client`, and `visual_memory`. If a `chroma_client` or `visual_memory` is not provided, new instances are created. This allows for both persistent and in-memory databases.\n\nThe `constructor` either creates a new `collection` or loads an existing one in `ChromaDB`, and it initializes a `VisualMemory` instance to store raw image data.\n\n- **Lines 57-58:** The code uses a provided `ChromaDB` client or creates a new in-memory one.\n- **Line 77:** It gets or creates a `ChromaDB` `collection`.\n- **Line 83:** It uses a provided `VisualMemory` instance or creates a new one.",
+      "file": "dimos/agents/memory/spatial_vector_db.py",
+      "highlight": [
+        {
+          "start": 46,
+          "end": 95
+        }
+      ],
+      "title": "",
+      "id": "69077",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `add_image_vector` method is responsible for storing new visual information. It takes a unique ID, an image, its corresponding embedding vector, and metadata (including x, y coordinates). The process involves two key steps: the raw image is stored in `VisualMemory`, while the embedding and metadata are stored in `ChromaDB`. This separation allows each component to be used for its intended purpose: the vector database is optimized for searching embeddings, while the visual memory is used for storing the larger image files.\n\n- **Line 108:** The raw image is added to `visual_memory` with its unique `vector_id`.\n- **Lines 111-115:** The image's embedding and metadata are added to the `ChromaDB` collection.",
+      "file": "dimos/agents/memory/spatial_vector_db.py",
+      "highlight": [
+        {
+          "start": 96,
+          "end": 118
+        }
+      ],
+      "title": "",
+      "id": "69078",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "The `SpatialVectorDB` class provides three different methods for querying the stored data: by semantic similarity, by spatial proximity, and by a text description.",
+      "title": "",
+      "id": "69079"
+    },
+    {
+      "type": "highlight",
+      "description": "The `query_by_embedding` method finds images that are semantically similar to a given query embedding. It's useful when an agent wants to find images that look like what it's currently seeing.\n\n- **Lines 130-133:** It uses the `query` method of the `ChromaDB` collection to find the most similar embeddings.",
+      "file": "dimos/agents/memory/spatial_vector_db.py",
+      "highlight": [
+        {
+          "start": 119,
+          "end": 135
+        }
+      ],
+      "title": "",
+      "id": "69080",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `query_by_location` method finds images that are physically close to a given `(x, y)` coordinate. It retrieves all entries from the collection, calculates the Euclidean distance for each, and then filters and sorts them to return the nearest ones within a given radius.\n\n- **Line 150:** Retrieves all items from the collection.\n- **Lines 161-171:** Iterates through the results, calculates the distance for each item, and adds it to `filtered_results` if it's within the specified radius.\n- **Line 173:** Sorts the results by distance.\n- **Lines 174-176:** The results are trimmed to the specified `limit`.",
+      "file": "dimos/agents/memory/spatial_vector_db.py",
+      "highlight": [
+        {
+          "start": 137,
+          "end": 178
+        }
+      ],
+      "title": "",
+      "id": "69081",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `query_by_text` method allows for text-to-image searches. It takes a string of text, generates an embedding for it using a `CLIP` model, and then uses that embedding to query `ChromaDB` for semantically similar images.\n\n- **Line 224:** An `ImageEmbeddingProvider` is created to get the text embedding.\n- **Line 226:** The text embedding is generated.\n- **Lines 228-232:** The `query` method of the `ChromaDB` collection is used to find images with similar embeddings.",
+      "file": "dimos/agents/memory/spatial_vector_db.py",
+      "highlight": [
+        {
+          "start": 208,
+          "end": 235
+        }
+      ],
+      "title": "",
+      "id": "69082",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `_process_query_results` helper method combines the data from ChromaDB and `VisualMemory`. It takes the results from a ChromaDB query, and for each result, it retrieves the corresponding full-resolution image from `VisualMemory` using the `vector_id`. This way, the final output contains the image's metadata, its distance/similarity score, and the actual image.\n\n- **Line 187:** It iterates through the vector IDs from the ChromaDB query results.\n- **Line 201:** For each `vector_id`, it fetches the corresponding image from `visual_memory`.\n- **Line 202:** The image is added to the result dictionary.\n- **Line 204:** The processed result is appended to the list of results.",
+      "file": "dimos/agents/memory/spatial_vector_db.py",
+      "highlight": [
+        {
+          "start": 180,
+          "end": 206
+        }
+      ],
+      "title": "",
+      "id": "69083",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "When a query is performed using one of the `query_*` methods in `SpatialVectorDB`, the `_process_query_results` method is called. Based on the code, what is its primary function?\n\nOptions:\n\n A). It performs the final filtering of results based on spatial distance after an initial broad query from ChromaDB.\n\nB). It fetches metadata from `VisualMemory` and combines it with image embeddings retrieved from ChromaDB.\n\nC). It retrieves raw images from `VisualMemory` using the IDs returned by a ChromaDB query and combines them with the corresponding metadata.\n\nD). It decodes the images stored directly within the ChromaDB query results, as ChromaDB handles both embeddings and raw image data.\n\n\nCorrect: C). It retrieves raw images from `VisualMemory` using the IDs returned by a ChromaDB query and combines them with the corresponding metadata.\n\nExplanation: The correct answer is that `_process_query_results` combines data from both storage systems. ChromaDB provides the query results (IDs, metadata, distances), and this method uses those IDs to fetch the corresponding raw images from `VisualMemory`. The other options are incorrect because filtering happens within the specific query methods (like `query_by_location`), and the roles of `VisualMemory` (storing images) and ChromaDB (storing embeddings/metadata) are distinct.",
+      "title": "",
+      "id": "69085",
+      "text": "When a query is performed using one of the `query_*` methods in `SpatialVectorDB`, the `_process_query_results` method is called. Based on the code, what is its primary function?",
+      "answers": [
+        "It performs the final filtering of results based on spatial distance after an initial broad query from ChromaDB.",
+        "It fetches metadata from `VisualMemory` and combines it with image embeddings retrieved from ChromaDB.",
+        "It retrieves raw images from `VisualMemory` using the IDs returned by a ChromaDB query and combines them with the corresponding metadata.",
+        "It decodes the images stored directly within the ChromaDB query results, as ChromaDB handles both embeddings and raw image data."
+      ],
+      "correct": 2,
+      "explanation": "The correct answer is that `_process_query_results` combines data from both storage systems. ChromaDB provides the query results (IDs, metadata, distances), and this method uses those IDs to fetch the corresponding raw images from `VisualMemory`. The other options are incorrect because filtering happens within the specific query methods (like `query_by_location`), and the roles of `VisualMemory` (storing images) and ChromaDB (storing embeddings/metadata) are distinct."
+    },
+    {
+      "type": "textOnly",
+      "description": "In conclusion, the `SpatialVectorDB` class integrates `ChromaDB` and `VisualMemory` to function as a spatial-aware memory system. It allows agents to store and retrieve visual memories based on what they look like, where they were seen, or a textual description. This component provides the mechanism for agents to build an understanding of their environment based on visual and spatial data.",
+      "title": "",
+      "id": "69084"
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "title": "3.3: The `Path` Type",
+  "id": "eHaNAg6nuAtk33jwIbKjykB8V8pY85IF9c43O3I4VyM=",
+  "originalId": 5419,
+  "position": 6,
+  "steps": [
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/types/path.py"
+      ],
+      "description": "Welcome to this walkthrough of the `Path` class. Having seen the `Vector` class representing individual points, we now explore how `Path` represents entire robot trajectories - sequences of points that define where the robot should move.\n\nThe `Path` class provides the tools to create, modify, and optimize these trajectories, enabling smooth robot motion.",
+      "title": "",
+      "id": "67388",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "A `Path` is a list of points that can be created from `Vector` objects, tuples, or numpy arrays. The constructor handles all these formats and converts them to an internal `NumPy` array `self._points` for vectorized computation. This allows paths to be created from various data sources, such as GPS coordinates, planned waypoints, or computed trajectories.",
+      "file": "dimos/types/path.py",
+      "highlight": [
+        {
+          "start": 25,
+          "end": 56
+        }
+      ],
+      "title": "",
+      "id": "67389",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Like **Python lists**, `Path` supports modification operations. The `append` method adds single waypoints, while `extend` can merge entire path segments. These methods are used to build trajectories dynamically—for example, by appending obstacle avoidance waypoints or extending a path with a new route segment.",
+      "file": "dimos/types/path.py",
+      "highlight": [
+        {
+          "start": 73,
+          "end": 104
+        }
+      ],
+      "title": "",
+      "id": "67390",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `insert` and `remove` methods provide precise path editing capabilities. You might insert a waypoint to navigate around a newly detected obstacle, or remove waypoints that are no longer needed as conditions change.",
+      "file": "dimos/types/path.py",
+      "highlight": [
+        {
+          "start": 105,
+          "end": 133
+        }
+      ],
+      "title": "",
+      "id": "67391",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `length` method calculates total trajectory distance using vectorized operations. In **path planning**, this is useful for estimating travel time, energy consumption, or comparing alternative routes. The calculation handles any dimensionality of `path points`.",
+      "file": "dimos/types/path.py",
+      "highlight": [
+        {
+          "start": 139,
+          "end": 151
+        }
+      ],
+      "title": "",
+      "id": "67392",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Now we reach the core of robot path processing: three methods that transform raw trajectories into robot-ready paths. These methods - `resample`, `simplify`, and `smooth` - often work together in sequence to optimize robot motion.",
+      "title": "",
+      "id": "67393"
+    },
+    {
+      "type": "highlight",
+      "description": "The `resample` method creates evenly-spaced waypoints along the trajectory. This is critical for robot control - consistent spacing (e.g., 0.1m for precise indoor navigation, 1.0m for outdoor traversal) ensures predictable control loop behavior and smooth motion.",
+      "file": "dimos/types/path.py",
+      "highlight": [
+        {
+          "start": 153,
+          "end": 180
+        }
+      ],
+      "title": "",
+      "id": "67394",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The resampling algorithm walks along each path segment, placing new points at the target spacing distance. It preserves the original path shape while ensuring consistent waypoint density.",
+      "file": "dimos/types/path.py",
+      "highlight": [
+        {
+          "start": 181,
+          "end": 204
+        }
+      ],
+      "title": "",
+      "id": "67395",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `simplify` method uses the **Ramer-Douglas-Peucker** algorithm to reduce waypoint count while preserving path shape. For example, a path with thousands of GPS points can be simplified to dozens of key waypoints, which reduces the processing load without losing trajectory accuracy.",
+      "file": "dimos/types/path.py",
+      "highlight": [
+        {
+          "start": 206,
+          "end": 230
+        }
+      ],
+      "title": "",
+      "id": "67396",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **algorithm** recursively finds points that deviate most from straight-line segments. Points within the tolerance distance (e.g., 0.05m for precise applications, 0.5m for rough terrain) are eliminated. This reduces the number of waypoints while preserving the trajectory's overall shape.",
+      "file": "dimos/types/path.py",
+      "highlight": [
+        {
+          "start": 235,
+          "end": 265
+        }
+      ],
+      "title": "",
+      "id": "67397",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `smooth` method reduces trajectory jerkiness through weighted averaging with neighboring points. Sharp direction changes can cause mechanical stress or unstable robot behavior. Smoothing with moderate weights (`0.3-0.7`) and multiple iterations creates trajectories that robots can follow more naturally.",
+      "file": "dimos/types/path.py",
+      "highlight": [
+        {
+          "start": 267,
+          "end": 294
+        }
+      ],
+      "title": "",
+      "id": "67398",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "These three methods often work together in a typical robot path processing pipeline:\n\n1. **Simplify** raw GPS/planned data to remove redundant points\n2. **Resample** to ensure consistent control spacing  \n3. **Smooth** to eliminate jerky motions\n\nThis sequence transforms any trajectory into a robot-optimized path.",
+      "title": "",
+      "id": "67399"
+    },
+    {
+      "type": "mcq",
+      "description": "A raw path from a GPS sensor has many redundant and slightly noisy points. To prepare it for a robot's motion controller, which needs an efficient and smooth trajectory with evenly spaced waypoints, what would be a sensible order for applying the path processing methods?\n\nOptions:\n\n A). First `resample`, then `smooth`, then `simplify`.\n\nB). First `simplify`, then `resample`, then `smooth`.\n\nC). First `smooth`, then `simplify`, then `resample`.\n\n\nCorrect: B). First `simplify`, then `resample`, then `smooth`.\n\nExplanation: This sequence is often the most practical. You would `simplify` first to reduce the overall number of points, making the next operations much faster. Then, `resample` creates evenly spaced points, which is helpful for both the robot's controller and for the smoothing algorithm to work well. Finally, you `smooth` the path to remove any sharp turns, resulting in a trajectory the robot can follow easily. Other orders are less efficient or might not produce the best result.",
+      "title": "",
+      "id": "67403",
+      "text": "A raw path from a GPS sensor has many redundant and slightly noisy points. To prepare it for a robot's motion controller, which needs an efficient and smooth trajectory with evenly spaced waypoints, what would be a sensible order for applying the path processing methods?",
+      "answers": [
+        "First `resample`, then `smooth`, then `simplify`.",
+        "First `simplify`, then `resample`, then `smooth`.",
+        "First `smooth`, then `simplify`, then `resample`."
+      ],
+      "correct": 1,
+      "explanation": "This sequence is often the most practical. You would `simplify` first to reduce the overall number of points, making the next operations much faster. Then, `resample` creates evenly spaced points, which is helpful for both the robot's controller and for the smoothing algorithm to work well. Finally, you `smooth` the path to remove any sharp turns, resulting in a trajectory the robot can follow easily. Other orders are less efficient or might not produce the best result."
+    },
+    {
+      "type": "highlight",
+      "description": "The `Path` class supports Python-style indexing and slicing through `__getitem__`. This enables extracting path segments (e.g., `path[10:20]` for waypoints 10-20) or accessing individual waypoints, which is useful for path following algorithms that process trajectory segments.",
+      "file": "dimos/types/path.py",
+      "highlight": [
+        {
+          "start": 332,
+          "end": 336
+        }
+      ],
+      "title": "",
+      "id": "67400",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__iter__` method makes paths iterable, allowing straightforward waypoint processing in control loops. Each iteration yields a copy to prevent accidental modification of the original trajectory data.",
+      "file": "dimos/types/path.py",
+      "highlight": [
+        {
+          "start": 360,
+          "end": 363
+        }
+      ],
+      "title": "",
+      "id": "67401",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "The `Path` class builds on the `Vector` concept to represent a trajectory. Its combination of input handling for various point types, path modification operations, and processing methods makes it the foundation for robot path planning and navigation in this system.",
+      "title": "",
+      "id": "67402"
+    }
+  ]
+}

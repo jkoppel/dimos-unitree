@@ -1,0 +1,237 @@
+{
+  "title": "25.5: Reactive Data Streams (`ros_observable_topic.py` & `position_stream.py`)",
+  "id": "Ipq9NWbQ8uGPuistMXjrW240Qo3taidsGd0u5nSRanM=",
+  "originalId": 5501,
+  "position": 92,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour examines how `DimOS` turns `ROS` topics into reactive streams with backpressure support (`ROSObservableTopicAbility`) and applies it in `PositionStreamProvider`.",
+      "title": "",
+      "id": "69031"
+    },
+    {
+      "type": "highlight",
+      "description": "The `QOS` enum defines quality-of-service profiles. `BEST_EFFORT` is for sensor data where timeliness matters more than guaranteed delivery, while `RELIABLE` is for commands where every message must be received. The `to_profile()` method converts the enum to a **ROS** `QoSProfile`.",
+      "file": "dimos/robot/ros_observable_topic.py",
+      "highlight": [
+        {
+          "start": 44,
+          "end": 52
+        }
+      ],
+      "title": "",
+      "id": "69032",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `_maybe_conversion()` method wraps callbacks to convert raw ROS messages into `Costmap` or `Vector` types when requested by specifying `msg_type=Costmap` or `msg_type=Vector`. Otherwise, it passes the original message through.",
+      "file": "dimos/robot/ros_observable_topic.py",
+      "highlight": [
+        {
+          "start": 84,
+          "end": 90
+        }
+      ],
+      "title": "",
+      "id": "69033",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `_sub_msg_type()` method maps logical types `Costmap` and `Vector` back to their actual ROS message types `OccupancyGrid` and `Odometry` for subscription. All other types are returned unchanged.",
+      "file": "dimos/robot/ros_observable_topic.py",
+      "highlight": [
+        {
+          "start": 92,
+          "end": 98
+        }
+      ],
+      "title": "",
+      "id": "69034",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `topic()` method is the core API. It is cached via `functools.lru_cache` to reuse the same underlying core observable. It accepts a topic name, message type, `QoS` enum, optional scheduler, and `drop_unprocessed` flag, then retrieves a scheduler (`ThreadPoolScheduler` by default) and converts the `QoS` enum into a ROS `QoSProfile`.",
+      "file": "dimos/robot/ros_observable_topic.py",
+      "highlight": [
+        {
+          "start": 101,
+          "end": 109
+        }
+      ],
+      "title": "",
+      "id": "69035",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The upstream observable is created with `rx.create()`. On each new subscription, `_on_subscribe` uses the `ROS` node to create a subscription to the topic, wrapping `observer.on_next` with `_maybe_conversion`. It returns a `Disposable` that destroys the `ROS` subscription on unsubscribe.",
+      "file": "dimos/robot/ros_observable_topic.py",
+      "highlight": [
+        {
+          "start": 116,
+          "end": 124
+        }
+      ],
+      "title": "",
+      "id": "69036",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `core` observable is made \"hot\" and \"latest-cached.\" This means incoming messages are replayed to new subscribers, and the underlying ROS subscription stays active only as long as there is at least one subscriber.",
+      "file": "dimos/robot/ros_observable_topic.py",
+      "highlight": [
+        {
+          "start": 125,
+          "end": 131
+        }
+      ],
+      "title": "",
+      "id": "69037",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "For each new subscription, a dedicated processing chain is created. The `observe_on` operator moves work to a scheduler's thread pool, which prevents a slow subscriber from blocking the main ROS thread. If `drop_unprocessed` is enabled, we also apply backpressure using the `BackPressure.LATEST` strategy to drop outdated messages.",
+      "file": "dimos/robot/ros_observable_topic.py",
+      "highlight": [
+        {
+          "start": 132,
+          "end": 147
+        }
+      ],
+      "title": "",
+      "id": "69038",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "The `ROSObservableTopicAbility.topic()` method provides a sophisticated way to handle ROS topics. When configured with `drop_unprocessed=True`, what is the primary behavior it introduces for subscribers that cannot process messages as fast as they arrive?\n\nOptions:\n\n A). It moves message processing to a worker thread and discards older, unprocessed messages in favor of the latest one.\n\nB). It blocks the ROS callback thread until the slow subscriber has processed the current message, ensuring no data is lost.\n\nC). It buffers all incoming messages for the slow subscriber, delivering them in order once the subscriber is ready.\n\nD). It automatically reduces the subscription's QoS to `BEST_EFFORT` to lower the message rate from the publisher.\n\n\nCorrect: A). It moves message processing to a worker thread and discards older, unprocessed messages in favor of the latest one.\n\nExplanation: Correct. The combination of `ops.observe_on(scheduler)` moves work to a thread pool, and `BackPressure.LATEST` ensures that if a subscriber is busy, it will drop any intermediate messages and only process the most recent one when it becomes free. This prevents a slow consumer from blocking the ROS system or consuming stale data.",
+      "title": "",
+      "id": "69048",
+      "text": "The `ROSObservableTopicAbility.topic()` method provides a sophisticated way to handle ROS topics. When configured with `drop_unprocessed=True`, what is the primary behavior it introduces for subscribers that cannot process messages as fast as they arrive?",
+      "answers": [
+        "It moves message processing to a worker thread and discards older, unprocessed messages in favor of the latest one.",
+        "It blocks the ROS callback thread until the slow subscriber has processed the current message, ensuring no data is lost.",
+        "It buffers all incoming messages for the slow subscriber, delivering them in order once the subscriber is ready.",
+        "It automatically reduces the subscription's QoS to `BEST_EFFORT` to lower the message rate from the publisher."
+      ],
+      "correct": 0,
+      "explanation": "Correct. The combination of `ops.observe_on(scheduler)` moves work to a thread pool, and `BackPressure.LATEST` ensures that if a subscriber is busy, it will drop any intermediate messages and only process the most recent one when it becomes free. This prevents a slow consumer from blocking the ROS system or consuming stale data."
+    },
+    {
+      "type": "highlight",
+      "description": "`topic_latest()` provides a blocking API. It reuses the cached `topic()` observable with a 1-element replay buffer, immediately connects to start the ROS subscription, then runs `ops.first()` with an optional timeout to get the first message. Subsequent `reader()` calls return the cached last value instantly.",
+      "file": "dimos/robot/ros_observable_topic.py",
+      "highlight": [
+        {
+          "start": 160,
+          "end": 170
+        }
+      ],
+      "title": "",
+      "id": "69039",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Now we switch to `dimos/robot/position_stream.py` to see how a manual reactive stream is implemented using standard ROS subscriptions and an `rx.Subject`.",
+      "title": "",
+      "id": "69040"
+    },
+    {
+      "type": "highlight",
+      "description": "`PositionStreamProvider` streams the robot’s `(x,y)` coordinates. It uses an `rx.Subject` as both observer and observable, emitting position updates on demand.",
+      "file": "dimos/robot/position_stream.py",
+      "highlight": [
+        {
+          "start": 36,
+          "end": 43
+        }
+      ],
+      "title": "",
+      "id": "69041",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`__init__` sets up the provider: it stores `ros_node`, topic names, and flags, initializes an `rx.Subject()` for emissions, tracks `last_position` and `last_update_time`, and calls `_create_subscription()` to start receiving data.",
+      "file": "dimos/robot/position_stream.py",
+      "highlight": [
+        {
+          "start": 45,
+          "end": 74
+        }
+      ],
+      "title": "",
+      "id": "69042",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`_create_subscription` uses `ros_node.create_subscription` directly. If `use_odometry` is true, it subscribes to an `Odometry` topic with `_odometry_callback`; otherwise it requires a `pose_topic` and subscribes with `_pose_callback`. This is plain ROS subscription without the reactive abstractions of `ROSObservableTopicAbility`.",
+      "file": "dimos/robot/position_stream.py",
+      "highlight": [
+        {
+          "start": 76,
+          "end": 97
+        }
+      ],
+      "title": "",
+      "id": "69043",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`_oidometry_callback` and `_pose_callback` extract `x` and `y` from their respective ROS messages (`msg.pose.pose.position` for Odometry, `msg.pose.position` for PoseStamped) and pass them to `_update_position(x,y)`.",
+      "file": "dimos/robot/position_stream.py",
+      "highlight": [
+        {
+          "start": 99,
+          "end": 121
+        }
+      ],
+      "title": "",
+      "id": "69044",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This method first computes the update rate for logging. It then stores the new position and timestamp, and finally pushes the `(x,y)` tuple into the stream for all subscribers to consume.",
+      "file": "dimos/robot/position_stream.py",
+      "highlight": [
+        {
+          "start": 123,
+          "end": 143
+        }
+      ],
+      "title": "",
+      "id": "69045",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`get_position_stream()` returns the subject piped through `ops.share()`, equivalent to `publish().ref_count()`, allowing multiple consumers to share the same stream without duplicating the underlying ROS subscription.",
+      "file": "dimos/robot/position_stream.py",
+      "highlight": [
+        {
+          "start": 145,
+          "end": 153
+        }
+      ],
+      "title": "",
+      "id": "69046",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "These two approaches contrast a generic, reusable reactive solution with built-in backpressure and threading (`ROSObservableTopicAbility`) against a hand-rolled implementation using standard `ROS` subscriptions and an `rx.Subject`.",
+      "title": "",
+      "id": "69047"
+    }
+  ]
+}

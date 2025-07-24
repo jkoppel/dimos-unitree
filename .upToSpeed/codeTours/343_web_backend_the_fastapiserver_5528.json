@@ -1,0 +1,156 @@
+{
+  "title": "34.3: Web Backend: The FastAPIServer",
+  "id": "dd3cIxVPzL8FX7dpq7bwePAz5VR+ZVL/BopVuF6M2uE=",
+  "originalId": 5528,
+  "position": 129,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour will be a deep dive into the `dimos/web/fastapi_server.py` file. We will start by examining the `FastAPIServer` class, its initialization, and how it handles reactive streams for video and text. We will then explore the routing setup that exposes these streams to the web UI.",
+      "title": "",
+      "id": "68533"
+    },
+    {
+      "type": "highlight",
+      "description": "The `FastAPIServer` class serves as the core of the web server. It inherits from `EdgeIO`, which provides a foundational structure for input/output operations in the `Dimos` framework. This inheritance allows `FastAPIServer` to be treated as a component within the larger reactive system.",
+      "file": "dimos/web/fastapi_server.py",
+      "highlight": [
+        {
+          "start": 45,
+          "end": 45
+        }
+      ],
+      "title": "",
+      "id": "68534",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__` method initializes the server. It sets up the `FastAPI` application instance, host, port, and `Jinja2` templates for rendering HTML.\n\nIt accepts `streams` (for video) and `text_streams` (for text), which are dictionaries of `RxPY` observable streams. The `ops.share()` operator is applied to these streams. This operator allows multiple clients (e.g., different browser tabs) to subscribe to the same underlying stream without causing the source to be re-executed for each new subscriber. It effectively multicasts the stream's emissions.",
+      "file": "dimos/web/fastapi_server.py",
+      "highlight": [
+        {
+          "start": 47,
+          "end": 95
+        }
+      ],
+      "title": "",
+      "id": "68535",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "To handle user input from the web UI, a `rx.subject.Subject` named `query_subject` is created. A `Subject` in `RxPY` acts as both an observer and an observable. It can be used to push values into a stream by calling its `on_next()` method and also be subscribed to. This makes it a perfect bridge for sending data from an imperative source (like a POST request handler) into the reactive stream pipeline. The resulting `query_stream` is also shared.",
+      "file": "dimos/web/fastapi_server.py",
+      "highlight": [
+        {
+          "start": 73,
+          "end": 74
+        }
+      ],
+      "title": "",
+      "id": "68536",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "What is the primary architectural function of `self.query_subject`, initialized on line 73?\n\nOptions:\n\n A). To buffer user queries, preventing overload on downstream stream processors.\n\nB). To serve as a bridge for pushing data from an imperative context (an HTTP route handler) into a declarative reactive stream.\n\nC). To apply the `ops.share()` operator, allowing multiple subscribers to listen to the same query stream.\n\nD). To directly handle the HTTP POST request and return a JSON response to the client.\n\n\nCorrect: B). To serve as a bridge for pushing data from an imperative context (an HTTP route handler) into a declarative reactive stream.\n\nExplanation: `self.query_subject` is an instance of `rx.subject.Subject`, which acts as a bridge. The imperative `/submit_query` route handler calls `self.query_subject.on_next()` to inject data into the reactive stream. This allows the event-driven web layer to communicate with the stream-based backend. While its output stream is shared, the Subject's primary role is injection, not sharing. Buffering is handled by queues, and the route handler itself manages the HTTP response.",
+      "title": "",
+      "id": "68563",
+      "text": "What is the primary architectural function of `self.query_subject`, initialized on line 73?",
+      "answers": [
+        "To buffer user queries, preventing overload on downstream stream processors.",
+        "To serve as a bridge for pushing data from an imperative context (an HTTP route handler) into a declarative reactive stream.",
+        "To apply the `ops.share()` operator, allowing multiple subscribers to listen to the same query stream.",
+        "To directly handle the HTTP POST request and return a JSON response to the client."
+      ],
+      "correct": 1,
+      "explanation": "`self.query_subject` is an instance of `rx.subject.Subject`, which acts as a bridge. The imperative `/submit_query` route handler calls `self.query_subject.on_next()` to inject data into the reactive stream. This allows the event-driven web layer to communicate with the stream-based backend. While its output stream is shared, the Subject's primary role is injection, not sharing. Buffering is handled by queues, and the route handler itself manages the HTTP response."
+    },
+    {
+      "type": "highlight",
+      "description": "Before video frames can be sent over HTTP, they need to be in a format that browsers can display. The `process_frame_fastapi` method is a simple mapping function that takes a raw frame (typically a NumPy array from `OpenCV`) and encodes it into the **JPEG** format. The resulting bytes are then ready to be embedded in the multipart HTTP response.",
+      "file": "dimos/web/fastapi_server.py",
+      "highlight": [
+        {
+          "start": 96,
+          "end": 99
+        }
+      ],
+      "title": "",
+      "id": "68537",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `stream_generator` function is a key part of the video streaming logic. For each client that connects to a video feed, this function is called.\n\nIt works by creating a `queue.Queue` to act as a buffer between the reactive stream and the HTTP response. A new subscription is made to the appropriate `active_streams` observable, and incoming frames are put into the queue (line 128).\n\nThe `generate` inner function then runs in a loop, pulling frames from the queue (line 136) and `yield`-ing them in the `multipart/x-mixed-replace` format. This decouples the frame arrival (which is asynchronous and controlled by the source stream) from the HTTP response generation, which must block until a frame is available. The `timeout=1` on `frame_queue.get()` prevents the server from blocking indefinitely if the stream stops.",
+      "file": "dimos/web/fastapi_server.py",
+      "highlight": [
+        {
+          "start": 101,
+          "end": 149
+        }
+      ],
+      "title": "",
+      "id": "68538",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `text_stream_generator` function handles real-time text updates using Server-Sent Events (SSE). Similar to the video generator, it uses a queue (`self.text_queues`) to buffer incoming text data from the `text_streams` observable.\n\nThe `async` generator function runs an infinite loop. In each iteration, it tries to get a message from the queue. If a message is found, it's yielded as a JSON object in the SSE format. If the queue is empty, it yields a **'ping'** event to keep the connection alive and then pauses briefly with `asyncio.sleep(0.1)` to prevent a busy-wait loop.",
+      "file": "dimos/web/fastapi_server.py",
+      "highlight": [
+        {
+          "start": 161,
+          "end": 186
+        }
+      ],
+      "title": "",
+      "id": "68539",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "When a user submits a query through the `/submit_query` endpoint, how is that data injected into the application's reactive stream pipeline?\n\nOptions:\n\n A). The query is added to a `queue.Queue`, which is then read by the reactive stream.\n\nB). The endpoint handler calls `self.query_subject.on_next(query)`, pushing the data into the stream.\n\nC). A new observable is created and subscribed to for each individual query submission.\n\nD). The `query_stream` directly subscribes to the FastAPI POST endpoint to receive data.\n\n\nCorrect: B). The endpoint handler calls `self.query_subject.on_next(query)`, pushing the data into the stream.\n\nExplanation: The correct answer is that the endpoint handler calls `self.query_subject.on_next(query)`. The `rx.subject.Subject` instance (`self.query_subject`) acts as a bridge between the imperative code of the HTTP request handler and the declarative reactive stream. Calling `on_next()` pushes the query into the subject, which then multicasts it to all subscribers of `query_stream`.\n\nUsing a queue is the pattern used for buffering output to clients, not for handling input. Creating a new observable for each query would be inefficient. A stream cannot directly subscribe to an endpoint; a handler is needed to bridge the two.",
+      "title": "",
+      "id": "68564",
+      "text": "When a user submits a query through the `/submit_query` endpoint, how is that data injected into the application's reactive stream pipeline?",
+      "answers": [
+        "The query is added to a `queue.Queue`, which is then read by the reactive stream.",
+        "The endpoint handler calls `self.query_subject.on_next(query)`, pushing the data into the stream.",
+        "A new observable is created and subscribed to for each individual query submission.",
+        "The `query_stream` directly subscribes to the FastAPI POST endpoint to receive data."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that the endpoint handler calls `self.query_subject.on_next(query)`. The `rx.subject.Subject` instance (`self.query_subject`) acts as a bridge between the imperative code of the HTTP request handler and the declarative reactive stream. Calling `on_next()` pushes the query into the subject, which then multicasts it to all subscribers of `query_stream`.\n\nUsing a queue is the pattern used for buffering output to clients, not for handling input. Creating a new observable for each query would be inefficient. A stream cannot directly subscribe to an endpoint; a handler is needed to bridge the two."
+    },
+    {
+      "type": "highlight",
+      "description": "The `setup_routes` method wires everything together using `FastAPI`'s decorators.\n\n- **/**: The root path serves the main HTML page using a Jinja2 template, passing the available video and text stream keys to the front end.\n- **/submit_query**: This is a POST endpoint. When the user submits a query from the UI, this function receives the text and pushes it into the `query_subject` by calling `self.query_subject.on_next(query)` (line 206). This injects the user's query into the reactive system.\n- **/text_stream/{key}**: This route uses `EventSourceResponse` to stream text data. It's connected to the `text_stream_generator` for the requested stream key.\n- **/video_feed/{key}**: A loop dynamically creates a route for each video stream key. It uses `StreamingResponse` to send the multipart video data generated by `stream_generator`.",
+      "file": "dimos/web/fastapi_server.py",
+      "highlight": [
+        {
+          "start": 187,
+          "end": 232
+        }
+      ],
+      "title": "",
+      "id": "68540",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the `run` method is the entry point to start the server. It simply calls `uvicorn.run`, passing the `FastAPI` application instance (`self.app`), host, and port. This command starts the **Uvicorn ASGI server**, which listens for incoming HTTP requests and serves the `FastAPI` application.",
+      "file": "dimos/web/fastapi_server.py",
+      "highlight": [
+        {
+          "start": 233,
+          "end": 236
+        }
+      ],
+      "title": "",
+      "id": "68541",
+      "hideAreas": []
+    }
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "title": "13.5: Advanced Visual Navigation",
+  "id": "gbx3lt04l0zMV1xIDo6sFtYih7bT7TiswzM0VsKAi+c=",
+  "originalId": 5459,
+  "position": 49,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough will guide you through the `visual_navigation_skills.py` file to understand how a real-time visual servoing skill is built with continuous control loops and cleanup mechanics.",
+      "title": "",
+      "id": "67867"
+    },
+    {
+      "type": "highlight",
+      "description": "The **module docstring** establishes the purpose: providing visual navigation skills for robots, including following humans and navigating to objects using computer vision.",
+      "file": "dimos/skills/visual_navigation_skills.py",
+      "highlight": [
+        {
+          "start": 15,
+          "end": 20
+        }
+      ],
+      "title": "",
+      "id": "67868",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `FollowHuman` class extends `AbstractRobotSkill` and defines its core configuration. Lines 44-47 show three key parameters: `distance` (default 1.5m), `timeout` (20s), and an optional `pixel point` for tracking initialization.",
+      "file": "dimos/skills/visual_navigation_skills.py",
+      "highlight": [
+        {
+          "start": 34,
+          "end": 47
+        }
+      ],
+      "title": "",
+      "id": "67869",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `constructor` initializes the skill by calling the parent class and setting up two critical instance variables: `_stop_event` for thread-safe stopping and `_visual_servoing` as a placeholder for the tracking system.",
+      "file": "dimos/skills/visual_navigation_skills.py",
+      "highlight": [
+        {
+          "start": 48,
+          "end": 51
+        }
+      ],
+      "title": "",
+      "id": "67870",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__call__` method serves as the skill's entry point. It calls `super().__call__()` to execute parent class initialization, then prepares for validation of the robot's `person_tracking_stream` capability.",
+      "file": "dimos/skills/visual_navigation_skills.py",
+      "highlight": [
+        {
+          "start": 53,
+          "end": 61
+        }
+      ],
+      "title": "",
+      "id": "67871",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Visual servoing initialization creates a `VisualServoing` instance with the robot's person tracking stream. Line 80 calls `start_tracking` with the `desired_distance` parameter and optional `point` to begin tracking.",
+      "file": "dimos/skills/visual_navigation_skills.py",
+      "highlight": [
+        {
+          "start": 73,
+          "end": 80
+        }
+      ],
+      "title": "",
+      "id": "67872",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The main follow loop runs continuously while three conditions are met (`lines 87-89`). Each iteration gets velocity commands from `updateTracking()` and sends them via `move_vel_control` to the robot's motors.",
+      "file": "dimos/skills/visual_navigation_skills.py",
+      "highlight": [
+        {
+          "start": 86,
+          "end": 95
+        }
+      ],
+      "title": "",
+      "id": "67873",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **finally block** ensures proper cleanup regardless of how the skill exits. It stops visual servoing tracking, clears the reference, and halts robot movement - critical for preventing runaway behavior.",
+      "file": "dimos/skills/visual_navigation_skills.py",
+      "highlight": [
+        {
+          "start": 112,
+          "end": 118
+        }
+      ],
+      "title": "",
+      "id": "67874",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "The `finally` block (lines 112-117) is used for cleanup. Under which circumstance will `self._robot.ros_control.stop()` (line 117) be executed?\n\nOptions:\n\n A). Only when the `timeout` (line 88) is exceeded.\n\nB). Only if an unhandled exception occurs within the `try` block.\n\nC). After the `__call__` method's `try` block completes, regardless of how it exits.\n\nD). Only when the `stop()` method is called, setting the `_stop_event`.\n\n\nCorrect: C). After the `__call__` method's `try` block completes, regardless of how it exits.\n\nExplanation: The `finally` block executes after the `try` block has completed, regardless of whether an exception was raised or the block was exited normally. This design ensures that critical cleanup code, such as stopping the robot's motors, is always run, preventing the robot from being left in an unsafe state.",
+      "title": "",
+      "id": "67877",
+      "text": "The `finally` block (lines 112-117) is used for cleanup. Under which circumstance will `self._robot.ros_control.stop()` (line 117) be executed?",
+      "answers": [
+        "Only when the `timeout` (line 88) is exceeded.",
+        "Only if an unhandled exception occurs within the `try` block.",
+        "After the `__call__` method's `try` block completes, regardless of how it exits.",
+        "Only when the `stop()` method is called, setting the `_stop_event`."
+      ],
+      "correct": 2,
+      "explanation": "The `finally` block executes after the `try` block has completed, regardless of whether an exception was raised or the block was exited normally. This design ensures that critical cleanup code, such as stopping the robot's motors, is always run, preventing the robot from being left in an unsafe state."
+    },
+    {
+      "type": "highlight",
+      "description": "The **stop method** provides external termination control. It checks if the skill is active and logs the stop action. The actual event setting and cleanup happens in the lines that follow this check.",
+      "file": "dimos/skills/visual_navigation_skills.py",
+      "highlight": [
+        {
+          "start": 119,
+          "end": 127
+        }
+      ],
+      "title": "",
+      "id": "67875",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "You've now seen how the `FollowHuman skill` implements real-time visual servoing with state management, continuous control loops, and cleanup mechanisms to stop the robot's motion.",
+      "title": "",
+      "id": "67876"
+    }
+  ]
+}

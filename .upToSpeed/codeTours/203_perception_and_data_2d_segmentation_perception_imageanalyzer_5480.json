@@ -1,0 +1,91 @@
+{
+  "title": "20.3: Perception & Data: 2D Segmentation Perception: ImageAnalyzer",
+  "id": "7DP/oXSyvIZfheySCtxlATEfTpmnM5I8LNTy/qBj+6M=",
+  "originalId": 5480,
+  "position": 67,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough explores the `ImageAnalyzer` class in the 2D segmentation perception system. This class bridges computer vision detection and AI-powered object understanding by sending cropped image patches to **OpenAI**'s vision model for semantic analysis.",
+      "title": "",
+      "id": "67966"
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__` method establishes the connection to OpenAI's services by creating a client instance. This client automatically handles authentication using the `OPENAI_API_KEY` environment variable and manages all API communication throughout the analyzer's lifecycle.",
+      "file": "dimos/perception/segmentation/image_analyzer.py",
+      "highlight": [
+        {
+          "start": 22,
+          "end": 26
+        }
+      ],
+      "title": "",
+      "id": "67967",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `encode_image` method transforms computer vision data into a network-ready format. It converts `NumPy` image arrays (typically cropped object patches from detection models) into JPEG format, then Base64 encoding - the standard format required by `OpenAI's Vision API`.",
+      "file": "dimos/perception/segmentation/image_analyzer.py",
+      "highlight": [
+        {
+          "start": 28,
+          "end": 39
+        }
+      ],
+      "title": "",
+      "id": "67968",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `analyze_images` method orchestrates the entire analysis pipeline. It encodes multiple images (line 56), selects the appropriate prompt (lines 61-66), and sends everything to the `gpt-4o-mini` model. Note the 5-second timeout (line 77) and 300-token limit (line 76) to control response time and size, which is important for real-time systems.",
+      "file": "dimos/perception/segmentation/image_analyzer.py",
+      "highlight": [
+        {
+          "start": 41,
+          "end": 81
+        }
+      ],
+      "title": "",
+      "id": "67969",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Two prompt strategies serve different segmentation needs. `NORMAL_PROMPT` produces concise labels like 'red cup' or 'small tube' - ideal for real-time object labeling where speed matters. `RICH_PROMPT` generates detailed descriptions using context from the full image - perfect for comprehensive scene analysis where more detail about the objects is desired.",
+      "file": "dimos/perception/segmentation/image_analyzer.py",
+      "highlight": [
+        {
+          "start": 8,
+          "end": 18
+        }
+      ],
+      "title": "",
+      "id": "67970",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "When `analyze_images` is called with `prompt_type=\"rich\"` and the `images` list contains several cropped patches followed by the original full image, what is the specified role of the final, full image according to the `RICH_PROMPT`?\n\nOptions:\n\n A). To be described in greater detail than the cropped patches, serving as the main subject of the analysis.\n\nB). To be ignored entirely by the model, as the prompt specifies focusing only on the cropped patches.\n\nC). To provide visual context for analyzing the cropped patches, without having its own objects described.\n\nD). To act as a reference image for color correction on the cropped patches before they are analyzed.\n\n\nCorrect: C). To provide visual context for analyzing the cropped patches, without having its own objects described.\n\nExplanation: The correct answer is that the final image provides context. The `RICH_PROMPT` explicitly states: 'Use the last image only for context, do not describe objects in the last image.' This instruction directs the model to use the broader scene to better understand the cropped objects, but to exclude the full image from the descriptive output. The other options misinterpret these specific instructions.",
+      "title": "",
+      "id": "67982",
+      "text": "When `analyze_images` is called with `prompt_type=\"rich\"` and the `images` list contains several cropped patches followed by the original full image, what is the specified role of the final, full image according to the `RICH_PROMPT`?",
+      "answers": [
+        "To be described in greater detail than the cropped patches, serving as the main subject of the analysis.",
+        "To be ignored entirely by the model, as the prompt specifies focusing only on the cropped patches.",
+        "To provide visual context for analyzing the cropped patches, without having its own objects described.",
+        "To act as a reference image for color correction on the cropped patches before they are analyzed."
+      ],
+      "correct": 2,
+      "explanation": "The correct answer is that the final image provides context. The `RICH_PROMPT` explicitly states: 'Use the last image only for context, do not describe objects in the last image.' This instruction directs the model to use the broader scene to better understand the cropped objects, but to exclude the full image from the descriptive output. The other options misinterpret these specific instructions."
+    },
+    {
+      "type": "textOnly",
+      "description": "The `ImageAnalyzer` transforms raw object detection into semantic understanding. When the `segmentation system` detects object boundaries, this analyzer tells us *what* those objects actually are, enabling applications to make intelligent decisions based on object identity rather than just visual features.",
+      "title": "",
+      "id": "67971"
+    }
+  ]
+}

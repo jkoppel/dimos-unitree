@@ -1,0 +1,325 @@
+{
+  "title": "37.3: Frontend Terminal Commands",
+  "id": "d6xFINT40YNlIFLDah3I63MmKElqWE25Kbx1cNfSVus=",
+  "originalId": 5575,
+  "position": 149,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to an in-depth walkthrough of the frontend terminal system in `Dimos`. We'll explore how users interact with **commands**, how they're processed, and how they integrate with the broader application architecture.",
+      "title": "",
+      "id": "69248"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/web/dimos_interface/src/App.svelte"
+      ],
+      "description": "The terminal interface is built as a `Svelte` application. The main `App` component combines several key pieces: a prompt (`Ps1`), input handler, command history, and stream viewer for real-time content.",
+      "title": "",
+      "id": "69249",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Users see a familiar Unix-style prompt showing `guest@hostname:~$`. This creates the visual context that they're interacting with a terminal-like environment.",
+      "file": "dimos/web/dimos_interface/src/components/Ps1.svelte",
+      "highlight": [
+        {
+          "start": 6,
+          "end": 11
+        }
+      ],
+      "title": "",
+      "id": "69250",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "When users type a command and press `Enter`, the input is split into command name and arguments. The system looks up the **command function** from the `commands` object we'll explore next.",
+      "file": "dimos/web/dimos_interface/src/components/Input.svelte",
+      "highlight": [
+        {
+          "start": 30,
+          "end": 42
+        }
+      ],
+      "title": "",
+      "id": "69251",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Commands can return two types of results: a simple `string` for immediate display, or a special `STREAM_START` object that initiates real-time streaming of responses, which is used for AI agent interactions.",
+      "file": "dimos/web/dimos_interface/src/utils/commands.ts",
+      "highlight": [
+        {
+          "start": 35,
+          "end": 39
+        }
+      ],
+      "title": "",
+      "id": "69252",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `commands` object maps `command names` to `functions`. Each `function` receives an array of arguments and returns either a `string` or a `CommandResult` object for streaming responses.",
+      "file": "dimos/web/dimos_interface/src/utils/commands.ts",
+      "highlight": [
+        {
+          "start": 62,
+          "end": 62
+        }
+      ],
+      "title": "",
+      "id": "69253",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Simple commands demonstrate the basic patterns. The `help` command lists all available commands, `date` shows the current timestamp, and `echo` joins its arguments - showing how a user typing `echo hello world` produces the output `hello world`.",
+      "file": "dimos/web/dimos_interface/src/utils/commands.ts",
+      "highlight": [
+        {
+          "start": 63,
+          "end": 70
+        }
+      ],
+      "title": "",
+      "id": "69254",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `theme` command demonstrates subcommand patterns and usage instructions. Users can type `theme` to see help, `theme ls` to list themes, or `theme set dark` to change appearance.",
+      "file": "dimos/web/dimos_interface/src/utils/commands.ts",
+      "highlight": [
+        {
+          "start": 76,
+          "end": 88
+        }
+      ],
+      "title": "",
+      "id": "69255",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The theme `set` subcommand shows state management integration. When a user runs `theme set gruvboxdark`, it updates the `Svelte theme store`, immediately changing the terminal's visual appearance across all components.",
+      "file": "dimos/web/dimos_interface/src/utils/commands.ts",
+      "highlight": [
+        {
+          "start": 107,
+          "end": 122
+        }
+      ],
+      "title": "",
+      "id": "69256",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **side effects** command demonstrates **side effects**. When a user types `sudo` followed by any command, it opens a Rick Roll YouTube video in a new tab - a playful easter egg that subverts expectations while denying the requested permission.",
+      "file": "dimos/web/dimos_interface/src/utils/commands.ts",
+      "highlight": [
+        {
+          "start": 71,
+          "end": 75
+        }
+      ],
+      "title": "",
+      "id": "69257",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `weather` command shows asynchronous external API integration. When a user types `weather London`, it fetches data from `wttr.in` and displays the result. The terminal handles the async nature transparently.",
+      "file": "dimos/web/dimos_interface/src/utils/commands.ts",
+      "highlight": [
+        {
+          "start": 149,
+          "end": 159
+        }
+      ],
+      "title": "",
+      "id": "69258",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `input handler` processes `command results` differently based on `type`. Simple `string` results go directly to `history`, while `STREAM_START` objects trigger real-time text streaming and connect to server-sent events.",
+      "file": "dimos/web/dimos_interface/src/components/Input.svelte",
+      "highlight": [
+        {
+          "start": 43,
+          "end": 56
+        }
+      ],
+      "title": "",
+      "id": "69259",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `simulate` command controls video streaming. A user typing `simulate start` triggers the stream store to show simulation video, while `simulate stop` hides it. This demonstrates command-driven UI state changes.",
+      "file": "dimos/web/dimos_interface/src/utils/commands.ts",
+      "highlight": [
+        {
+          "start": 245,
+          "end": 263
+        }
+      ],
+      "title": "",
+      "id": "69260",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `control` command shows robot interaction. When a user types `control 0,0,0.5,1,0.3`, it parses joint positions and sends HTTP requests to control the robot simulation, demonstrating command-to-action workflows.",
+      "file": "dimos/web/dimos_interface/src/utils/commands.ts",
+      "highlight": [
+        {
+          "start": 264,
+          "end": 280
+        }
+      ],
+      "title": "",
+      "id": "69261",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `unitree` command provides real robot interaction. Users can check status with `unitree status`, control video with `unitree start_stream`, or send AI commands with `unitree command \"pick up the ball\"`.",
+      "file": "dimos/web/dimos_interface/src/utils/commands.ts",
+      "highlight": [
+        {
+          "start": 299,
+          "end": 318
+        }
+      ],
+      "title": "",
+      "id": "69262",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "When a user runs `unitree command \"pick up the ball\"`, this code sends the text to the robot backend and returns a **STREAM_START** object, initiating real-time streaming of the AI agent's planning and execution output.",
+      "file": "dimos/web/dimos_interface/src/utils/commands.ts",
+      "highlight": [
+        {
+          "start": 348,
+          "end": 364
+        }
+      ],
+      "title": "",
+      "id": "69263",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The streaming system uses Server-Sent Events to receive real-time updates. When a `STREAM_START` is returned, this function connects to the stream and appends new messages to the command's history entry as they arrive.",
+      "file": "dimos/web/dimos_interface/src/stores/stream.ts",
+      "highlight": [
+        {
+          "start": 129,
+          "end": 153
+        }
+      ],
+      "title": "",
+      "id": "69264",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "When a user executes `unitree command \"move forward\"`, what is the immediate, direct consequence of this action within the frontend's command processing logic?\n\nOptions:\n\n A). The command function will directly return the AI agent's full plan as a single string after the backend API call completes.\n\nB). The command returns a `STREAM_START` object, which triggers the `Input.svelte` component to connect to a server-sent event stream for real-time updates.\n\nC). The command function directly manipulates the history store to append the agent's output, bypassing the normal return mechanism.\n\nD). The command will fail because the `unitree` function does not handle a `command` subcommand.\n\n\nCorrect: B). The command returns a `STREAM_START` object, which triggers the `Input.svelte` component to connect to a server-sent event stream for real-time updates.\n\nExplanation: The correct answer accurately describes the two-step process. The `unitree` command function initiates the backend request and immediately returns a `STREAM_START` object. The logic in `Input.svelte` then detects this specific object type and calls `connectTextStream` to establish a connection for receiving real-time updates from the server, which are then appended to the history. The function does not wait for the full plan (it streams), nor does it directly manipulate the history store. The `command` subcommand is explicitly handled within the function.",
+      "title": "",
+      "id": "69272",
+      "text": "When a user executes `unitree command \"move forward\"`, what is the immediate, direct consequence of this action within the frontend's command processing logic?",
+      "answers": [
+        "The command function will directly return the AI agent's full plan as a single string after the backend API call completes.",
+        "The command returns a `STREAM_START` object, which triggers the `Input.svelte` component to connect to a server-sent event stream for real-time updates.",
+        "The command function directly manipulates the history store to append the agent's output, bypassing the normal return mechanism.",
+        "The command will fail because the `unitree` function does not handle a `command` subcommand."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer accurately describes the two-step process. The `unitree` command function initiates the backend request and immediately returns a `STREAM_START` object. The logic in `Input.svelte` then detects this specific object type and calls `connectTextStream` to establish a connection for receiving real-time updates from the server, which are then appended to the history. The function does not wait for the full plan (it streams), nor does it directly manipulate the history store. The `command` subcommand is explicitly handled within the function."
+    },
+    {
+      "type": "highlight",
+      "description": "The `vim` command includes an elaborate easter egg with binary decoding. These variables set up the encryption system - a binary string gets decoded into a secret key for accessing hidden content.",
+      "file": "dimos/web/dimos_interface/src/utils/commands.ts",
+      "highlight": [
+        {
+          "start": 28,
+          "end": 33
+        }
+      ],
+      "title": "",
+      "id": "69265",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `vim` command simulates file editing but has special handling for `whitepaper.txt`. When users try to open this file, they discover it's \"encrypted\" and need to use `vim -x whitepaper.txt` to access it.",
+      "file": "dimos/web/dimos_interface/src/utils/commands.ts",
+      "highlight": [
+        {
+          "start": 196,
+          "end": 210
+        }
+      ],
+      "title": "",
+      "id": "69266",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `vim` encryption feature prompts for a `key` and compares it against the decoded binary string. If correct, it makes a request to a special `AWS Lambda` URL to retrieve the hidden whitepaper content - a sophisticated easter egg for determined users.",
+      "file": "dimos/web/dimos_interface/src/utils/commands.ts",
+      "highlight": [
+        {
+          "start": 211,
+          "end": 225
+        }
+      ],
+      "title": "",
+      "id": "69267",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "All command interactions are stored in the `history store`, which persists to `localStorage`. Each entry contains the original command and its outputs, enabling command history navigation and session persistence.",
+      "file": "dimos/web/dimos_interface/src/stores/history.ts",
+      "highlight": [
+        {
+          "start": 17,
+          "end": 26
+        }
+      ],
+      "title": "",
+      "id": "69268",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The terminal includes familiar features like `tab completion` (completes partial command names), `arrow key history navigation`, and `Ctrl+L` to clear the screen - making it feel like a real terminal environment.",
+      "file": "dimos/web/dimos_interface/src/components/Input.svelte",
+      "highlight": [
+        {
+          "start": 72,
+          "end": 82
+        }
+      ],
+      "title": "",
+      "id": "69269",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This command system creates a complete terminal experience: users type familiar commands, the system processes them through the `commands.ts` registry, results appear immediately or stream in real-time, and everything integrates seamlessly with robot control, AI agents, and even includes creative easter eggs for exploration.",
+      "title": "",
+      "id": "69270"
+    }
+  ]
+}

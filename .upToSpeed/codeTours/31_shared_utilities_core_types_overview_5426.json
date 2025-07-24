@@ -1,0 +1,257 @@
+{
+  "title": "3.1: Shared Utilities: Core Types Overview",
+  "id": "V29pbkvU9eN6MFrdBo1NRDmkk3YfkMqX16jR3814J48=",
+  "originalId": 5426,
+  "position": 4,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to the `dimos/types` directory! This module contains the core data types used throughout the **DimOS** codebase. We will first inspect the directory structure.",
+      "title": "",
+      "id": "68415"
+    },
+    {
+      "type": "textOnly",
+      "description": "Here's the file tree for `dimos/types`.",
+      "title": "",
+      "id": "68416"
+    },
+    {
+      "type": "highlight",
+      "description": "The `Vector` class wraps `numpy` arrays to represent points and directions in 2D or 3D space. It accepts components, lists, `numpy` arrays, or ROS `Vector3` messages, making it versatile across the robotics pipeline.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 28,
+          "end": 46
+        }
+      ],
+      "title": "",
+      "id": "68417",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`Vector` supports standard math operations: **addition**, **subtraction**, **scalar multiplication**, and **division**.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 123,
+          "end": 144
+        }
+      ],
+      "title": "",
+      "id": "68418",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Path` class builds on `Vector` to represent sequences of waypoints. A motion planner generates a list of `Vector` points, which becomes a `Path` for the controller to follow.",
+      "file": "dimos/types/path.py",
+      "highlight": [
+        {
+          "start": 22,
+          "end": 39
+        }
+      ],
+      "title": "",
+      "id": "68419",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`length()` computes the total path distance efficiently using `numpy` vectorization, helping planners evaluate and optimize trajectories.",
+      "file": "dimos/types/path.py",
+      "highlight": [
+        {
+          "start": 139,
+          "end": 152
+        }
+      ],
+      "title": "",
+      "id": "68420",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **dataclass** `RobotLocation` stores named places (e.g., \"kitchen\") with position, rotation, timestamp, and unique ID. You can convert its position tuple into a `Vector` for navigation calculations.",
+      "file": "dimos/types/robot_location.py",
+      "highlight": [
+        {
+          "start": 24,
+          "end": 47
+        }
+      ],
+      "title": "",
+      "id": "68421",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`to_vector_metadata()` serializes spatial data into key/value pairs for vector databases, supporting queries like \"find locations near the living room added today.\".",
+      "file": "dimos/types/robot_location.py",
+      "highlight": [
+        {
+          "start": 63,
+          "end": 82
+        }
+      ],
+      "title": "",
+      "id": "68422",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Costmap` class holds a 2D occupancy grid indicating free, occupied, or unknown cells. It stores grid data, resolution, and origin (as a `Vector`) for coordinate transformations.",
+      "file": "dimos/types/costmap.py",
+      "highlight": [
+        {
+          "start": 46,
+          "end": 63
+        }
+      ],
+      "title": "",
+      "id": "68423",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`world_to_grid()` and `grid_to_world()` convert between real-world coordinates and grid cells, enabling planners to check occupancy along candidate paths.",
+      "file": "dimos/types/costmap.py",
+      "highlight": [
+        {
+          "start": 136,
+          "end": 148
+        }
+      ],
+      "title": "",
+      "id": "68424",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Sample` class is a `Pydantic` base for structured data\u000e\u000esensor readings, observations, configurations. It handles validation, serialization, and schema generation for consistent pipelines.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 37,
+          "end": 72
+        }
+      ],
+      "title": "",
+      "id": "68425",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`flatten()` turns nested data into arrays or dicts for ML frameworks, preserving structure via path-based keys and integrating with `numpy`, `PyTorch`, and `Gym`.",
+      "file": "dimos/types/sample.py",
+      "highlight": [
+        {
+          "start": 164,
+          "end": 207
+        }
+      ],
+      "title": "",
+      "id": "68426",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "The perception types form a pipeline: `DepthMapType` \u000212; `PointCloudType` \u000212; `SegmentationType` + `LabelType`.",
+      "title": "",
+      "id": "68427"
+    },
+    {
+      "type": "highlight",
+      "description": "The `DepthMapType` wraps depth maps (2D arrays of distances). `normalize()` scales values to [0,1], standardizing inputs from different sensors.",
+      "file": "dimos/types/depth_map.py",
+      "highlight": [
+        {
+          "start": 18,
+          "end": 28
+        }
+      ],
+      "title": "",
+      "id": "68428",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `PointCloudType` wraps `Open3D` point clouds. `downsample()` reduces point density for real-time obstacle detection.",
+      "file": "dimos/types/pointcloud.py",
+      "highlight": [
+        {
+          "start": 18,
+          "end": 28
+        }
+      ],
+      "title": "",
+      "id": "68429",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `SegmentationType` stores binary masks for each image segment. `combine_masks()` merges them into one mask for obstacle layers.",
+      "file": "dimos/types/segmentation.py",
+      "highlight": [
+        {
+          "start": 18,
+          "end": 36
+        }
+      ],
+      "title": "",
+      "id": "68430",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `LabelType` holds category labels and descriptions, mapping segments to names like \"chair\" or \"door.\"",
+      "file": "dimos/types/label.py",
+      "highlight": [
+        {
+          "start": 17,
+          "end": 27
+        }
+      ],
+      "title": "",
+      "id": "68431",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Colors` class provides ANSI escape codes for colored terminal output, improving readability of logs.",
+      "file": "dimos/types/constants.py",
+      "highlight": [
+        {
+          "start": 2,
+          "end": 11
+        }
+      ],
+      "title": "",
+      "id": "68432",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Together, these types form an interconnected ecosystem: spatial math (`Vector`), trajectories (`Path`), destinations (`RobotLocation`), environment maps (`Costmap`), data handling (`Sample`), perception (`DepthMapType`, `PointCloudType`, `SegmentationType`, `LabelType`), and UI feedback (`Colors`).",
+      "title": "",
+      "id": "68433"
+    },
+    {
+      "type": "mcq",
+      "description": "A developer needs to bundle a robot's current `RobotLocation`, a `Costmap` of its immediate surroundings, and a planned `Path` into a single data object. This object must be easily flattened into a numerical array for a machine learning model. Which class is designed for this kind of aggregation and **ML-pipeline** integration?\n\nOptions:\n\n A). Path\n\nB). Vector\n\nC). Sample\n\nD). RobotLocation\n\n\nCorrect: C). Sample\n\nExplanation: `Sample` is the correct answer. It is a flexible, Pydantic-based class designed to create structured, serializable data packets from various other types. Its `flatten()` method is specifically for preparing this data for ML pipelines. `Vector`, `Path`, and `RobotLocation` are specialized types that would be contained within a `Sample` instance, but they are not the containers themselves.",
+      "title": "",
+      "id": "68434",
+      "text": "A developer needs to bundle a robot's current `RobotLocation`, a `Costmap` of its immediate surroundings, and a planned `Path` into a single data object. This object must be easily flattened into a numerical array for a machine learning model. Which class is designed for this kind of aggregation and **ML-pipeline** integration?",
+      "answers": [
+        "Path",
+        "Vector",
+        "Sample",
+        "RobotLocation"
+      ],
+      "correct": 2,
+      "explanation": "`Sample` is the correct answer. It is a flexible, Pydantic-based class designed to create structured, serializable data packets from various other types. Its `flatten()` method is specifically for preparing this data for ML pipelines. `Vector`, `Path`, and `RobotLocation` are specialized types that would be contained within a `Sample` instance, but they are not the containers themselves."
+    }
+  ]
+}

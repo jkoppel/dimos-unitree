@@ -1,0 +1,127 @@
+{
+  "title": "23.6: Semantic Segmentation: Pixel-Level Perception",
+  "id": "IQLq+1+byNRnQkzcUj4lz0k48J/9/vdlS9vaIk9ycog=",
+  "originalId": 5495,
+  "position": 84,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "`Semantic segmentation` is a computer vision task that involves assigning a class label to each pixel in an image. Unlike `bounding box detection`, which simply draws a box around an object, **semantic segmentation** provides a much more detailed understanding of the scene. This **per-pixel classification** allows for a fine-grained analysis of the environment, a capability used in applications like **autonomous driving**, **medical imaging**, and **robotics**.\n\nFor example, in an **autonomous vehicle**, `semantic segmentation` can be used to identify not just the presence of a pedestrian but their exact shape and location, allowing for more precise path planning and obstacle avoidance. This is a significant advantage over `bounding box detection`, which only provide a coarse localization of objects.",
+      "title": "",
+      "id": "68169"
+    },
+    {
+      "type": "highlight",
+      "description": "The `SemanticSegmentationStream` class constructor accepts several key parameters that control its behavior. Notice the flags for `enable_mono_depth` and `enable_rich_labeling` on lines 30-31, which determine whether depth processing and enhanced object labeling are enabled.",
+      "file": "dimos/perception/semantic_seg.py",
+      "highlight": [
+        {
+          "start": 25,
+          "end": 46
+        }
+      ],
+      "title": "",
+      "id": "68170",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's the initialization of the core `Sam2DSegmenter` component. The key flags are `use_tracker` (line 51) for object tracking across frames, `use_analyzer` (line 52) for generating richer labels, and `use_rich_labeling` (line 53) which enables more descriptive object names.",
+      "file": "dimos/perception/semantic_seg.py",
+      "highlight": [
+        {
+          "start": 47,
+          "end": 54
+        }
+      ],
+      "title": "",
+      "id": "68171",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "When monocular depth is enabled, a `Metric3D` model is initialized on line 58. The camera parameters can be provided either as direct intrinsics (lines 62-66) or as physical parameters like resolution and focal length (lines 69-80), from which the intrinsics are calculated automatically.",
+      "file": "dimos/perception/semantic_seg.py",
+      "highlight": [
+        {
+          "start": 56,
+          "end": 82
+        }
+      ],
+      "title": "",
+      "id": "68172",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The core processing happens in the `process_frame` function. The first step is to get the initial masks, bounding boxes, and object IDs from the segmenter. If analysis is enabled, the subsequent `if` block runs an additional process to generate richer, more descriptive labels for the detected objects.",
+      "file": "dimos/perception/semantic_seg.py",
+      "highlight": [
+        {
+          "start": 94,
+          "end": 110
+        }
+      ],
+      "title": "",
+      "id": "68173",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "When depth processing is enabled, the system performs mask-by-mask depth averaging. Line 117 infers a depth map for the entire frame. Then for each segmentation mask, lines 122-129 extract the depth values where the mask is active (`mask > 0.5`) and compute the average depth for that object. This provides precise depth information for each segmented region.",
+      "file": "dimos/perception/semantic_seg.py",
+      "highlight": [
+        {
+          "start": 115,
+          "end": 132
+        }
+      ],
+      "title": "",
+      "id": "68174",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `_create_depth_visualization` method creates a colorized depth map using **OpenCV**'s `JET` colormap (line 202). It normalizes the depth values to 0-255 range (line 199) and adds a color scale bar at the bottom (lines 205-221) with minimum and maximum depth values labeled for reference.",
+      "file": "dimos/perception/semantic_seg.py",
+      "highlight": [
+        {
+          "start": 186,
+          "end": 223
+        }
+      ],
+      "title": "",
+      "id": "68175",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the function returns a `SegmentationType` object (line 180). This packages the raw `NumPy` masks along with comprehensive metadata including the original frame, visualization frame, object list with properties like ID, bounding box, probability, label, and optional depth values. If depth processing was enabled, the colorized depth visualization is also included in the metadata.",
+      "file": "dimos/perception/semantic_seg.py",
+      "highlight": [
+        {
+          "start": 166,
+          "end": 184
+        }
+      ],
+      "title": "",
+      "id": "68177",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Suppose we initialize `SemanticSegmentationStream` with both `enable_mono_depth` and `enable_rich_labeling` set to `True`. After processing a frame, what would we expect to find within the `metadata` of the returned `SegmentationType` object?\n\nOptions:\n\n A). A visualization frame and a list of objects with detailed labels, but no depth-related data.\n\nB). A visualization frame, a colorized depth map, and a list of objects with only generic class names and average depth.\n\nC). A visualization frame, a colorized depth map, and a list of objects, where each object has properties including a detailed label and its average depth.\n\nD). Only the raw depth map and the raw segmentation masks, without any visualization frames or object lists.\n\n\nCorrect: C). A visualization frame, a colorized depth map, and a list of objects, where each object has properties including a detailed label and its average depth.\n\nExplanation: When both `enable_mono_depth` and `enable_rich_labeling` are set to `True`, the stream is configured to perform its full set of operations. The `process_frame` function will generate rich labels via `run_analysis` (line 100) and will also infer a depth map, calculate per-object average depth, and create a `depth_viz` image (lines 115-132). All of these components—the visualization, the depth visualization, and the detailed object list containing depth—are packaged into the `metadata` dictionary before being returned (lines 167-180). The other options incorrectly omit data that is generated when these flags are active.",
+      "title": "",
+      "id": "68204",
+      "text": "Suppose we initialize `SemanticSegmentationStream` with both `enable_mono_depth` and `enable_rich_labeling` set to `True`. After processing a frame, what would we expect to find within the `metadata` of the returned `SegmentationType` object?",
+      "answers": [
+        "A visualization frame and a list of objects with detailed labels, but no depth-related data.",
+        "A visualization frame, a colorized depth map, and a list of objects with only generic class names and average depth.",
+        "A visualization frame, a colorized depth map, and a list of objects, where each object has properties including a detailed label and its average depth.",
+        "Only the raw depth map and the raw segmentation masks, without any visualization frames or object lists."
+      ],
+      "correct": 2,
+      "explanation": "When both `enable_mono_depth` and `enable_rich_labeling` are set to `True`, the stream is configured to perform its full set of operations. The `process_frame` function will generate rich labels via `run_analysis` (line 100) and will also infer a depth map, calculate per-object average depth, and create a `depth_viz` image (lines 115-132). All of these components—the visualization, the depth visualization, and the detailed object list containing depth—are packaged into the `metadata` dictionary before being returned (lines 167-180). The other options incorrectly omit data that is generated when these flags are active."
+    }
+  ]
+}

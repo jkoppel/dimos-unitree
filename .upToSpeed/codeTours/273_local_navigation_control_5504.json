@@ -1,0 +1,186 @@
+{
+  "title": "27.3: Local Navigation Control",
+  "id": "dPTrRzrjVXEoizjWb1Q1Bx/uaRmzmo2y2fUcR3QbnJI=",
+  "originalId": 5504,
+  "position": 100,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Now that we understand the abstract `BaseLocalPlanner`, let's explore the concrete navigation functions that use it. These functions provide the high-level interface for robot navigation tasks.",
+      "title": "",
+      "id": "68336"
+    },
+    {
+      "type": "highlight",
+      "description": "The `navigate_to_goal_local` function is responsible for navigating the robot to a single goal specified in the robot's own reference frame.\n\nIts parameters are:\n- `robot`: The robot instance to be controlled\n- `goal_xy_robot`: A tuple `(x, y)` representing the goal's position relative to the robot\n- `goal_theta`: An optional final orientation for the robot. If not provided, it's calculated to face the goal\n- `distance`: An optional standoff distance from the goal. The robot will stop this far from the target\n- `timeout`: The maximum time allowed for the navigation task\n- `stop_event`: A threading event to externally signal a stop",
+      "file": "dimos/robot/local_planner/local_planner.py",
+      "highlight": [
+        {
+          "start": 784,
+          "end": 803
+        }
+      ],
+      "title": "",
+      "id": "68337",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "**Usage Example**: `navigate_to_goal_local(robot, (2.0, 1.5), goal_theta=0.0, distance=0.3, timeout=30.0)` would move the robot 2 meters forward and 1.5 meters left, then rotate to face forward, stopping 0.3 meters before the target. This is useful for approaching objects or positioning near landmarks.",
+      "title": "",
+      "id": "68338"
+    },
+    {
+      "type": "highlight",
+      "description": "The function first processes the goal parameters. If a `distance` is specified on lines 813-819, it adjusts the goal position using vector math to ensure the robot stops short of the actual target. Line 822 calls the planner's `set_goal` method we saw in `BaseLocalPlanner`, with `frame=\"base_link\"` indicating the goal is relative to the robot's current position.",
+      "file": "dimos/robot/local_planner/local_planner.py",
+      "highlight": [
+        {
+          "start": 806,
+          "end": 822
+        }
+      ],
+      "title": "",
+      "id": "68339",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The function retrieves the `control_period` from the robot's local planner configuration on line 825. This period (typically 0.1 seconds for 10Hz) ensures the control loop runs at the same frequency as the planner's internal algorithms, maintaining smooth and consistent robot motion.",
+      "file": "dimos/robot/local_planner/local_planner.py",
+      "highlight": [
+        {
+          "start": 824,
+          "end": 829
+        }
+      ],
+      "title": "",
+      "id": "68340",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The core control loop checks two critical conditions on each iteration:\n\n1. Line 833: `is_goal_reached()` uses the tolerance checking logic from `BaseLocalPlanner` to determine if both position and orientation goals are satisfied\n2. Line 839: `navigation_failed` is a flag set by the planner's recovery system when stuck detection fails repeatedly (triggered in lines 778-781 of the `execute_recovery_behavior` method)\n\nThe `stop_event` parameter on line 831 allows external threads to gracefully terminate navigation by setting the event.",
+      "file": "dimos/robot/local_planner/local_planner.py",
+      "highlight": [
+        {
+          "start": 831,
+          "end": 843
+        }
+      ],
+      "title": "",
+      "id": "68341",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Each iteration calls `plan()` on line 845 - the main method we studied in `BaseLocalPlanner` - which returns velocity commands. The `move_vel_control` function on line 850 is the robot's low-level interface that converts these commands into actual motor actions, sending linear and angular velocities to the robot's drive system.",
+      "file": "dimos/robot/local_planner/local_planner.py",
+      "highlight": [
+        {
+          "start": 844,
+          "end": 853
+        }
+      ],
+      "title": "",
+      "id": "68342",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `finally` block ensures safety by always stopping the robot on line 866, regardless of how the function exits. This prevents runaway behavior when navigation is interrupted by exceptions or external stop signals.",
+      "file": "dimos/robot/local_planner/local_planner.py",
+      "highlight": [
+        {
+          "start": 864,
+          "end": 868
+        }
+      ],
+      "title": "",
+      "id": "68343",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Now let's examine `navigate_path_local`, which handles more complex multi-waypoint navigation scenarios.",
+      "title": "",
+      "id": "68344"
+    },
+    {
+      "type": "highlight",
+      "description": "The `navigate_path_local` function guides the robot along a predefined sequence of waypoints.\n\n**Usage Example**: `navigate_path_local(robot, path_to_kitchen, goal_theta=math.pi/2, timeout=120.0)` would follow a planned path to the kitchen, then face left at the final destination.\n\nThis is ideal for complex navigation tasks like room-to-room movement or following planned routes from global path planners.",
+      "file": "dimos/robot/local_planner/local_planner.py",
+      "highlight": [
+        {
+          "start": 870,
+          "end": 887
+        }
+      ],
+      "title": "",
+      "id": "68345",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The key difference is initialization on line 891: `set_goal_waypoints` activates the waypoint following logic in `BaseLocalPlanner`. This triggers the lookahead mechanism and waypoint advancement state machine we explored in the `_update_waypoint_target` method (lines 404-461).",
+      "file": "dimos/robot/local_planner/local_planner.py",
+      "highlight": [
+        {
+          "start": 890,
+          "end": 891
+        }
+      ],
+      "title": "",
+      "id": "68346",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The control loop structure is identical to single-goal navigation, but now `plan()` on line 914 uses the waypoint following algorithm from `BaseLocalPlanner`. The planner internally manages `current_waypoint_index`, calculates lookahead points, advances through waypoints as each is reached, and sets `final_goal_reached` when the last waypoint is achieved.",
+      "file": "dimos/robot/local_planner/local_planner.py",
+      "highlight": [
+        {
+          "start": 900,
+          "end": 922
+        }
+      ],
+      "title": "",
+      "id": "68347",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The same safety pattern ensures the robot stops when path following completes or fails. Both functions share this consistent error handling approach with identical `finally` blocks.",
+      "file": "dimos/robot/local_planner/local_planner.py",
+      "highlight": [
+        {
+          "start": 933,
+          "end": 937
+        }
+      ],
+      "title": "",
+      "id": "68348",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "**When to use each function:**\n\n- `navigate_to_goal_local`: Simple, relative movements like `move 2m forward` or `approach the table`. Ideal for reactive behaviors and local adjustments.\n\n- `navigate_path_local`: Complex navigation requiring obstacle avoidance along a planned route, such as following a global planner's output or executing pre-computed paths.\n\nBoth functions act as a bridge between high-level navigation commands and the low-level planning algorithms in `BaseLocalPlanner`.",
+      "title": "",
+      "id": "68349"
+    },
+    {
+      "type": "mcq",
+      "description": "When `navigate_path_local` is called, how does it differ from `navigate_to_goal_local` in its initialization of the `BaseLocalPlanner`?\n\nOptions:\n\n A). It calls `robot.local_planner.plan()` to pre-calculate the entire trajectory.\n\nB). It calls `robot.local_planner.set_goal_waypoints()` to load the path and activate waypoint-following logic.\n\nC). It repeatedly calls `robot.local_planner.set_goal()` for each waypoint in the path.\n\n\nCorrect: B). It calls `robot.local_planner.set_goal_waypoints()` to load the path and activate waypoint-following logic.\n\nExplanation: `navigate_path_local` uses `set_goal_waypoints()` to initialize the planner with the entire path. This enables the planner's internal state machine for waypoint tracking. `set_goal()` is for single-point navigation, and `plan()` is for calculating velocity commands within the control loop, not for initialization.",
+      "title": "",
+      "id": "68350",
+      "text": "When `navigate_path_local` is called, how does it differ from `navigate_to_goal_local` in its initialization of the `BaseLocalPlanner`?",
+      "answers": [
+        "It calls `robot.local_planner.plan()` to pre-calculate the entire trajectory.",
+        "It calls `robot.local_planner.set_goal_waypoints()` to load the path and activate waypoint-following logic.",
+        "It repeatedly calls `robot.local_planner.set_goal()` for each waypoint in the path."
+      ],
+      "correct": 1,
+      "explanation": "`navigate_path_local` uses `set_goal_waypoints()` to initialize the planner with the entire path. This enables the planner's internal state machine for waypoint tracking. `set_goal()` is for single-point navigation, and `plan()` is for calculating velocity commands within the control loop, not for initialization."
+    }
+  ]
+}

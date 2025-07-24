@@ -1,0 +1,147 @@
+{
+  "title": "21.4: 2D Object Detection: Shared Utilities",
+  "id": "jDSwtY9Gy5OcxBYCuOVl32i7k7ebPjr9DsRcDNhSZZM=",
+  "originalId": 5485,
+  "position": 73,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to our tour of the shared detection utilities in `utils.py`. These functions are used for processing, filtering, and visualizing detection results from both **YOLO** and **Detic** models, and for integrating these detections with the robot's 3D spatial understanding.",
+      "title": "",
+      "id": "68062"
+    },
+    {
+      "type": "highlight",
+      "description": "First, let's look at `extract_detection_results`. This function's main job is to take the raw output from a detection model like `YOLO` and transform it into a standardized format. It iterates through the detection results, extracting bounding boxes, tracking IDs (if available), class IDs, confidences, and class names.\n\nNotice how it handles cases where tracking information might not be present by assigning a default `track_id` of -1 (lines 99-101). It also has built-in filtering capabilities, allowing you to specify which classes, names, or track IDs to keep.",
+      "file": "dimos/perception/detection2d/utils.py",
+      "highlight": [
+        {
+          "start": 67,
+          "end": 126
+        }
+      ],
+      "title": "",
+      "id": "68063",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Next, let's examine `filter_detections`. While `extract_detection_results` has some filtering, this function provides a more general-purpose way to filter detections that are already in the standardized tuple format. It takes lists of detection attributes and applies filters based on `class_filter`, `name_filter`, or `track_id_filter`. This is very flexible and is used in the **YOLO** example to filter for `person` detections.",
+      "file": "dimos/perception/detection2d/utils.py",
+      "highlight": [
+        {
+          "start": 6,
+          "end": 66
+        }
+      ],
+      "title": "",
+      "id": "68064",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "You have already processed a model's output into standardized tuples (`bboxes`, `track_ids`, `names`, etc.). Now, you need to further refine this data to isolate only the detections where the class name is `person`. Which function is most suitable for this task?\n\nOptions:\n\n A). `extract_detection_results`, because its purpose is to process and filter raw model output.\n\nB). `filter_detections`, because it is designed to operate on the standardized tuples after initial extraction.\n\nC). `plot_results`, because it can selectively draw bounding boxes based on class name.\n\nD). `calculate_depth_from_bbox`, because filtering by object type is necessary before calculating depth.\n\n\nCorrect: B). `filter_detections`, because it is designed to operate on the standardized tuples after initial extraction.\n\nExplanation: Correct. `filter_detections` is the right choice here. The scenario states that the detection results have already been extracted into the standardized tuple format. `filter_detections` is specifically designed to take these standardized lists as input for further filtering, whereas `extract_detection_results` works directly on the raw `result` object from the model.",
+      "title": "",
+      "id": "68072",
+      "text": "You have already processed a model's output into standardized tuples (`bboxes`, `track_ids`, `names`, etc.). Now, you need to further refine this data to isolate only the detections where the class name is `person`. Which function is most suitable for this task?",
+      "answers": [
+        "`extract_detection_results`, because its purpose is to process and filter raw model output.",
+        "`filter_detections`, because it is designed to operate on the standardized tuples after initial extraction.",
+        "`plot_results`, because it can selectively draw bounding boxes based on class name.",
+        "`calculate_depth_from_bbox`, because filtering by object type is necessary before calculating depth."
+      ],
+      "correct": 1,
+      "explanation": "Correct. `filter_detections` is the right choice here. The scenario states that the detection results have already been extracted into the standardized tuple format. `filter_detections` is specifically designed to take these standardized lists as input for further filtering, whereas `extract_detection_results` works directly on the raw `result` object from the model."
+    },
+    {
+      "type": "highlight",
+      "description": "Now, let's look at how we visualize the detection results. The `plot_results` function is responsible for drawing bounding boxes and labels on an image. A key feature is the consistent coloring (lines 148-154), which uses the track ID or class name to seed a random number generator. It also draws a background rectangle for the text label to ensure readability.",
+      "file": "dimos/perception/detection2d/utils.py",
+      "highlight": [
+        {
+          "start": 129,
+          "end": 194
+        }
+      ],
+      "title": "",
+      "id": "68065",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Beyond 2D detection, these utilities help bridge the gap to 3D spatial understanding. First, `calculate_depth_from_bbox` estimates the depth of a detected object. It uses a depth model to get a depth map and then calculates the average depth within the bounding box, filtering out outliers using percentiles.",
+      "file": "dimos/perception/detection2d/utils.py",
+      "highlight": [
+        {
+          "start": 196,
+          "end": 236
+        }
+      ],
+      "title": "",
+      "id": "68066",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Next, `calculate_distance_angle_from_bbox` takes the bounding box and depth to calculate the distance and angle to the object. This is a critical step in determining the object's position relative to the robot, using camera intrinsic parameters to project the 2D pixel coordinates into the 3D world.",
+      "file": "dimos/perception/detection2d/utils.py",
+      "highlight": [
+        {
+          "start": 237,
+          "end": 269
+        }
+      ],
+      "title": "",
+      "id": "68067",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, `calculate_position_rotation_from_bbox` provides a more complete 6-degree-of-freedom (6DOF) pose estimate, giving the object's position (`x`, `y`, `z`) and rotation (`roll`, `pitch`, `yaw`). This is what allows the robot to navigate to and interact with the object.",
+      "file": "dimos/perception/detection2d/utils.py",
+      "highlight": [
+        {
+          "start": 299,
+          "end": 326
+        }
+      ],
+      "title": "",
+      "id": "68068",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The final piece of the puzzle is integrating these detection and spatial analysis utilities with the robot's control system. This starts with `importing` a key `utility` from the `ROS utilities module`.",
+      "file": "dimos/perception/detection2d/utils.py",
+      "highlight": [
+        {
+          "start": 4,
+          "end": 4
+        }
+      ],
+      "title": "",
+      "id": "68069",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Inside `calculate_position_rotation_from_bbox`, the imported `distance_angle_to_goal_xy` function is used. It converts the distance and angle into x, y coordinates that the robot's navigation system can use as a goal. This demonstrates the connection between the perception module and the broader `DimOS` robot control system, turning pixels into actionable commands.",
+      "file": "dimos/perception/detection2d/utils.py",
+      "highlight": [
+        {
+          "start": 312,
+          "end": 318
+        }
+      ],
+      "title": "",
+      "id": "68070",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This concludes our tour of the shared detection utilities. These functions provide a pipeline for processing, filtering, visualizing, and spatially analyzing detection results, forming a bridge between perception and action in the DimOS system.",
+      "title": "",
+      "id": "68071"
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "title": "26.2: Global Planner: A* Algorithm",
+  "id": "ImIeP5vdiv+x+CED7Tt6KT8BtgjzzevjAyIP4IZQUJY=",
+  "originalId": 5503,
+  "position": 96,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour will explore the A* pathfinding algorithm in `dimos/robot/global_planner/algo.py`. First, we will examine the `find_nearest_free_cell` function, which ensures that the path's start and end points are valid. Then, we will take a closer look at the `astar` function, breaking down its process, including how it handles invalid start and end positions, its main loop, and how it reconstructs the path.\n\nLet's begin by examining the `find_nearest_free_cell` function.",
+      "title": "",
+      "id": "68242"
+    },
+    {
+      "type": "highlight",
+      "description": "The `find_nearest_free_cell` function is a utility used by the **A* pathfinding algorithm**. It is designed to find the nearest valid, or \"free,\" cell on the costmap within a specified maximum distance from a given starting point. This is particularly important when the initial start or goal positions for the pathfinding algorithm are in an occupied space, as it ensures that the algorithm can begin and end in a valid location.\n\nThe function takes the following arguments:\n\n- `costmap`: A `Costmap` object representing the environment\n- `position`: The starting position to search from\n- `cost_threshold`: The cost value above which a cell is considered occupied\n- `max_search_radius`: The maximum distance to search for a free cell\n\nThe function returns a tuple `(x, y)` representing the coordinates of the nearest free cell, or the original position if no free cell is found.",
+      "file": "dimos/robot/global_planner/algo.py",
+      "highlight": [
+        {
+          "start": 10,
+          "end": 28
+        }
+      ],
+      "title": "",
+      "id": "68243",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The implementation uses breadth-first search (**BFS**) to systematically explore cells radiating outward from the starting position. **Lines 30-31** convert world coordinates to grid coordinates. **Lines 34-36** check if the starting cell is already free. If not, **lines 38-47** initialize the BFS with a queue and 8-directional movement. The main search loop (**lines 48-67**) explores neighbors level by level, checking bounds and cost thresholds. If no free cell is found within the search radius, the original position is returned as a fallback.",
+      "file": "dimos/robot/global_planner/algo.py",
+      "highlight": [
+        {
+          "start": 29,
+          "end": 70
+        }
+      ],
+      "title": "",
+      "id": "68244",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Now let's examine the `astar` function, which is the core of the pathfinding algorithm. The function signature shows it takes a `costmap`, `goal` position, and optional `start` position (defaulting to origin). It also accepts parameters for `cost_threshold` to define obstacles and `allow_diagonal` for movement constraints. The function returns either a `Path` object containing the route or `None` if no path exists.",
+      "file": "dimos/robot/global_planner/algo.py",
+      "highlight": [
+        {
+          "start": 73,
+          "end": 92
+        }
+      ],
+      "title": "",
+      "id": "68245",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "A key robustness feature of the **A*** implementation is its handling of invalid start and goal positions. Lines 104-116 check if the start position is out of bounds or in an obstacle, calling `find_nearest_free_cell` if needed. Similarly, lines 118-130 perform the same validation for the goal position. This preprocessing ensures the algorithm always begins with valid, navigable positions, preventing failures when given positions in walls or outside the map boundaries.",
+      "file": "dimos/robot/global_planner/algo.py",
+      "highlight": [
+        {
+          "start": 104,
+          "end": 131
+        }
+      ],
+      "title": "",
+      "id": "68246",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "If `astar` is called with a `start` position inside an obstacle, how does the implementation respond before starting the main search?\n\nOptions:\n\n A). It returns `None` immediately, since the start is invalid.\n\nB). It calls `find_nearest_free_cell` to get a valid starting point.\n\nC). It proceeds with the invalid start, relying on the cost model to navigate away.\n\nD). It defaults to using the origin `(0,0)` as the start point.\n\n\nCorrect: B). It calls `find_nearest_free_cell` to get a valid starting point.\n\nExplanation: The implementation first validates the start position. As seen on lines 112-114, if the start is in an obstacle, `find_nearest_free_cell` is called to find a valid nearby cell to begin the search from. This makes the planner more robust than simply failing or using a default.",
+      "title": "",
+      "id": "68251",
+      "text": "If `astar` is called with a `start` position inside an obstacle, how does the implementation respond before starting the main search?",
+      "answers": [
+        "It returns `None` immediately, since the start is invalid.",
+        "It calls `find_nearest_free_cell` to get a valid starting point.",
+        "It proceeds with the invalid start, relying on the cost model to navigate away.",
+        "It defaults to using the origin `(0,0)` as the start point."
+      ],
+      "correct": 1,
+      "explanation": "The implementation first validates the start position. As seen on lines 112-114, if the start is in an obstacle, `find_nearest_free_cell` is called to find a valid nearby cell to begin the search from. This makes the planner more robust than simply failing or using a default."
+    },
+    {
+      "type": "mcq",
+      "description": "In the `astar` function, what is the behavior if the provided `start` position is located within an area marked as an obstacle (i.e., its cost is above `cost_threshold`)?\n\nOptions:\n\n A). The function immediately returns `None`, as a path cannot be generated from an invalid starting point.\n\nB). The function calls `find_nearest_free_cell` to find a valid starting point nearby and begins the search from there.\n\nC). The function raises a `ValueError` to indicate that the start position is invalid.\n\nD). The A* search proceeds, but the start node is ignored, effectively starting the search from an empty `open_set`.\n\n\nCorrect: B). The function calls `find_nearest_free_cell` to find a valid starting point nearby and begins the search from there.\n\nExplanation: The correct answer is that the function calls `find_nearest_free_cell`. The code on lines 112-114 explicitly checks if the start position is invalid or in an obstacle. If it is, `find_nearest_free_cell` is invoked to find a suitable alternative starting point. The algorithm does not immediately fail or raise an error; instead, it attempts to correct the input for more robust operation.",
+      "title": "",
+      "id": "68252",
+      "text": "In the `astar` function, what is the behavior if the provided `start` position is located within an area marked as an obstacle (i.e., its cost is above `cost_threshold`)?",
+      "answers": [
+        "The function immediately returns `None`, as a path cannot be generated from an invalid starting point.",
+        "The function calls `find_nearest_free_cell` to find a valid starting point nearby and begins the search from there.",
+        "The function raises a `ValueError` to indicate that the start position is invalid.",
+        "The A* search proceeds, but the start node is ignored, effectively starting the search from an empty `open_set`."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that the function calls `find_nearest_free_cell`. The code on lines 112-114 explicitly checks if the start position is invalid or in an obstacle. If it is, `find_nearest_free_cell` is invoked to find a suitable alternative starting point. The algorithm does not immediately fail or raise an error; instead, it attempts to correct the input for more robust operation."
+    },
+    {
+      "type": "highlight",
+      "description": "The A* algorithm initializes several key data structures. The `open_set` (line 155) is a priority queue storing nodes to explore, prioritized by f-score. The `closed_set` (line 156) tracks already-explored nodes. The `g_score` dictionary (line 163) stores the actual cost from start to each node, while `parents` (line 164) enables path reconstruction. The heuristic function (lines 167-168) uses Euclidean distance for optimal pathfinding. Line 172 adds the starting node to the open set with its initial f-score.",
+      "file": "dimos/robot/global_planner/algo.py",
+      "highlight": [
+        {
+          "start": 155,
+          "end": 172
+        }
+      ],
+      "title": "",
+      "id": "68247",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The main **A*** loop continues while nodes remain in the `open set`. Line `176` selects the node with lowest `f-score`. Lines `179`-`206` handle goal detection and path reconstruction. Line `209` adds the current node to the `closed set`. The neighbor exploration (lines `211`-`243`) checks each adjacent cell for validity, obstacles, and whether a better path has been found. Lines `229`-`230` calculate the tentative `g-score` including obstacle proximity penalties. If a better path is discovered (line `236`), the neighbor's `parent` and scores are updated, and it's added to the `open set`.",
+      "file": "dimos/robot/global_planner/algo.py",
+      "highlight": [
+        {
+          "start": 174,
+          "end": 243
+        }
+      ],
+      "title": "",
+      "id": "68248",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Path reconstruction occurs when the goal is reached. The algorithm traces backwards through the `parents` dictionary from goal to start (lines 183-186), converting grid coordinates to world coordinates. Line 193 reverses the waypoints to create a start-to-goal path. Lines 195-204 handle edge cases, ensuring the goal point is included and adding the original goal if it was adjusted during preprocessing. The final `Path` object is returned on line 206, containing the complete sequence of waypoints.",
+      "file": "dimos/robot/global_planner/algo.py",
+      "highlight": [
+        {
+          "start": 180,
+          "end": 206
+        }
+      ],
+      "title": "",
+      "id": "68249",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This tour provided an overview of the A* pathfinding algorithm implemented in `dimos/robot/global_planner/algo.py`. We examined the `find_nearest_free_cell` function and its role in ensuring valid start and end points, as well as the `astar` function's core logic, including its position validation, data structure initialization, main search loop, and path reconstruction process. The implementation demonstrates how A* finds optimal paths while handling edge cases like invalid positions and obstacle proximity.",
+      "title": "",
+      "id": "68250"
+    }
+  ]
+}

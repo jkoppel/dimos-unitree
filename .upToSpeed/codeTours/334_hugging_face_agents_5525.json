@@ -1,0 +1,234 @@
+{
+  "title": "33.4: Hugging Face Agents",
+  "id": "r0hVX6jOsJkQoeUWTeJXRuCvJlab/bkOMf9o6JOuPg8=",
+  "originalId": 5525,
+  "position": 125,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough compares three `Hugging Face` agent implementations\u000emdash remote, local, and GGUF-based\u000emdash highlighting how each balances scalability, control, and resource requirements.",
+      "title": "",
+      "id": "68739"
+    },
+    {
+      "type": "textOnly",
+      "description": "**Note:** Although instructions mention a `_process_input()` method, these agents actually override `_send_query()`, which is invoked by the base `LLMAgent` via its `_observable_query()` pipeline.",
+      "title": "",
+      "id": "68740"
+    },
+    {
+      "type": "highlight",
+      "description": "The `HuggingFaceRemoteAgent` extends `LLMAgent` to offload inference to the **Hugging Face Hub**, avoiding any local model weights or GPU memory.",
+      "file": "dimos/agents/agent_huggingface_remote.py",
+      "highlight": [
+        {
+          "start": 44,
+          "end": 47
+        }
+      ],
+      "title": "",
+      "id": "68741",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Importing `InferenceClient` from `huggingface_hub` provides a high-level HTTP interface for chat completions to remote endpoints.",
+      "file": "dimos/agents/agent_huggingface_remote.py",
+      "highlight": [
+        {
+          "start": 24,
+          "end": 24
+        }
+      ],
+      "title": "",
+      "id": "68742",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Override of `_send_query()`: serializes the messages, sends them via the `InferenceClient`, handles errors in a `try/except`, and returns the remote model’s response. This design trades network latency for zero local resource consumption.",
+      "file": "dimos/agents/agent_huggingface_remote.py",
+      "highlight": [
+        {
+          "start": 127,
+          "end": 136
+        }
+      ],
+      "title": "",
+      "id": "68743",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Error handling** ensures any API exceptions are caught and logged, with a fallback string to maintain agent stability in case of network or authentication issues.",
+      "file": "dimos/agents/agent_huggingface_remote.py",
+      "highlight": [
+        {
+          "start": 129,
+          "end": 136
+        }
+      ],
+      "title": "",
+      "id": "68744",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/agent_huggingface_local.py"
+      ],
+      "description": "The `HuggingFaceLocalAgent` loads full transformer models via the `transformers` library, granting offline capability and fine-grained inference control at the cost of significant RAM and GPU overhead.",
+      "title": "",
+      "id": "68745",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Importing `AutoModelForCausalLM` and `AutoTokenizer` gives you the complete model architectures and tokenization pipelines for local inference.",
+      "file": "dimos/agents/agent_huggingface_local.py",
+      "highlight": [
+        {
+          "start": 29,
+          "end": 29
+        }
+      ],
+      "title": "",
+      "id": "68746",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Model loading with `from_pretrained()` uses `torch_dtype=float16` on GPU to halve VRAM usage (~1 byte/parameter vs. 2 bytes for `float32`), or `float32` on CPU to avoid precision loss. `device_map` splits weights across devices if needed.",
+      "file": "dimos/agents/agent_huggingface_local.py",
+      "highlight": [
+        {
+          "start": 106,
+          "end": 110
+        }
+      ],
+      "title": "",
+      "id": "68747",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The local inference pipeline: 1) apply chat template, 2) tokenize to tensors, 3) call `model.generate(max_new_tokens)`, 4) strip prompt tokens (lines 167–170), 5) decode new tokens to text. This gives full control but requires careful memory planning.",
+      "file": "dimos/agents/agent_huggingface_local.py",
+      "highlight": [
+        {
+          "start": 160,
+          "end": 173
+        }
+      ],
+      "title": "",
+      "id": "68748",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "A fallback catches missing `chat-template` support or `tokenizer` quirks: it reverts to simple text formatting and direct `tokenization`, preserving compatibility with older or custom models.",
+      "file": "dimos/agents/agent_huggingface_local.py",
+      "highlight": [
+        {
+          "start": 188,
+          "end": 197
+        }
+      ],
+      "title": "",
+      "id": "68749",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/agent_ctransformers_gguf.py"
+      ],
+      "description": "The `CTransformersGGUFAgent` uses `GGUF`—a 4-bit quantized model format—to slash memory footprint by ~75%, enabling large models to run on consumer GPUs.",
+      "title": "",
+      "id": "68750",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Importing `AutoModelForCausalLM` from `ctransformers` taps into routines optimized specifically for quantized **GGUF** models, rather than general-purpose transformers.",
+      "file": "dimos/agents/agent_ctransformers_gguf.py",
+      "highlight": [
+        {
+          "start": 45,
+          "end": 45
+        }
+      ],
+      "title": "",
+      "id": "68751",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Loading a GGUF model uses a `.gguf` file (e.g. `llama-2-7b.Q4_K_M.gguf`) and `gpu_layers` to assign the first N layers to GPU and the rest to CPU—fine-tuning performance vs. memory trade-offs.",
+      "file": "dimos/agents/agent_ctransformers_gguf.py",
+      "highlight": [
+        {
+          "start": 140,
+          "end": 145
+        }
+      ],
+      "title": "",
+      "id": "68752",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Override of `_send_query()`: a single call to `self.model(prompt_text, max_new_tokens)` handles tokenization, generation, and decoding internally, drastically simplifying the quantized inference pipeline.",
+      "file": "dimos/agents/agent_ctransformers_gguf.py",
+      "highlight": [
+        {
+          "start": 204,
+          "end": 204
+        }
+      ],
+      "title": "",
+      "id": "68753",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "`Q4_K_M` indicates 4-bit quantization per weight, group-wise scaling, reducing memory use by ~75% (0.5 bytes/parameter) while retaining ~95–99% of original model accuracy.",
+      "title": "",
+      "id": "68754"
+    },
+    {
+      "type": "highlight",
+      "description": "In the base `LLMAgent`, `_observable_query()` drives the pipeline. It builds the prompts, then makes the call to `_send_query()`. This is the key extension point where subclasses provide their own implementation for communicating with a model.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 376,
+          "end": 383
+        }
+      ],
+      "title": "",
+      "id": "68755",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "**Trade-offs summary:**\n\n*   **Remote**: zero local resources, fastest startup, network-dependent, higher latency.\n*   **Local**: full control, offline, high VRAM/CPU cost (~`7–13 GB` for `7 B` models).\n*   **GGUF**: `4-bit` quantized local inference, ~`75%` memory reduction (~`3–4 GB`), simple API, slight accuracy drop.\n\nChoose based on your latency, privacy, and hardware constraints.",
+      "title": "",
+      "id": "68756"
+    },
+    {
+      "type": "mcq",
+      "description": "A developer is building an application for a resource-constrained edge device with limited **VRAM** and requires offline functionality. Which **agent implementation** is the most suitable choice given these constraints?\n\nOptions:\n\n A). HuggingFaceRemoteAgent, because it offloads processing and has no local resource cost.\n\nB). HuggingFaceLocalAgent, because it provides the most control and runs entirely offline.\n\nC). CTransformersGGUFAgent, because its quantized model format is optimized for low-memory, local inference.\n\n\nCorrect: C). CTransformersGGUFAgent, because its quantized model format is optimized for low-memory, local inference.\n\nExplanation: The `CTransformersGGUFAgent` is the correct choice. GGUF quantization significantly reduces the model's memory footprint, making it suitable for hardware with limited VRAM. Since it runs locally, it also satisfies the offline requirement. The `HuggingFaceRemoteAgent` is incorrect because it requires an internet connection. The `HuggingFaceLocalAgent`, while running offline, loads the full model and would likely exceed the memory capacity of a resource-constrained device.",
+      "title": "",
+      "id": "68757",
+      "text": "A developer is building an application for a resource-constrained edge device with limited **VRAM** and requires offline functionality. Which **agent implementation** is the most suitable choice given these constraints?",
+      "answers": [
+        "HuggingFaceRemoteAgent, because it offloads processing and has no local resource cost.",
+        "HuggingFaceLocalAgent, because it provides the most control and runs entirely offline.",
+        "CTransformersGGUFAgent, because its quantized model format is optimized for low-memory, local inference."
+      ],
+      "correct": 2,
+      "explanation": "The `CTransformersGGUFAgent` is the correct choice. GGUF quantization significantly reduces the model's memory footprint, making it suitable for hardware with limited VRAM. Since it runs locally, it also satisfies the offline requirement. The `HuggingFaceRemoteAgent` is incorrect because it requires an internet connection. The `HuggingFaceLocalAgent`, while running offline, loads the full model and would likely exceed the memory capacity of a resource-constrained device."
+    }
+  ]
+}

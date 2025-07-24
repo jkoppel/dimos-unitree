@@ -1,0 +1,139 @@
+{
+  "title": "32.1: Core Logic: Agent Framework Core: Overview",
+  "id": "jWIhth1k6/Q7Z+/5PM5wL2EsWWfR5EXXWbH+QLWck4U=",
+  "originalId": 5565,
+  "position": 120,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to our focused walkthrough of the `dimos/agents` component. This component consists of two key files that provide critical infrastructure for organizing and managing agent collections in `DimOS`'s multi-agent architecture.",
+      "title": "",
+      "id": "69194"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/__init__.py"
+      ],
+      "description": "This file is intentionally empty—containing only whitespace. It serves as **Python’s** **package marker**, enabling the `agents` directory to be imported as a module.",
+      "title": "",
+      "id": "69195",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "A single blank line marks the directory as a `Python package` without declaring any code.",
+      "file": "dimos/agents/__init__.py",
+      "highlight": [
+        {
+          "start": 1,
+          "end": 1
+        }
+      ],
+      "title": "",
+      "id": "69196",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/agent_config.py"
+      ],
+      "description": "This file defines the `AgentConfig` class, which manages collections of `Agent` instances through simple add, remove, and getter methods.",
+      "title": "",
+      "id": "69197",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Imports for type annotations (`List`) and the base `Agent` class establish the foundation for agent collection management.",
+      "file": "dimos/agents/agent_config.py",
+      "highlight": [
+        {
+          "start": 15,
+          "end": 18
+        }
+      ],
+      "title": "",
+      "id": "69198",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The constructor uses `agents if agents is not None else []` to safely initialize an empty list when no agents are provided, avoiding the mutable default argument pitfall.",
+      "file": "dimos/agents/agent_config.py",
+      "highlight": [
+        {
+          "start": 19,
+          "end": 26
+        }
+      ],
+      "title": "",
+      "id": "69199",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the `AgentConfig` constructor, what is the primary reason for initializing `self.agents` with `agents if agents is not None else []` instead of using a mutable default argument like `agents: List[Agent] = []`?\n\nOptions:\n\n A). To ensure `agents` is not `None`, which would cause a `TypeError` if `add_agent` were called.\n\nB). To prevent all `AgentConfig` instances from sharing the same list object if initialized without arguments.\n\nC). To improve performance by avoiding the creation of an empty list for every new instance.\n\nD). To enforce that the `agents` parameter strictly adheres to the `List[Agent]` type hint at runtime.\n\n\nCorrect: B). To prevent all `AgentConfig` instances from sharing the same list object if initialized without arguments.\n\nExplanation: The correct implementation `self.agents = agents if agents is not None else []` avoids the common Python pitfall of mutable default arguments. If `__init__(self, agents: List[Agent] = [])` were used, the empty list `[]` would be created once when the function is defined and shared across all subsequent calls that don't provide the `agents` argument. This would cause different `AgentConfig` instances to unintentionally modify the same list. The chosen pattern correctly creates a new, distinct list for each instance initialized without an agent list.",
+      "title": "",
+      "id": "69204",
+      "text": "In the `AgentConfig` constructor, what is the primary reason for initializing `self.agents` with `agents if agents is not None else []` instead of using a mutable default argument like `agents: List[Agent] = []`?",
+      "answers": [
+        "To ensure `agents` is not `None`, which would cause a `TypeError` if `add_agent` were called.",
+        "To prevent all `AgentConfig` instances from sharing the same list object if initialized without arguments.",
+        "To improve performance by avoiding the creation of an empty list for every new instance.",
+        "To enforce that the `agents` parameter strictly adheres to the `List[Agent]` type hint at runtime."
+      ],
+      "correct": 1,
+      "explanation": "The correct implementation `self.agents = agents if agents is not None else []` avoids the common Python pitfall of mutable default arguments. If `__init__(self, agents: List[Agent] = [])` were used, the empty list `[]` would be created once when the function is defined and shared across all subsequent calls that don't provide the `agents` argument. This would cause different `AgentConfig` instances to unintentionally modify the same list. The chosen pattern correctly creates a new, distinct list for each instance initialized without an agent list."
+    },
+    {
+      "type": "highlight",
+      "description": "The `add_agent` method appends an `Agent` instance to the configuration, enabling dynamic composition of agent teams at runtime.",
+      "file": "dimos/agents/agent_config.py",
+      "highlight": [
+        {
+          "start": 28,
+          "end": 35
+        }
+      ],
+      "title": "",
+      "id": "69200",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `remove_agent` method checks membership before removal, preventing errors when attempting to remove non-existent agents.",
+      "file": "dimos/agents/agent_config.py",
+      "highlight": [
+        {
+          "start": 37,
+          "end": 45
+        }
+      ],
+      "title": "",
+      "id": "69201",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `get_agents` method returns the internal list of configured agents, providing controlled read access while encapsulating the internal state.",
+      "file": "dimos/agents/agent_config.py",
+      "highlight": [
+        {
+          "start": 47,
+          "end": 54
+        }
+      ],
+      "title": "",
+      "id": "69202",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "By grouping specialized agents (e.g., `PlanningAgent`, `OpenAIAgent`) into cohesive collections, `AgentConfig` provides the organizational backbone for DimOS's multi-agent workflows—enabling teams of agents to coordinate on complex task planning and execution.",
+      "title": "",
+      "id": "69203"
+    }
+  ]
+}

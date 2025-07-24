@@ -1,0 +1,52 @@
+{
+  "title": "2.1: Shared Utilities: Exceptions: Overview",
+  "id": "xDm/AbgcNRTxbim1PQpbJsFswCXtHc8y0tdBhIPf+gA=",
+  "originalId": 5430,
+  "position": 2,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour provides an overview of the **Shared Utilities: Exceptions** component in the `dimos` application. This component centralizes custom exception handling, making error management more specific and manageable across the codebase.",
+      "title": "",
+      "id": "67535"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/exceptions/__init__.py"
+      ],
+      "description": "Although empty, this file marks the `exceptions` directory as a Python package, enabling organized imports of custom exception classes across the `dimos` application.",
+      "title": "",
+      "id": "67536",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This file defines five **custom exception classes** for agent memory operations: `AgentMemoryError`, `AgentMemoryConnectionError`, `UnknownConnectionTypeError`, `DataRetrievalError`, and `DataNotFoundError`. These class names show the scope of exceptions available for handling different error scenarios.",
+      "file": "dimos/exceptions/agent_memory_exceptions.py",
+      "highlight": [
+        {
+          "start": 17,
+          "end": 67
+        }
+      ],
+      "title": "",
+      "id": "67537",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the inheritance structure shown in `agent_memory_exceptions.py`, which of the following exceptions would be caught by a `try...except AgentMemoryError:` block?\n\nOptions:\n\n A). Exception\n\nB). DataNotFoundError\n\nC). ValueError\n\n\nCorrect: B). DataNotFoundError\n\nExplanation: The correct answer is `DataNotFoundError`. In Python, an `except` block for a parent exception class will also catch all of its child classes (subclasses). Since `DataNotFoundError` inherits from `DataRetrievalError`, which in turn inherits from `AgentMemoryError`, it is caught by `except AgentMemoryError:`. `Exception` is a parent class, not a child, and `ValueError` is an unrelated built-in exception.",
+      "title": "",
+      "id": "67538",
+      "text": "Based on the inheritance structure shown in `agent_memory_exceptions.py`, which of the following exceptions would be caught by a `try...except AgentMemoryError:` block?",
+      "answers": [
+        "Exception",
+        "DataNotFoundError",
+        "ValueError"
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is `DataNotFoundError`. In Python, an `except` block for a parent exception class will also catch all of its child classes (subclasses). Since `DataNotFoundError` inherits from `DataRetrievalError`, which in turn inherits from `AgentMemoryError`, it is caught by `except AgentMemoryError:`. `Exception` is a parent class, not a child, and `ValueError` is an unrelated built-in exception."
+    }
+  ]
+}

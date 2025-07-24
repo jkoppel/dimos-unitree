@@ -1,0 +1,284 @@
+{
+  "title": "13.3: Comprehensive Navigation Skills",
+  "id": "FQDxu2FQKWMF5TwvLewef8OGRsOU/ts6sTkLjmJr8aY=",
+  "originalId": 5463,
+  "position": 47,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to this walkthrough of the **DiMOS navigation skills**! We'll explore three key navigation capabilities: hybrid visual/semantic navigation with `NavigateWithText`, pose memory storage using `GetPose`, and direct coordinate-based navigation via `NavigateToGoal`.",
+      "title": "",
+      "id": "67810"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/skills/navigation.py"
+      ],
+      "description": "The `navigation.py` file contains three main robot skills that work together to provide comprehensive navigation capabilities. Let's start with the most sophisticated one - `NavigateWithText`.",
+      "title": "",
+      "id": "67811",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `NavigateWithText` class implements a two-phase navigation strategy. Lines 70-74 explain that it first attempts to locate objects in the robot's current camera view, then falls back to querying a semantic map if the object isn't visible.",
+      "file": "dimos/skills/navigation.py",
+      "highlight": [
+        {
+          "start": 66,
+          "end": 74
+        }
+      ],
+      "title": "",
+      "id": "67812",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The skill's configuration parameters are defined using `Pydantic` fields. Key parameters include the text `query` (line 80), maximum number of `limit` results (line 82), desired `distance` from the target (line 83), navigation `timeout` (line 84), and `similarity_threshold` for semantic map matching (line 85).",
+      "file": "dimos/skills/navigation.py",
+      "highlight": [
+        {
+          "start": 80,
+          "end": 85
+        }
+      ],
+      "title": "",
+      "id": "67813",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The constructor initializes components for navigation coordination. Line 96 creates a `threading.Event` for coordinated stopping, while line 98 gets access to the `DiMOS thread pool scheduler` for managing asynchronous operations.",
+      "file": "dimos/skills/navigation.py",
+      "highlight": [
+        {
+          "start": 87,
+          "end": 95
+        }
+      ],
+      "title": "",
+      "id": "67814",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__call__` method orchestrates the two-phase strategy described in the class documentation. This is the main entry point that coordinates between visual object detection and semantic map fallback.",
+      "file": "dimos/skills/navigation.py",
+      "highlight": [
+        {
+          "start": 317,
+          "end": 324
+        }
+      ],
+      "title": "",
+      "id": "67815",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "When the `NavigateWithText` skill is invoked, how does it prioritize its navigation strategies according to the `__call__` method (lines 317-346)?\n\nOptions:\n\n A). It queries the semantic map first and falls back to visual navigation if no map entry is found.\n\nB). It attempts to locate the object visually first, and only if that fails, it queries the semantic map.\n\nC). It returns a failure immediately if the visual search does not succeed, without attempting a semantic query.\n\nD). It exclusively queries the semantic map and does not use visual input for this skill.\n\n\nCorrect: B). It attempts to locate the object visually first, and only if that fails, it queries the semantic map.\n\nExplanation: The correct sequence is visual-first, then semantic fallback. The `__call__` method first invokes `_navigate_to_object`. If this does not return a success, it proceeds to call `_navigate_using_semantic_map`. This two-phase approach prioritizes immediate, real-time perception before relying on stored memory.",
+      "title": "",
+      "id": "67842",
+      "text": "When the `NavigateWithText` skill is invoked, how does it prioritize its navigation strategies according to the `__call__` method (lines 317-346)?",
+      "answers": [
+        "It queries the semantic map first and falls back to visual navigation if no map entry is found.",
+        "It attempts to locate the object visually first, and only if that fails, it queries the semantic map.",
+        "It returns a failure immediately if the visual search does not succeed, without attempting a semantic query.",
+        "It exclusively queries the semantic map and does not use visual input for this skill."
+      ],
+      "correct": 1,
+      "explanation": "The correct sequence is visual-first, then semantic fallback. The `__call__` method first invokes `_navigate_to_object`. If this does not return a success, it proceeds to call `_navigate_using_semantic_map`. This two-phase approach prioritizes immediate, real-time perception before relying on stored memory."
+    },
+    {
+      "type": "highlight",
+      "description": "**Phase 1:** `_navigate_to_object` implements visual navigation. Line 113 logs the attempt to find a visible object, while the method captures frames and integrates with the Qwen vision model for object detection.",
+      "file": "dimos/skills/navigation.py",
+      "highlight": [
+        {
+          "start": 102,
+          "end": 113
+        }
+      ],
+      "title": "",
+      "id": "67816",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Error handling** is implemented in lines 122-124 to manage potential vision model failures. In case of an exception, the function returns a structured failure response with **specific error categorization** (**Perception** in line 124).",
+      "file": "dimos/skills/navigation.py",
+      "highlight": [
+        {
+          "start": 117,
+          "end": 125
+        }
+      ],
+      "title": "",
+      "id": "67817",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Phase 2: When visual detection fails, `_navigate_using_semantic_map` provides the fallback. Line 214 shows the logging message, while line 220 demonstrates the semantic search that matches natural language descriptions to stored locations.",
+      "file": "dimos/skills/navigation.py",
+      "highlight": [
+        {
+          "start": 207,
+          "end": 216
+        }
+      ],
+      "title": "",
+      "id": "67818",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Given the `NavigateWithText` skill is called with a query for an object that is *not* in the robot's current camera view but *is* stored in the `semantic map`, what is the expected execution flow?\n\nOptions:\n\n A). The skill will first call `_navigate_using_semantic_map`, find the object's coordinates, and then call `_navigate_to_object` to confirm its presence before moving.\n\nB). The skill will call `_navigate_to_object`, which will fail; it will then fall back to `_navigate_using_semantic_map` to find and navigate to the stored location.\n\nC). The skill will only call `_navigate_to_object`, and the operation will return a 'Perception' failure without checking the semantic map.\n\n\nCorrect: B). The skill will call `_navigate_to_object`, which will fail; it will then fall back to `_navigate_using_semantic_map` to find and navigate to the stored location.\n\nExplanation: The correct answer is 2. The `__call__` method (lines 317-346) for `NavigateWithText` implements a two-phase strategy. It first attempts visual navigation by calling `_navigate_to_object` (line 333). If that fails for a reason other than a navigation error (e.g., the object is not in view), it proceeds to the fallback mechanism, calling `_navigate_using_semantic_map` (line 346) to query the spatial memory. Option 1 reverses the flow, and Option 3 ignores the fallback logic.",
+      "title": "",
+      "id": "67843",
+      "text": "Given the `NavigateWithText` skill is called with a query for an object that is *not* in the robot's current camera view but *is* stored in the `semantic map`, what is the expected execution flow?",
+      "answers": [
+        "The skill will first call `_navigate_using_semantic_map`, find the object's coordinates, and then call `_navigate_to_object` to confirm its presence before moving.",
+        "The skill will call `_navigate_to_object`, which will fail; it will then fall back to `_navigate_using_semantic_map` to find and navigate to the stored location.",
+        "The skill will only call `_navigate_to_object`, and the operation will return a 'Perception' failure without checking the semantic map."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is 2. The `__call__` method (lines 317-346) for `NavigateWithText` implements a two-phase strategy. It first attempts visual navigation by calling `_navigate_to_object` (line 333). If that fails for a reason other than a navigation error (e.g., the object is not in view), it proceeds to the fallback mechanism, calling `_navigate_using_semantic_map` (line 346) to query the spatial memory. Option 1 reverses the flow, and Option 3 ignores the fallback logic."
+    },
+    {
+      "type": "highlight",
+      "description": "The semantic map returns metadata containing spatial coordinates. Lines 238-241 extract the position (`pos_x`, `pos_y`) and orientation (`rot_z`) from the best matching result, which will be used as the navigation target.",
+      "file": "dimos/skills/navigation.py",
+      "highlight": [
+        {
+          "start": 231,
+          "end": 239
+        }
+      ],
+      "title": "",
+      "id": "67819",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "When the `NavigateWithText` skill is invoked with a `query` for an object that is *not* currently in the robot's camera view but *does* exist in the semantic map, what is the expected sequence of operations?\n\nOptions:\n\n A). The skill first calls `_navigate_using_semantic_map` to find the object's coordinates, then calls `_navigate_to_object` to navigate towards it.\n\nB). The skill first calls `_navigate_to_object`, which fails to find the object in view, and then falls back to calling `_navigate_using_semantic_map`.\n\nC). The skill runs both `_navigate_to_object` and `_navigate_using_semantic_map` in parallel and proceeds with the fastest successful result.\n\nD). The skill only calls `_navigate_using_semantic_map`, as visual navigation must be explicitly enabled through a separate parameter.\n\n\nCorrect: B). The skill first calls `_navigate_to_object`, which fails to find the object in view, and then falls back to calling `_navigate_using_semantic_map`.\n\nExplanation: The `__call__` method (lines 317-347) implements a sequential, two-phase strategy. It first attempts visual navigation with `_navigate_to_object`. Only if that fails because the object isn't found (and not due to a navigation error), it proceeds to the fallback semantic map query with `_navigate_using_semantic_map`.",
+      "title": "",
+      "id": "67844",
+      "text": "When the `NavigateWithText` skill is invoked with a `query` for an object that is *not* currently in the robot's camera view but *does* exist in the semantic map, what is the expected sequence of operations?",
+      "answers": [
+        "The skill first calls `_navigate_using_semantic_map` to find the object's coordinates, then calls `_navigate_to_object` to navigate towards it.",
+        "The skill first calls `_navigate_to_object`, which fails to find the object in view, and then falls back to calling `_navigate_using_semantic_map`.",
+        "The skill runs both `_navigate_to_object` and `_navigate_using_semantic_map` in parallel and proceeds with the fastest successful result.",
+        "The skill only calls `_navigate_using_semantic_map`, as visual navigation must be explicitly enabled through a separate parameter."
+      ],
+      "correct": 1,
+      "explanation": "The `__call__` method (lines 317-347) implements a sequential, two-phase strategy. It first attempts visual navigation with `_navigate_to_object`. Only if that fails because the object isn't found (and not due to a navigation error), it proceeds to the fallback semantic map query with `_navigate_using_semantic_map`."
+    },
+    {
+      "type": "highlight",
+      "description": "The `GetPose` skill serves dual purposes: retrieving the robot's current position and orientation, and optionally storing named locations in spatial memory for future navigation. Lines 389-391 explain the location naming functionality.",
+      "file": "dimos/skills/navigation.py",
+      "highlight": [
+        {
+          "start": 384,
+          "end": 392
+        }
+      ],
+      "title": "",
+      "id": "67820",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The optional `location_name` parameter allows users to assign memorable names to locations, enabling natural language navigation commands like \"go to the kitchen\" or \"return to the charging station\".",
+      "file": "dimos/skills/navigation.py",
+      "highlight": [
+        {
+          "start": 397,
+          "end": 397
+        }
+      ],
+      "title": "",
+      "id": "67821",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `GetPose.__call__` method retrieves the robot's current pose. Line 425 shows the call to `self._robot.get_pose()`, which returns both position coordinates and rotation angles that are formatted into the result dictionary.",
+      "file": "dimos/skills/navigation.py",
+      "highlight": [
+        {
+          "start": 416,
+          "end": 424
+        }
+      ],
+      "title": "",
+      "id": "67822",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "When a location name is provided, the skill creates a `RobotLocation` object (lines 448-452) and stores it in spatial memory via `spatial_memory.add_robot_location()` (line 455). This enables future semantic navigation to that named location.",
+      "file": "dimos/skills/navigation.py",
+      "highlight": [
+        {
+          "start": 445,
+          "end": 456
+        }
+      ],
+      "title": "",
+      "id": "67823",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**`NavigateToGoal`** provides **precise** coordinate-based navigation. Unlike the semantic approach of **`NavigateWithText`**, this skill navigates directly to specified **`(x, y)`** coordinates with optional target orientation, as described in lines 472-476.",
+      "file": "dimos/skills/navigation.py",
+      "highlight": [
+        {
+          "start": 470,
+          "end": 478
+        }
+      ],
+      "title": "",
+      "id": "67824",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `NavigateToGoal.__call__` method integrates with the robot's global planner. Line 509 clears the stop event to ensure navigation doesn't abort prematurely, setting up for the actual navigation call.",
+      "file": "dimos/skills/navigation.py",
+      "highlight": [
+        {
+          "start": 502,
+          "end": 510
+        }
+      ],
+      "title": "",
+      "id": "67825",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `stop()` method provides clean cancellation of navigation tasks. Line 567 sets the **stop event**, which the navigation algorithms monitor to halt execution gracefully, while line 566 unregisters the skill from the **active skill registry**.",
+      "file": "dimos/skills/navigation.py",
+      "highlight": [
+        {
+          "start": 557,
+          "end": 563
+        }
+      ],
+      "title": "",
+      "id": "67826",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This walkthrough has shown you how `DiMOS` implements hybrid visual/semantic navigation through `NavigateWithText`'s two-phase strategy, pose memory storage via `GetPose`'s location naming system, and direct coordinate-based navigation using `NavigateToGoal`'s global planner integration. Together, these skills create a flexible foundation for autonomous robot navigation.",
+      "title": "",
+      "id": "67827"
+    }
+  ]
+}

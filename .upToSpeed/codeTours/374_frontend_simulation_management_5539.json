@@ -1,0 +1,211 @@
+{
+  "title": "37.4: Frontend Simulation Management",
+  "id": "CR7vpaMn1zsvgmSW48fiAOIi9cRKqpqvD3vCHCjfZKc=",
+  "originalId": 5539,
+  "position": 150,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "In this walkthrough, we'll explore how the frontend of `Dimos` manages simulation sessions. We'll focus on the state management system and the `SimulationManager` class that handles the entire lifecycle of a simulation.",
+      "title": "",
+      "id": "68805"
+    },
+    {
+      "type": "highlight",
+      "description": "The `SimulationState` interface defines the shape of data used to track a simulation's status. It includes the connection details, whether it's currently connecting, any errors, and the last activity time for managing inactivity.",
+      "file": "dimos/web/dimos_interface/src/utils/simulation.ts",
+      "highlight": [
+        {
+          "start": 25,
+          "end": 30
+        }
+      ],
+      "title": "",
+      "id": "68806",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `simulationStore` is a Svelte writable store that holds the `SimulationState`. This allows different parts of the UI to reactively update based on changes in the simulation's state.",
+      "file": "dimos/web/dimos_interface/src/utils/simulation.ts",
+      "highlight": [
+        {
+          "start": 39,
+          "end": 39
+        }
+      ],
+      "title": "",
+      "id": "68807",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `SimulationManager` class encapsulates all simulation lifecycle logic. Here are its key properties: API endpoints for different environments, retry configuration, a 5-minute inactivity timeout, and a timer to track user activity.",
+      "file": "dimos/web/dimos_interface/src/utils/simulation.ts",
+      "highlight": [
+        {
+          "start": 48,
+          "end": 55
+        }
+      ],
+      "title": "",
+      "id": "68808",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `requestSimulation` method orchestrates getting a new simulation instance. It starts by updating the store on line 117 to set `isConnecting` to `true`, signaling to the **UI** that a connection attempt is in progress.",
+      "file": "dimos/web/dimos_interface/src/utils/simulation.ts",
+      "highlight": [
+        {
+          "start": 116,
+          "end": 118
+        }
+      ],
+      "title": "",
+      "id": "68809",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Next, it makes a POST request to the backend API to allocate a simulation instance. The request includes a unique `user_id` and uses the `fetchWithRetry` helper to handle potential network issues.",
+      "file": "dimos/web/dimos_interface/src/utils/simulation.ts",
+      "highlight": [
+        {
+          "start": 121,
+          "end": 129
+        }
+      ],
+      "title": "",
+      "id": "68810",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "After receiving the API response, the code validates that it contains the required fields: `instance_id`, `public_ip`, and `port`. If any are missing, it throws a descriptive error with the actual response data.",
+      "file": "dimos/web/dimos_interface/src/utils/simulation.ts",
+      "highlight": [
+        {
+          "start": 137,
+          "end": 141
+        }
+      ],
+      "title": "",
+      "id": "68811",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The method then creates a connection object with the `instance ID` and `URL`. Notice how the `URL` construction differs between development (direct `HTTP` to `EC2`) and production (`HTTPS` through `ALB`), and it sets an expiration time based on the inactivity timeout.",
+      "file": "dimos/web/dimos_interface/src/utils/simulation.ts",
+      "highlight": [
+        {
+          "start": 144,
+          "end": 150
+        }
+      ],
+      "title": "",
+      "id": "68812",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the store is updated with the new connection information and `isConnecting` is set to `false`. The `lastActivityTime` is recorded, and line 168 starts the inactivity timer to automatically manage the session's lifetime.",
+      "file": "dimos/web/dimos_interface/src/utils/simulation.ts",
+      "highlight": [
+        {
+          "start": 161,
+          "end": 169
+        }
+      ],
+      "title": "",
+      "id": "68813",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "When the `requestSimulation` method is invoked, what is the value of the `isConnecting` property in the `simulationStore` while the `fetchWithRetry` API call is awaiting a response?\n\nOptions:\n\n A). It remains `false` because the connection is not yet established.\n\nB). `true`, because the store is updated at the start of the method to signal a connection attempt.\n\nC). It is `null`, as its final state is unknown until the API responds.\n\n\nCorrect: B). `true`, because the store is updated at the start of the method to signal a connection attempt.\n\nExplanation: `true` is the correct state. On line 117, the `simulationStore` is updated to set `isConnecting: true` at the very beginning of the `requestSimulation` method. This ensures the UI can immediately show a loading or connecting indicator while the asynchronous network request is in flight. The state is only set back to `false` after the request completes, either successfully or with an error.",
+      "title": "",
+      "id": "68833",
+      "text": "When the `requestSimulation` method is invoked, what is the value of the `isConnecting` property in the `simulationStore` while the `fetchWithRetry` API call is awaiting a response?",
+      "answers": [
+        "It remains `false` because the connection is not yet established.",
+        "`true`, because the store is updated at the start of the method to signal a connection attempt.",
+        "It is `null`, as its final state is unknown until the API responds."
+      ],
+      "correct": 1,
+      "explanation": "`true` is the correct state. On line 117, the `simulationStore` is updated to set `isConnecting: true` at the very beginning of the `requestSimulation` method. This ensures the UI can immediately show a loading or connecting indicator while the asynchronous network request is in flight. The state is only set back to `false` after the request completes, either successfully or with an error."
+    },
+    {
+      "type": "highlight",
+      "description": "To prevent orphaned simulation instances, the system uses this 5-minute inactivity timeout. After this period of no user activity, the simulation will be automatically stopped.",
+      "file": "dimos/web/dimos_interface/src/utils/simulation.ts",
+      "highlight": [
+        {
+          "start": 53,
+          "end": 53
+        }
+      ],
+      "title": "",
+      "id": "68814",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Inside the `startInactivityTimer`'s `setTimeout` callback, what specific condition must be met for `stopSimulation()` to be called?\n\nOptions:\n\n A). The current time (`now`) must have passed the `expiresAt` timestamp stored in the connection object.\n\nB). The time elapsed since `lastActivityTime` must be greater than or equal to the `INACTIVITY_TIMEOUT`.\n\nC). The `simulationStore` must simply have an active connection (`state.connection` is not null).\n\nD). The `inactivityTimer` handle must not be null.\n\n\nCorrect: B). The time elapsed since `lastActivityTime` must be greater than or equal to the `INACTIVITY_TIMEOUT`.\n\nExplanation: The correct answer is based on the condition on line 102: `(now - state.lastActivityTime) >= SimulationManager.INACTIVITY_TIMEOUT`. This logic specifically checks if the duration since the last recorded activity has exceeded the timeout threshold. While the `expiresAt` field exists, the timer's trigger relies on `lastActivityTime` to allow the session to be extended by user activity. The check for an active connection happens inside `stopSimulation`, not in the timer's condition itself.",
+      "title": "",
+      "id": "68834",
+      "text": "Inside the `startInactivityTimer`'s `setTimeout` callback, what specific condition must be met for `stopSimulation()` to be called?",
+      "answers": [
+        "The current time (`now`) must have passed the `expiresAt` timestamp stored in the connection object.",
+        "The time elapsed since `lastActivityTime` must be greater than or equal to the `INACTIVITY_TIMEOUT`.",
+        "The `simulationStore` must simply have an active connection (`state.connection` is not null).",
+        "The `inactivityTimer` handle must not be null."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is based on the condition on line 102: `(now - state.lastActivityTime) >= SimulationManager.INACTIVITY_TIMEOUT`. This logic specifically checks if the duration since the last recorded activity has exceeded the timeout threshold. While the `expiresAt` field exists, the timer's trigger relies on `lastActivityTime` to allow the session to be extended by user activity. The check for an active connection happens inside `stopSimulation`, not in the timer's condition itself."
+    },
+    {
+      "type": "highlight",
+      "description": "The `startInactivityTimer` method manages automatic cleanup. Lines 95-97 clear any existing timer to ensure only one is active. Then lines 99-105 set up a new timeout that checks if the elapsed time since `lastActivityTime` exceeds the timeout period - if so, it calls `stopSimulation`.",
+      "file": "dimos/web/dimos_interface/src/utils/simulation.ts",
+      "highlight": [
+        {
+          "start": 94,
+          "end": 106
+        }
+      ],
+      "title": "",
+      "id": "68815",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `stopSimulation` method gracefully terminates a session. If there's an active connection, it sends a **DELETE** request to the backend API with the `instance_id` to release server-side resources. Note how it handles potential errors gracefully without breaking the cleanup process.",
+      "file": "dimos/web/dimos_interface/src/utils/simulation.ts",
+      "highlight": [
+        {
+          "start": 187,
+          "end": 203
+        }
+      ],
+      "title": "",
+      "id": "68816",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The cleanup concludes by clearing the inactivity timer (lines 205-208) and resetting the `simulationStore` to its initial state (line 210). This ensures the UI reflects that the simulation has ended and all timers are properly cleaned up.",
+      "file": "dimos/web/dimos_interface/src/utils/simulation.ts",
+      "highlight": [
+        {
+          "start": 205,
+          "end": 211
+        }
+      ],
+      "title": "",
+      "id": "68817",
+      "hideAreas": []
+    }
+  ]
+}

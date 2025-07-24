@@ -1,0 +1,84 @@
+{
+  "title": "29.2: AbstractTokenizer: Core Interface Methods",
+  "id": "cFIJ3xqFE3au+V+YX5b7hxQMC/1PL/HtOpaJftyRJew=",
+  "originalId": 5513,
+  "position": 109,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour explores the `AbstractTokenizer` class, the standard interface for tokenization in the DIMOS agent. Tokenization converts text into smaller units (tokens) for language models. Let's examine its key methods.",
+      "title": "",
+      "id": "68400"
+    },
+    {
+      "type": "highlight",
+      "description": "The `tokenize_text` method converts a text string into a token array. This is used for calculating text length to manage costs and stay within the model's context limits.",
+      "file": "dimos/agents/tokenizer/base.py",
+      "highlight": [
+        {
+          "start": 27,
+          "end": 28
+        }
+      ],
+      "title": "",
+      "id": "68401",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `detokenize_text` method reverses the `tokenize_text` method, reconstructing the original text from a token array. This is mainly for debugging to ensure the tokenization process is accurate.",
+      "file": "dimos/agents/tokenizer/base.py",
+      "highlight": [
+        {
+          "start": 31,
+          "end": 32
+        }
+      ],
+      "title": "",
+      "id": "68402",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `token_count` method returns the number of tokens in a piece of text. This is a key metric for estimating the computational cost of text processing, as API charges are often based on token count.",
+      "file": "dimos/agents/tokenizer/base.py",
+      "highlight": [
+        {
+          "start": 35,
+          "end": 36
+        }
+      ],
+      "title": "",
+      "id": "68403",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `image_token_count` method estimates the token cost for processing images. It uses the image's dimensions and a detail level (`low` or `high`) to calculate the required tokens. This calculation helps in managing costs for vision-enabled models.",
+      "file": "dimos/agents/tokenizer/base.py",
+      "highlight": [
+        {
+          "start": 39,
+          "end": 40
+        }
+      ],
+      "title": "",
+      "id": "68404",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "A developer needs to estimate the total API cost for a request containing both a text message and an image before sending it. Which combination of `AbstractTokenizer` methods provides the most direct and accurate way to do this?\n\nOptions:\n\n A). Use `tokenize_text` for the text and `image_token_count` for the image.\n\nB). Use `token_count` for the text and `image_token_count` for the image.\n\nC). Use `token_count` for both the text and the raw image data.\n\n\nCorrect: B). Use `token_count` for the text and `image_token_count` for the image.\n\nExplanation: `token_count` is the most direct method for estimating text processing costs, while `image_token_count` is specifically designed to estimate costs for images based on their dimensions and detail level. Using `tokenize_text` would be less efficient as it performs the full tokenization just to get a count. Applying `token_count` to raw image data is incorrect, as image tokenization does not work like text tokenization.",
+      "title": "",
+      "id": "68413",
+      "text": "A developer needs to estimate the total API cost for a request containing both a text message and an image before sending it. Which combination of `AbstractTokenizer` methods provides the most direct and accurate way to do this?",
+      "answers": [
+        "Use `tokenize_text` for the text and `image_token_count` for the image.",
+        "Use `token_count` for the text and `image_token_count` for the image.",
+        "Use `token_count` for both the text and the raw image data."
+      ],
+      "correct": 1,
+      "explanation": "`token_count` is the most direct method for estimating text processing costs, while `image_token_count` is specifically designed to estimate costs for images based on their dimensions and detail level. Using `tokenize_text` would be less efficient as it performs the full tokenization just to get a count. Applying `token_count` to raw image data is incorrect, as image tokenization does not work like text tokenization."
+    }
+  ]
+}

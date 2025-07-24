@@ -1,0 +1,181 @@
+{
+  "title": "33.3: The Claude Agent",
+  "id": "Gpk/0LqvqrBpgGHDhAOFO+WTtBTWhXLc1PvfLNfnQQo=",
+  "originalId": 5526,
+  "position": 124,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour focuses on the `ClaudeAgent`, a specific implementation for interacting with the Anthropic Claude API.\n\nThe original query assumed that `ClaudeAgent` inherits from `OpenAIAgent` and overrides `_process_input()`. In reality, **`ClaudeAgent` inherits from `LLMAgent`** and implements `_send_query()`. We’ll clarify these differences and walk through the actual method implementation step by step.",
+      "title": "",
+      "id": "69180"
+    },
+    {
+      "type": "highlight",
+      "description": "Here is the `ClaudeAgent` class definition. On line 77, it inherits from `LLMAgent` (not `OpenAIAgent`). This makes it a sibling of `OpenAIAgent` rather than a subclass.",
+      "file": "dimos/agents/claude_agent.py",
+      "highlight": [
+        {
+          "start": 77,
+          "end": 82
+        }
+      ],
+      "title": "",
+      "id": "69181",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "For comparison, here is the `OpenAIAgent` definition. It also inherits from `LLMAgent` on line 660, confirming both are parallel implementations sharing the same base class.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 660,
+          "end": 666
+        }
+      ],
+      "title": "",
+      "id": "69182",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `LLMAgent` base class declares `_send_query()` as the abstract hook for subclasses. Notice there is no `_process_input()` here—each concrete agent implements `_send_query()` to handle provider-specific API calls.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 412,
+          "end": 419
+        }
+      ],
+      "title": "",
+      "id": "69183",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "**Method Clarification**: The query asked about a `_process_input()` method, but `ClaudeAgent` doesn’t have one. Instead, it overrides `_send_query()`, which processes inputs and communicates with Anthropic’s API. Let’s walk through `_send_query()` in detail.",
+      "title": "",
+      "id": "69184"
+    },
+    {
+      "type": "highlight",
+      "description": "This is the `_send_query()` signature. It receives a list of `messages` and a `claude_params` `dict`, then returns a `ResponseMessage` compatible with `LLMAgent`.",
+      "file": "dimos/agents/claude_agent.py",
+      "highlight": [
+        {
+          "start": 346,
+          "end": 354
+        }
+      ],
+      "title": "",
+      "id": "69185",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Before sending, `ClaudeAgent` builds `claude_params` in `_build_prompt()`. Note how system prompts are set as a top-level `system` key (line 319) instead of a message, and tools are converted via `_convert_tools_to_claude_format()`.",
+      "file": "dimos/agents/claude_agent.py",
+      "highlight": [
+        {
+          "start": 317,
+          "end": 324
+        }
+      ],
+      "title": "",
+      "id": "69186",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`ClaudeAgent` uses the `anthropic` library for API calls, importing types like `ContentBlock`, `MessageParam`, and `ToolUseBlock` to process incoming events.",
+      "file": "dimos/agents/claude_agent.py",
+      "highlight": [
+        {
+          "start": 29,
+          "end": 31
+        }
+      ],
+      "title": "",
+      "id": "69187",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Inside `_send_query()`, after initializing containers, the key call is on line 376. This `with` statement opens a streaming response from **Claude’s API**, enabling real-time event processing.",
+      "file": "dimos/agents/claude_agent.py",
+      "highlight": [
+        {
+          "start": 355,
+          "end": 376
+        }
+      ],
+      "title": "",
+      "id": "69188",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The agent iterates over `stream` events. On `content_block_start`, it initializes a new block; on `content_block_delta`, it accumulates text or thinking data; and on `content_block_stop`, it finalizes each block. This approach separates plain text, tool calls, and Claude’s “thinking” steps.",
+      "file": "dimos/agents/claude_agent.py",
+      "highlight": [
+        {
+          "start": 384,
+          "end": 394
+        }
+      ],
+      "title": "",
+      "id": "69189",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "How does `ClaudeAgent`'s `_send_query` method process responses from the **Anthropic API**?\n\nOptions:\n\n A). It makes a single blocking request and parses the complete JSON response.\n\nB). It relies on the abstract `LLMAgent._send_query` implementation for the API call.\n\nC). It iterates through a stream, processing content block events as they arrive from the API.\n\nD). It calls the `_process_input` method to format the data for a webhook endpoint.\n\n\nCorrect: C). It iterates through a stream, processing content block events as they arrive from the API.\n\nExplanation: `ClaudeAgent` uses a streaming approach, as shown by the `with self.client.messages.stream(...)` call and the subsequent loop that processes events like `content_block_start` and `content_block_delta`. This allows it to handle the response incrementally. The other options are incorrect: a single blocking request is more typical of the `OpenAIAgent`, `LLMAgent._send_query` is an abstract method with no implementation, and the tour clarified that `_process_input` is not used.",
+      "title": "",
+      "id": "69193",
+      "text": "How does `ClaudeAgent`'s `_send_query` method process responses from the **Anthropic API**?",
+      "answers": [
+        "It makes a single blocking request and parses the complete JSON response.",
+        "It relies on the abstract `LLMAgent._send_query` implementation for the API call.",
+        "It iterates through a stream, processing content block events as they arrive from the API.",
+        "It calls the `_process_input` method to format the data for a webhook endpoint."
+      ],
+      "correct": 2,
+      "explanation": "`ClaudeAgent` uses a streaming approach, as shown by the `with self.client.messages.stream(...)` call and the subsequent loop that processes events like `content_block_start` and `content_block_delta`. This allows it to handle the response incrementally. The other options are incorrect: a single blocking request is more typical of the `OpenAIAgent`, `LLMAgent._send_query` is an abstract method with no implementation, and the tour clarified that `_process_input` is not used."
+    },
+    {
+      "type": "highlight",
+      "description": "After the stream ends, the method wraps up by returning a `ResponseMessage` containing the collected `content`, `tool_calls`, and any `thinking_blocks`.",
+      "file": "dimos/agents/claude_agent.py",
+      "highlight": [
+        {
+          "start": 483,
+          "end": 487
+        }
+      ],
+      "title": "",
+      "id": "69190",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The entire `_send_query()` body is wrapped in a `try…except` block. It catches `ConnectionError` for network issues, `ValueError` for invalid parameters, and a general `Exception` for any other errors—logging details before re-raising.",
+      "file": "dimos/agents/claude_agent.py",
+      "highlight": [
+        {
+          "start": 489,
+          "end": 499
+        }
+      ],
+      "title": "",
+      "id": "69191",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "**Summary of Differences**\n\n* **Inheritance**: Both agents use `LLMAgent` as the base (no `_process_input()`).  \n* **Communication**: Claude uses `anthropic` streaming; OpenAI uses `openai`’s non-streaming `create()`.  \n* **Formatting**: Claude passes system prompts as top-level parameters and processes streamed blocks; OpenAI treats system prompts as messages and handles a complete response.  \n* **Error Handling**: Both wrap calls in `try…except`, but catch provider-specific errors and log accordingly.",
+      "title": "",
+      "id": "69192"
+    }
+  ]
+}

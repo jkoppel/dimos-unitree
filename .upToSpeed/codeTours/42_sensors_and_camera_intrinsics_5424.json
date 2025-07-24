@@ -1,0 +1,160 @@
+{
+  "title": "4.2: Sensors and Camera Intrinsics",
+  "id": "6hFFQKTHRx1CSgWQTM+Yli6sE7k9ynO/SgGzIwJHzuI=",
+  "originalId": 5424,
+  "position": 12,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to the sensor abstraction and camera intrinsics tour. We'll explore how `DiMOS` creates a unified interface for different sensor types and dive deep into how camera intrinsics are calculated – the foundation for all computer vision algorithms.",
+      "title": "",
+      "id": "67523"
+    },
+    {
+      "type": "highlight",
+      "description": "The `AbstractSensor` class defines three abstract methods that every sensor must implement: `get_sensor_type`, `calculate_intrinsics`, and `get_intrinsics`. This unified interface allows the system to treat cameras, LiDAR, and other sensors uniformly without depending on concrete implementations.",
+      "file": "dimos/hardware/sensor.py",
+      "highlight": [
+        {
+          "start": 17,
+          "end": 24
+        }
+      ],
+      "title": "",
+      "id": "67524",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Camera` constructor accepts `resolution` (pixel dimensions), `focal_length` (lens-to-sensor distance in mm), and `sensor_size` (sensor dimensions in mm). These parameters map the camera’s physical properties into its software configuration.",
+      "file": "dimos/hardware/camera.py",
+      "highlight": [
+        {
+          "start": 17,
+          "end": 22
+        }
+      ],
+      "title": "",
+      "id": "67525",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`calculate_intrinsics` converts physical camera parameters into computational ones:\n1. **Pixel size** = `sensor_size` ÷ `resolution` (lines 32–33)\n2. **Principal point** at the image center (lines 36–37)\n3. **Focal lengths in pixels** = `focal_length` ÷ `pixel_size` (lines 40–41)\n\nThis yields a dictionary of core intrinsics used by all vision algorithms.",
+      "file": "dimos/hardware/camera.py",
+      "highlight": [
+        {
+          "start": 27,
+          "end": 42
+        }
+      ],
+      "title": "",
+      "id": "67526",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The returned intrinsics dictionary (`focal_length_x`, `focal_length_y`, `principal_point_x`, `principal_point_y`) forms the **3×3 camera matrix**, which is used for projecting 3D world points onto the 2D image plane.",
+      "file": "dimos/hardware/camera.py",
+      "highlight": [
+        {
+          "start": 43,
+          "end": 48
+        }
+      ],
+      "title": "",
+      "id": "67527",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `get_intrinsics` method wraps `calculate_intrinsics`, providing a single call to retrieve the intrinsics without manual recalculation.",
+      "file": "dimos/hardware/camera.py",
+      "highlight": [
+        {
+          "start": 50,
+          "end": 51
+        }
+      ],
+      "title": "",
+      "id": "67528",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`StereoCamera` extends `Camera` by adding a `baseline` parameter (distance between the two lenses in the stereo pair). A larger baseline improves depth accuracy for more distant objects.",
+      "file": "dimos/hardware/stereo_camera.py",
+      "highlight": [
+        {
+          "start": 17,
+          "end": 20
+        }
+      ],
+      "title": "",
+      "id": "67529",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "In its `get_intrinsics`, `StereoCamera` first calls the parent method to obtain focal and principal point values, then injects `baseline` into the dictionary—enabling stereo disparity-to-depth computation.",
+      "file": "dimos/hardware/stereo_camera.py",
+      "highlight": [
+        {
+          "start": 22,
+          "end": 25
+        }
+      ],
+      "title": "",
+      "id": "67530",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the provided code, how does the `StereoCamera.get_intrinsics()` method function, and what is the primary purpose of the `baseline` value it adds?\n\nOptions:\n\n A). It re-implements the entire intrinsics calculation, using the `baseline` to produce more accurate `focal_length` values.\n\nB). It calls the parent `Camera`'s method and uses the `baseline` to adjust the `principal_point` for the stereo setup.\n\nC). It calls the parent `Camera`'s `get_intrinsics()` method and appends the `baseline`, which is used to calculate depth from stereo image disparity.\n\n\nCorrect: C). It calls the parent `Camera`'s `get_intrinsics()` method and appends the `baseline`, which is used to calculate depth from stereo image disparity.\n\nExplanation: The `StereoCamera` class leverages inheritance by calling `super().get_intrinsics()` to reuse the parent `Camera`'s logic for calculating focal length and principal point. It then adds the `baseline` to the resulting dictionary. The baseline—the distance between the two camera centers—is a key parameter in stereo vision, used with the disparity between the two images to triangulate and compute the depth of objects.",
+      "title": "",
+      "id": "67534",
+      "text": "Based on the provided code, how does the `StereoCamera.get_intrinsics()` method function, and what is the primary purpose of the `baseline` value it adds?",
+      "answers": [
+        "It re-implements the entire intrinsics calculation, using the `baseline` to produce more accurate `focal_length` values.",
+        "It calls the parent `Camera`'s method and uses the `baseline` to adjust the `principal_point` for the stereo setup.",
+        "It calls the parent `Camera`'s `get_intrinsics()` method and appends the `baseline`, which is used to calculate depth from stereo image disparity."
+      ],
+      "correct": 2,
+      "explanation": "The `StereoCamera` class leverages inheritance by calling `super().get_intrinsics()` to reuse the parent `Camera`'s logic for calculating focal length and principal point. It then adds the `baseline` to the resulting dictionary. The baseline—the distance between the two camera centers—is a key parameter in stereo vision, used with the disparity between the two images to triangulate and compute the depth of objects."
+    },
+    {
+      "type": "highlight",
+      "description": "**A real-world example for a single-camera pipeline:**",
+      "file": "dimos/perception/semantic_seg.py",
+      "highlight": [
+        {
+          "start": 68,
+          "end": 74
+        }
+      ],
+      "title": "",
+      "id": "67531",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `add_sensor` method accepts both `Camera` and `StereoCamera` instances, making the interface flexible.",
+      "file": "dimos/hardware/interface.py",
+      "highlight": [
+        {
+          "start": 40,
+          "end": 44
+        }
+      ],
+      "title": "",
+      "id": "67532",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This concludes the tour. You now understand how `DiMOS` defines a sensor interface, computes camera intrinsics, and extends to stereo cameras for depth estimation.",
+      "title": "",
+      "id": "67533"
+    }
+  ]
+}

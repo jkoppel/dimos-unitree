@@ -1,0 +1,146 @@
+{
+  "title": "23.3: Object Detection: Depth & 3D Projection",
+  "id": "U8+uaFw7XRFTHqV66Z+1PS3l4cw0JvVkzEhtlVGxIRI=",
+  "originalId": 5492,
+  "position": 81,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour demonstrates how 2D object detections from an `ObjectDetectionStream` are lifted into 3D space. We'll explore depth estimation, pose computation, size scaling, optional map transformation, and final data assembly.",
+      "title": "",
+      "id": "68271"
+    },
+    {
+      "type": "highlight",
+      "description": "Within the `process_frame` function, each detection calls three lifting routines in sequence: `calculate_depth_from_bbox`, `calculate_position_rotation_from_bbox`, and `calculate_object_size_from_bbox`. Detections with `None` depth are skipped to ensure only valid 3D data proceeds.",
+      "file": "dimos/perception/object_detection_stream.py",
+      "highlight": [
+        {
+          "start": 112,
+          "end": 123
+        }
+      ],
+      "title": "",
+      "id": "68272",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "To estimate an object's distance, the code first crops the model's depth map to the bounding box region. The key logic here is outlier rejection. Notice how it computes the 25th and 75th percentiles of the depth values within the box. By averaging only the values within this interquartile range, the function produces a more stable depth estimate, which is then returned in meters.",
+      "file": "dimos/perception/detection2d/utils.py",
+      "highlight": [
+        {
+          "start": 196,
+          "end": 236
+        }
+      ],
+      "title": "",
+      "id": "68273",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `calculate_distance_angle_from_bbox(bbox, depth, camera_intrinsics)` helper unpacks `[fx, fy, cx, cy]`, computes the `bbox` center in pixels, normalizes the x-offset to get `x_norm`, calculates the viewing angle `atan(x_norm)`, and corrects depth along the camera ray by `depth / cos(angle)`.",
+      "file": "dimos/perception/detection2d/utils.py",
+      "highlight": [
+        {
+          "start": 238,
+          "end": 270
+        }
+      ],
+      "title": "",
+      "id": "68274",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `distance_angle_to_goal_xy(distance, angle)` utility converts polar to Cartesian coordinates in the robot frame: `x = distance*cos(angle)`, `y = distance*sin(angle)`.",
+      "file": "dimos/utils/ros_utils.py",
+      "highlight": [
+        {
+          "start": 14,
+          "end": 16
+        }
+      ],
+      "title": "",
+      "id": "68275",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This function lifts the 2D detection into 3D space. First, it uses the bounding box and depth to calculate the object's distance and angle from the camera. Next, it converts these polar coordinates into Cartesian `(x, y)` coordinates.\n\nFinally, it assembles the position and rotation, making two key assumptions: the object is on the ground (`z=0`), and its orientation is simplified to a yaw angle based on its position relative to the camera.",
+      "file": "dimos/perception/detection2d/utils.py",
+      "highlight": [
+        {
+          "start": 299,
+          "end": 326
+        }
+      ],
+      "title": "",
+      "id": "68276",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "The function `calculate_position_rotation_from_bbox` computes an object's `(x, y)` coordinates. Based on its helper functions, what is the underlying method used?\n\nOptions:\n\n A). It directly projects the bounding box center to 3D using the pinhole camera model formula: `x = (center_x - cx) * depth / fx`.\n\nB). It first computes a corrected distance and viewing angle, then converts these polar coordinates `(distance, -angle)` into Cartesian `(x, y)` coordinates.\n\nC). It uses the estimated depth as the `x` coordinate and the horizontal pixel offset from the center as the `y` coordinate.\n\n\nCorrect: B). It first computes a corrected distance and viewing angle, then converts these polar coordinates `(distance, -angle)` into Cartesian `(x, y)` coordinates.\n\nExplanation: The correct method involves a two-step process. First, `calculate_distance_angle_from_bbox` computes the viewing angle and corrects the planar depth to find the true distance to the object. Then, `distance_angle_to_goal_xy` converts these polar coordinates (distance, angle) into Cartesian (x, y) coordinates for the robot's frame. The other methods represent alternative but unimplemented approaches to 3D projection.",
+      "title": "",
+      "id": "68281",
+      "text": "The function `calculate_position_rotation_from_bbox` computes an object's `(x, y)` coordinates. Based on its helper functions, what is the underlying method used?",
+      "answers": [
+        "It directly projects the bounding box center to 3D using the pinhole camera model formula: `x = (center_x - cx) * depth / fx`.",
+        "It first computes a corrected distance and viewing angle, then converts these polar coordinates `(distance, -angle)` into Cartesian `(x, y)` coordinates.",
+        "It uses the estimated depth as the `x` coordinate and the horizontal pixel offset from the center as the `y` coordinate."
+      ],
+      "correct": 1,
+      "explanation": "The correct method involves a two-step process. First, `calculate_distance_angle_from_bbox` computes the viewing angle and corrects the planar depth to find the true distance to the object. Then, `distance_angle_to_goal_xy` converts these polar coordinates (distance, angle) into Cartesian (x, y) coordinates for the robot's frame. The other methods represent alternative but unimplemented approaches to 3D projection."
+    },
+    {
+      "type": "highlight",
+      "description": "This function employs the principle of **similar triangles**. It scales the bounding box's pixel width and height using the object's depth and the camera's focal lengths (`fx`, `fy`) to estimate real-world dimensions in meters.",
+      "file": "dimos/perception/detection2d/utils.py",
+      "highlight": [
+        {
+          "start": 271,
+          "end": 297
+        }
+      ],
+      "title": "",
+      "id": "68277",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "An optional `transform_to_map` hook converts computed `position` and `rotation` from the camera’s `base_link` frame to a global `map` frame. The code wraps values in `Vector`, applies the transform, and converts back to plain dicts, with errors caught to fallback on camera-frame poses.",
+      "file": "dimos/perception/object_detection_stream.py",
+      "highlight": [
+        {
+          "start": 125,
+          "end": 134
+        }
+      ],
+      "title": "",
+      "id": "68278",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "All computed attributes—`object_id`, `bbox`, `depth`, `confidence`, `class_id`, `label`, `position`, `rotation`, and `size`—are assembled into an `object_data` dictionary and appended to the frame’s `objects` list, forming the final 3D-aware detection stream.",
+      "file": "dimos/perception/object_detection_stream.py",
+      "highlight": [
+        {
+          "start": 137,
+          "end": 152
+        }
+      ],
+      "title": "",
+      "id": "68279",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "By combining **ROI-based depth filtering**, **geometric projection**, **size estimation**, and optional **map transforms**, this pipeline lifts **2D detections** into **3D object representations** for downstream robotics tasks.",
+      "title": "",
+      "id": "68280"
+    }
+  ]
+}

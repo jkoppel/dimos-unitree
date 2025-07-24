@@ -1,0 +1,85 @@
+{
+  "title": "7.2: IsaacSimulator Deep Dive",
+  "id": "imwR1HPfimkuaCNmC+7ITPFRUQcfmPnoqOVMFw4oHDs=",
+  "originalId": 5439,
+  "position": 22,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour takes a deeper look into the **IsaacSimulator** class, which acts as a wrapper for the main Isaac Sim application.",
+      "title": "",
+      "id": "67563"
+    },
+    {
+      "type": "highlight",
+      "description": "In `dimos/simulation/isaac/simulator.py`, we find the `IsaacSimulator` class. As you can see, it inherits from `SimulatorBase`, providing a specialized implementation for **Isaac Sim**.",
+      "file": "dimos/simulation/isaac/simulator.py",
+      "highlight": [
+        {
+          "start": 5,
+          "end": 5
+        }
+      ],
+      "title": "",
+      "id": "67564",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__` method sets up the simulation. The `headless` parameter (line 10) controls whether the UI is visible, and `open_usd` (line 11) can specify a `USD` file to load at startup. The core of this method is the instantiation of `isaacsim.SimulationApp` (line 16), which is the main application object.",
+      "file": "dimos/simulation/isaac/simulator.py",
+      "highlight": [
+        {
+          "start": 8,
+          "end": 19
+        }
+      ],
+      "title": "",
+      "id": "67565",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `get_stage` method is the gateway for interacting with the simulation's environment. It retrieves a reference to the active `USD` stage from the `omni.usd` context. This stage object is used for adding, removing, or modifying objects in the scene.",
+      "file": "dimos/simulation/isaac/simulator.py",
+      "highlight": [
+        {
+          "start": 21,
+          "end": 25
+        }
+      ],
+      "title": "",
+      "id": "67566",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the `close` method ensures a clean shutdown of the simulation. It calls the `close()` method on the `SimulationApp` instance, releasing resources and terminating the application properly.",
+      "file": "dimos/simulation/isaac/simulator.py",
+      "highlight": [
+        {
+          "start": 27,
+          "end": 30
+        }
+      ],
+      "title": "",
+      "id": "67567",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Suppose you need to use a function from the underlying `SimulationApp` that isn't directly available on the `IsaacSimulator` class. After you have an instance, `sim = IsaacSimulator()`, how might you call that function?\n\nOptions:\n\n A). sim.get_stage().some_function()\n\nB). sim.app.some_function()\n\nC). sim.some_function()\n\nD). IsaacSimulator.some_function()\n\n\nCorrect: B). sim.app.some_function()\n\nExplanation: The `IsaacSimulator` class creates and holds the `SimulationApp` instance in its `app` attribute. This is a common pattern for a wrapper. To access methods on the underlying object, you would go through `sim.app`. The other options are incorrect because `get_stage()` returns the USD scene, not the application object, and `IsaacSimulator` does not directly expose or inherit all of `SimulationApp`'s methods.",
+      "title": "",
+      "id": "67569",
+      "text": "Suppose you need to use a function from the underlying `SimulationApp` that isn't directly available on the `IsaacSimulator` class. After you have an instance, `sim = IsaacSimulator()`, how might you call that function?",
+      "answers": [
+        "sim.get_stage().some_function()",
+        "sim.app.some_function()",
+        "sim.some_function()",
+        "IsaacSimulator.some_function()"
+      ],
+      "correct": 1,
+      "explanation": "The `IsaacSimulator` class creates and holds the `SimulationApp` instance in its `app` attribute. This is a common pattern for a wrapper. To access methods on the underlying object, you would go through `sim.app`. The other options are incorrect because `get_stage()` returns the USD scene, not the application object, and `IsaacSimulator` does not directly expose or inherit all of `SimulationApp`'s methods."
+    }
+  ]
+}

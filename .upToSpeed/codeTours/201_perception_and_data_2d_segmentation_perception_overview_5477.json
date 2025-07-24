@@ -1,0 +1,173 @@
+{
+  "title": "20.1: Perception & Data: 2D Segmentation Perception: Overview",
+  "id": "3vIFzO+CcykRwN5NalgdOeAvpbhHEHgfoWKTl0Agj6E=",
+  "originalId": 5477,
+  "position": 65,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to this tour of the **2D Segmentation component**. This walkthrough will guide you through the main classes and configurations that make up the segmentation system.",
+      "title": "",
+      "id": "67918"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/segmentation/sam_2d_seg.py"
+      ],
+      "description": "Let's start with the main segmentation file. This contains the core `Sam2DSegmenter` class that orchestrates the entire 2D segmentation pipeline.",
+      "title": "",
+      "id": "67919",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's the `Sam2DSegmenter` class definition. This class integrates three key components: a `FastSAM` model for segmentation, an optional tracker for object persistence, and an optional analyzer for generating human-readable object names. Notice how it imports the `ImageAnalyzer` on line 10.",
+      "file": "dimos/perception/segmentation/sam_2d_seg.py",
+      "highlight": [
+        {
+          "start": 15,
+          "end": 54
+        }
+      ],
+      "title": "",
+      "id": "67920",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/segmentation/image_analyzer.py"
+      ],
+      "description": "Next, let's look at the `ImageAnalyzer` class. This component uses OpenAI's vision model to provide descriptive names for segmented objects.",
+      "title": "",
+      "id": "67921",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `ImageAnalyzer` class initializes an `OpenAI` client. The segmenter crops detected objects from images and sends them to this analyzer to get human-readable descriptions.",
+      "file": "dimos/perception/segmentation/image_analyzer.py",
+      "highlight": [
+        {
+          "start": 21,
+          "end": 26
+        }
+      ],
+      "title": "",
+      "id": "67922",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `analyze_images` method takes a list of cropped images and queries OpenAI's GPT-4 vision model. It supports two prompt types: `normal` for short descriptions and `rich` for detailed descriptions. The method returns structured text that the `segmenter` parses to get object names.",
+      "file": "dimos/perception/segmentation/image_analyzer.py",
+      "highlight": [
+        {
+          "start": 41,
+          "end": 82
+        }
+      ],
+      "title": "",
+      "id": "67923",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Back in the segmenter, the `get_object_names` method retrieves the analyzed names. If the analyzer hasn't processed an object yet, it falls back to the original detected class name from the segmentation model.",
+      "file": "dimos/perception/segmentation/sam_2d_seg.py",
+      "highlight": [
+        {
+          "start": 187,
+          "end": 193
+        }
+      ],
+      "title": "",
+      "id": "67924",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the implementation of `get_object_names` in `sam_2d_seg.py`, what happens if the `ImageAnalyzer` has not yet provided a name for a tracked object?\n\nOptions:\n\n A). The function returns `None` for that object's name, leaving it unlabeled.\n\nB). It uses the original class name provided by the segmentation model as a fallback.\n\nC). A placeholder label like 'analyzing...' is used until the analysis is complete.\n\nD). The object is hidden from the visualization until its name is available.\n\n\nCorrect: B). It uses the original class name provided by the segmentation model as a fallback.\n\nExplanation: The correct answer is that the system falls back to the original class name. The line `self.object_names.get(track_id, tracked_name)` attempts to retrieve the analyzed name from the `object_names` dictionary. If the `track_id` is not found, the `.get()` method returns the provided default value, which is `tracked_name`—the original name from the segmentation model. The other options describe plausible but incorrect behaviors.",
+      "title": "",
+      "id": "67931",
+      "text": "Based on the implementation of `get_object_names` in `sam_2d_seg.py`, what happens if the `ImageAnalyzer` has not yet provided a name for a tracked object?",
+      "answers": [
+        "The function returns `None` for that object's name, leaving it unlabeled.",
+        "It uses the original class name provided by the segmentation model as a fallback.",
+        "A placeholder label like 'analyzing...' is used until the analysis is complete.",
+        "The object is hidden from the visualization until its name is available."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that the system falls back to the original class name. The line `self.object_names.get(track_id, tracked_name)` attempts to retrieve the analyzed name from the `object_names` dictionary. If the `track_id` is not found, the `.get()` method returns the provided default value, which is `tracked_name`—the original name from the segmentation model. The other options describe plausible but incorrect behaviors."
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/segmentation/utils.py"
+      ],
+      "description": "The `utils.py` file contains helper functions that support the segmentation pipeline, including filtering, visualization, and image processing utilities.",
+      "title": "",
+      "id": "67925",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `extract_masks_bboxes_probs_names` function processes raw segmentation results from the `FastSAM` model. It extracts masks, bounding boxes, tracking IDs, confidence scores, class names, and calculates areas for each detected object.",
+      "file": "dimos/perception/segmentation/utils.py",
+      "highlight": [
+        {
+          "start": 48,
+          "end": 97
+        }
+      ],
+      "title": "",
+      "id": "67926",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `filter_segmentation_results` function applies texture-based filtering to remove objects that might be false positives. It computes a texture map using gradients and only keeps objects that meet texture and size thresholds.",
+      "file": "dimos/perception/segmentation/utils.py",
+      "highlight": [
+        {
+          "start": 137,
+          "end": 201
+        }
+      ],
+      "title": "",
+      "id": "67927",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/segmentation/config/custom_tracker.yaml"
+      ],
+      "description": "Finally, let's examine the **tracker configuration**. This `YAML file` configures the `BoT-SORT` tracker used to maintain consistent object identities across frames.",
+      "title": "",
+      "id": "67928",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The configuration specifies `BoT-SORT` as the tracker type and sets various thresholds for object matching and track management. Key parameters include confidence thresholds for associating detections with existing tracks and a track buffer size for maintaining object histories.",
+      "file": "dimos/perception/segmentation/config/custom_tracker.yaml",
+      "highlight": [
+        {
+          "start": 7,
+          "end": 21
+        }
+      ],
+      "title": "",
+      "id": "67929",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This completes our tour of the 2D segmentation component. The `Sam2DSegmenter` orchestrates segmentation using **FastSAM**, optionally tracks objects for consistency, and uses the `ImageAnalyzer` to provide human-readable object descriptions, all supported by utilities and tracker configuration.",
+      "title": "",
+      "id": "67930"
+    }
+  ]
+}

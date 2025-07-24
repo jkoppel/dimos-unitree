@@ -1,0 +1,276 @@
+{
+  "title": "25.3: ROS Integration (`ros_control.py`)",
+  "id": "8xc7QEOgAEwZBFGrXhjB0sqEQKoOew+wZKTwDkTatpQ=",
+  "originalId": 5554,
+  "position": 90,
+  "steps": [
+    {
+      "type": "highlight",
+      "description": "The `RobotMode` enum defines the robot’s high-level status:\n\n- **UNKNOWN**: Initial state.\n- **INITIALIZING**: Startup in progress.\n- **IDLE**: Ready for new commands.\n- **MOVING**: Executing a movement.\n- **ERROR**: Fault state.",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 55,
+          "end": 63
+        }
+      ],
+      "title": "",
+      "id": "69359",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`ROSControl` is an abstract base class combining transform and observable-topic abilities.\n\nKey constructor parameters:\n- `node_name` (line 67): Name of the ROS2 node.\n- `camera_topics` (line 68): Map of camera IDs → `{ topic, type }` for image streams.\n- `webrtc_api_topic` (line 77): Topic for low-level WebRTC API commands.\n- `move_vel_topic` (line 79): Topic for direct velocity (`Twist`) commands.\n- `pose_topic` (line 80): Topic for body-orientation (`Vector3`) commands.",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 64,
+          "end": 84
+        }
+      ],
+      "title": "",
+      "id": "69360",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 104–112 initialize **ROS2**:\n1. `rclpy.ok()` checks if `rclpy` is running; if not, `rclpy.init()` starts it.\n2. `self._node = Node(node_name)` creates the **ROS2** node context for publishers, subscribers, and action clients.",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 104,
+          "end": 112
+        }
+      ],
+      "title": "",
+      "id": "69361",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 136–144 define QoS for sensors:\n\n* **sensor_qos**:\n  - Reliability: `BEST_EFFORT` (drops under load)\n  - History: `KEEP_LAST` with depth 1 (only most recent)\n  - Durability: `VOLATILE`\n\nCommands use a separate, reliable profile (shown next).",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 136,
+          "end": 144
+        }
+      ],
+      "title": "",
+      "id": "69362",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 145–150 define **QoS** for commands:\n\n* `command_qos`:\n  - Reliability: `RELIABLE` (guaranteed delivery)\n  - History: `KEEP_LAST` with depth 10 (buffers up to 10)\n  - Durability: `VOLATILE`\n\nThis ensures command messages are not lost under transient network issues.",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 145,
+          "end": 150
+        }
+      ],
+      "title": "",
+      "id": "69363",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "If camera topics are configured, this block initializes the components for video streaming.\n\nThe `CvBridge` on line 170 is a utility for converting ROS image messages into a format that other libraries can use. The `ROSVideoProvider` is then created to manage and serve these video streams.\n\nFinally, the loop subscribes to each camera topic defined in the configuration. Each subscription uses the `_image_callback` method to process incoming frames.",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 168,
+          "end": 182
+        }
+      ],
+      "title": "",
+      "id": "69364",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 186–195 subscribe to the robot’s state topic:\n\n- Registers `_state_callback` to receive messages of type `self._state_msg_type` on `self._state_topic`.\n- `_state_callback` (abstracted) stores the message in `self._robot_state` and calls `_update_mode` to set `self._mode`.",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 186,
+          "end": 195
+        }
+      ],
+      "title": "",
+      "id": "69365",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 208–217 handle odometry and costmap:\n\n- Subscribe to `Odometry` on `self._odom_topic`, callback `_odom_callback` updates `self._odom_data`.\n- Subscribe to `OccupancyGrid` on `self._costmap_topic`, callback `_costmap_callback` updates `self._costmap_data`.\n- Missing topics trigger warnings, indicating those data streams will be unavailable.",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 208,
+          "end": 217
+        }
+      ],
+      "title": "",
+      "id": "69366",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 239–247 create movement and orientation publishers:\n\n- `_move_vel_pub`: publishes `Twist` to `move_vel_topic`, used by `move_vel` and `move_vel_control`.\n- `_pose_pub`: publishes `Vector3` to `pose_topic`, used by `pose_command` to set roll, pitch, yaw.",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 239,
+          "end": 247
+        }
+      ],
+      "title": "",
+      "id": "69367",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This block initializes and starts the `ROSCommandQueue`, which runs in its own thread to serialize robot commands. It's configured to execute WebRTC commands using `self.webrtc_req`. The two lambda functions control the queue's flow based on the robot's state: commands are only processed when the robot is `IDLE` and are deferred if it's `MOVING`. Finally, `start()` kicks off the queue's background thread. Internally, this class uses locks and condition variables to prevent race conditions.",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 249,
+          "end": 256
+        }
+      ],
+      "title": "",
+      "id": "69368",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "When a command like `move()` is queued, under what condition does the `ROSCommandQueue` begin its execution?\n\nOptions:\n\n A). When `self._mode` is `RobotMode.MOVING`.\n\nB). When `self._mode` is `RobotMode.IDLE`.\n\nC). When `self._mode` is `RobotMode.INITIALIZING`.\n\nD). Immediately, as action clients bypass the queue.\n\n\nCorrect: B). When `self._mode` is `RobotMode.IDLE`.\n\nExplanation: The correct answer is when `self._mode` is `RobotMode.IDLE`. The `ROSCommandQueue` was initialized with `is_ready_func=lambda: self._mode == RobotMode.IDLE`. This function must evaluate to true for the queue to process the next command. The `is_busy_func` is tied to `RobotMode.MOVING`, which causes the queue to wait. Action client requests like `move` and `spin` are explicitly designed to be managed by this queue.",
+      "title": "",
+      "id": "69376",
+      "text": "When a command like `move()` is queued, under what condition does the `ROSCommandQueue` begin its execution?",
+      "answers": [
+        "When `self._mode` is `RobotMode.MOVING`.",
+        "When `self._mode` is `RobotMode.IDLE`.",
+        "When `self._mode` is `RobotMode.INITIALIZING`.",
+        "Immediately, as action clients bypass the queue."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is when `self._mode` is `RobotMode.IDLE`. The `ROSCommandQueue` was initialized with `is_ready_func=lambda: self._mode == RobotMode.IDLE`. This function must evaluate to true for the queue to process the next command. The `is_busy_func` is tied to `RobotMode.MOVING`, which causes the queue to wait. Action client requests like `move` and `spin` are explicitly designed to be managed by this queue."
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 260–267 set up transform and spinning:\n\n- Create `tf2_ros.Buffer()` and `TransformListener` to subscribe to `/tf` and `/tf_static`.\n- Launch a background thread calling `self._ros_spin`.\n- `self._ros_spin` adds the node to a `MultiThreadedExecutor` and spins it, enabling concurrent callback processing.",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 260,
+          "end": 267
+        }
+      ],
+      "title": "",
+      "id": "69369",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 472–480 implement `ROSControl.move`, the **ROS2**-specific override of `Robot.move`:\n\n- Builds a `DriveOnHeading.Goal` with `target.x=distance`, `speed`, and `time_allowance`.\n- Calls `_send_action_client_goal(self._drive_client, goal, ...)` to send it as a **ROS2** action.\n- Queues via `ROSCommandQueue.queue_action_client_request`, ensuring it only runs when `self._mode==IDLE`.",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 472,
+          "end": 480
+        }
+      ],
+      "title": "",
+      "id": "69370",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Contrast this with the `move` method in the `Robot` abstract base class. `ROSControl` implements this abstract method by sending a goal to a ROS2 action server.",
+      "file": "dimos/robot/robot.py",
+      "highlight": [
+        {
+          "start": 176,
+          "end": 184
+        }
+      ],
+      "title": "",
+      "id": "69371",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 533–542 implement `ROSControl.reverse`:\n\n- Constructs a `BackUp.Goal` with `target.x = -distance` (negative for backward) and positive `speed`.\n- Sends via `_send_action_client_goal(self._backup_client, goal, ...)`.\n- Queues with `ROSCommandQueue` to defer until idle, mirroring `move`’s thread-safe logic.",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 533,
+          "end": 542
+        }
+      ],
+      "title": "",
+      "id": "69372",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 630–639 implement `ROSControl.spin`:\n\n- Converts degrees to radians (`angle = math.radians(degrees)`).\n- Builds a `Spin.Goal` with `target_yaw=angle` and `time_allowance`.\n- Sends via `_send_action_client_goal(self._spin_client, goal, ...)` and queues it to avoid concurrent motions.",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 630,
+          "end": 639
+        }
+      ],
+      "title": "",
+      "id": "69373",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 720–729 define `webrtc_req` signature and docstring. This override enables immediate **WebRTC API** commands bypassing the action queue for low-latency control.",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 720,
+          "end": 729
+        }
+      ],
+      "title": "",
+      "id": "69374",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "A call to `ROSControl.move()` and a call to `ROSControl.webrtc_req()` are made concurrently while the robot's mode is `MOVING`. Based on the implementation, what is the expected outcome?\n\nOptions:\n\n A). Both commands will be queued and executed sequentially after the robot's current action completes and its mode becomes `IDLE`.\n\nB). The `webrtc_req` command will be published to its topic immediately, while the `move` command will be queued by `ROSCommandQueue` and deferred until the robot is `IDLE`.\n\nC). Both commands will be rejected and fail immediately because the robot's mode is `MOVING`, preventing any new command submissions.\n\nD). The `move` command will be queued, but the `webrtc_req` command will be dropped because the WebRTC publisher does not have a queue.\n\n\nCorrect: B). The `webrtc_req` command will be published to its topic immediately, while the `move` command will be queued by `ROSCommandQueue` and deferred until the robot is `IDLE`.\n\nExplanation: The `ROSControl` class uses two distinct pathways for commands. High-level actions like `move` are sent to the `ROSCommandQueue`, which uses `is_busy_func` to defer execution until the robot's mode is `IDLE`. In contrast, `webrtc_req` bypasses this queue and publishes its message directly to the `_webrtc_pub` topic, allowing for immediate, low-latency communication regardless of the robot's action state.",
+      "title": "",
+      "id": "69377",
+      "text": "A call to `ROSControl.move()` and a call to `ROSControl.webrtc_req()` are made concurrently while the robot's mode is `MOVING`. Based on the implementation, what is the expected outcome?",
+      "answers": [
+        "Both commands will be queued and executed sequentially after the robot's current action completes and its mode becomes `IDLE`.",
+        "The `webrtc_req` command will be published to its topic immediately, while the `move` command will be queued by `ROSCommandQueue` and deferred until the robot is `IDLE`.",
+        "Both commands will be rejected and fail immediately because the robot's mode is `MOVING`, preventing any new command submissions.",
+        "The `move` command will be queued, but the `webrtc_req` command will be dropped because the WebRTC publisher does not have a queue."
+      ],
+      "correct": 1,
+      "explanation": "The `ROSControl` class uses two distinct pathways for commands. High-level actions like `move` are sent to the `ROSCommandQueue`, which uses `is_busy_func` to defer execution until the robot's mode is `IDLE`. In contrast, `webrtc_req` bypasses this queue and publishes its message directly to the `_webrtc_pub` topic, allowing for immediate, low-latency communication regardless of the robot's action state."
+    },
+    {
+      "type": "highlight",
+      "description": "This method constructs and publishes a command message. The highlighted lines populate the message fields that drive the robot's **WebRTC** interface.",
+      "file": "dimos/robot/ros_control.py",
+      "highlight": [
+        {
+          "start": 744,
+          "end": 752
+        }
+      ],
+      "title": "",
+      "id": "69375",
+      "hideAreas": []
+    }
+  ]
+}

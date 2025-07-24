@@ -1,0 +1,157 @@
+{
+  "title": "27.1: Core Logic: Local Planner: Overview",
+  "id": "S7cSt2PCHUyLBdq73BCz7CzGs49FhyGEc2MIUXub41Y=",
+  "originalId": 5505,
+  "position": 98,
+  "steps": [
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/robot/local_planner/__init__.py"
+      ],
+      "description": "The initialization file exports the core local planner components: `BaseLocalPlanner`, `navigation functions`, and `VFHPurePursuitPlanner`.",
+      "title": "",
+      "id": "68382",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/robot/local_planner/local_planner.py"
+      ],
+      "description": "The main local planner file sets up imports and dependencies for `BaseLocalPlanner` and `navigation utilities`.",
+      "title": "",
+      "id": "68383",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`BaseLocalPlanner` is an abstract base class defining the interface for local planners.",
+      "file": "dimos/robot/local_planner/local_planner.py",
+      "highlight": [
+        {
+          "start": 29,
+          "end": 35
+        }
+      ],
+      "title": "",
+      "id": "68384",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The abstract method `_compute_velocity_commands` (lines 350–359) must be implemented by subclasses to compute velocity commands.",
+      "file": "dimos/robot/local_planner/local_planner.py",
+      "highlight": [
+        {
+          "start": 349,
+          "end": 359
+        }
+      ],
+      "title": "",
+      "id": "68385",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The abstract method `update_visualization` (lines 463–472) enforces a visualization interface in subclasses.",
+      "file": "dimos/robot/local_planner/local_planner.py",
+      "highlight": [
+        {
+          "start": 463,
+          "end": 472
+        }
+      ],
+      "title": "",
+      "id": "68386",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Signature of `navigate_to_goal_local`, which navigates to a single goal in the robot's local frame.",
+      "file": "dimos/robot/local_planner/local_planner.py",
+      "highlight": [
+        {
+          "start": 784,
+          "end": 787
+        }
+      ],
+      "title": "",
+      "id": "68387",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Signature of `navigate_path_local`, which follows a sequence of waypoints using the local planner.",
+      "file": "dimos/robot/local_planner/local_planner.py",
+      "highlight": [
+        {
+          "start": 870,
+          "end": 873
+        }
+      ],
+      "title": "",
+      "id": "68388",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "`VFHPurePursuitPlanner` combines obstacle avoidance (`VFH`) by building a polar histogram of obstacles, with `Pure Pursuit` path tracking to follow lookahead points.",
+      "title": "",
+      "id": "68389"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/robot/local_planner/vfh_local_planner.py"
+      ],
+      "description": "The `VFH planner file` imports `BaseLocalPlanner` and utility functions to set up **VFH** and **Pure Pursuit**.",
+      "title": "",
+      "id": "68390",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `VFHPurePursuitPlanner` class inherits from `BaseLocalPlanner`, combining **VFH** obstacle avoidance with **Pure Pursuit** for goal tracking.",
+      "file": "dimos/robot/local_planner/vfh_local_planner.py",
+      "highlight": [
+        {
+          "start": 19,
+          "end": 23
+        }
+      ],
+      "title": "",
+      "id": "68391",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `constructor` initializes **VFH-specific parameters** (**histogram bins**, **weights**) and then calls the base class initializer.",
+      "file": "dimos/robot/local_planner/vfh_local_planner.py",
+      "highlight": [
+        {
+          "start": 25,
+          "end": 33
+        }
+      ],
+      "title": "",
+      "id": "68392",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "To create a new, functional local planner by inheriting from `BaseLocalPlanner`, which set of methods must be implemented in the subclass to satisfy the abstract base class contract?\n\nOptions:\n\n A). `plan()`, `set_goal()`, and `is_goal_reached()`\n\nB). `_compute_velocity_commands()`, `update_visualization()`, and `check_collision()`\n\nC). `navigate_to_goal_local()` and `navigate_path_local()`\n\nD). `_compute_velocity_commands()` and `update_visualization()`\n\n\nCorrect: B). `_compute_velocity_commands()`, `update_visualization()`, and `check_collision()`\n\nExplanation: `BaseLocalPlanner` uses the `@abstractmethod` decorator to define an interface contract. Any concrete class that inherits from it must implement all methods marked with this decorator to be instantiated. In `local_planner.py`, `_compute_velocity_commands` (line 350), `update_visualization` (line 463), and `check_collision` (line 509) are all defined as abstract methods. The other options list concrete methods provided by the base class or external utility functions.",
+      "title": "",
+      "id": "68393",
+      "text": "To create a new, functional local planner by inheriting from `BaseLocalPlanner`, which set of methods must be implemented in the subclass to satisfy the abstract base class contract?",
+      "answers": [
+        "`plan()`, `set_goal()`, and `is_goal_reached()`",
+        "`_compute_velocity_commands()`, `update_visualization()`, and `check_collision()`",
+        "`navigate_to_goal_local()` and `navigate_path_local()`",
+        "`_compute_velocity_commands()` and `update_visualization()`"
+      ],
+      "correct": 1,
+      "explanation": "`BaseLocalPlanner` uses the `@abstractmethod` decorator to define an interface contract. Any concrete class that inherits from it must implement all methods marked with this decorator to be instantiated. In `local_planner.py`, `_compute_velocity_commands` (line 350), `update_visualization` (line 463), and `check_collision` (line 509) are all defined as abstract methods. The other options list concrete methods provided by the base class or external utility functions."
+    }
+  ]
+}

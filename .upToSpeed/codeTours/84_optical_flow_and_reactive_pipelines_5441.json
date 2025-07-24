@@ -1,0 +1,161 @@
+{
+  "title": "8.4: Optical Flow & Reactive Pipelines",
+  "id": "SsBYLZquyQSX1iyqG3hMyV6YnSwsYfJRowysh6F73xk=",
+  "originalId": 5441,
+  "position": 27,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour explores motion detection using optical flow in `RxPY` streams. We'll cover how `FrameProcessor` computes motion between frames, visualizes it, and integrates it into reactive pipelines for real-time video analysis.",
+      "title": "",
+      "id": "67655"
+    },
+    {
+      "type": "highlight",
+      "description": "Here's the signature and opening docstring of `compute_optical_flow` (lines 95–100). It declares the parameters: an accumulator tuple for previous state (`prev_frame`, `prev_flow`, `prev_relevancy`), the current frame, and the `compute_relevancy` flag.",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 95,
+          "end": 100
+        }
+      ],
+      "title": "",
+      "id": "67656",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The core optical flow computation uses Farneback's dense algorithm via `cv2.calcOpticalFlowFarneback` on line 135. It takes the previous and current grayscale frames along with parameters for pyramid scale, levels, window size, iterations, neighborhood size, sigma, and flags.",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 135,
+          "end": 136
+        }
+      ],
+      "title": "",
+      "id": "67657",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Relevancy measures motion intensity: line 140 converts flow vectors to polar coordinates with `cv2.cartToPolar`, producing magnitude (`mag`) and angle (`ang`). Line 141 computes the mean of `mag` as the relevancy score.",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 140,
+          "end": 142
+        }
+      ],
+      "title": "",
+      "id": "67658",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`visualize_flow(flow)` maps optical flow to a color image. It initializes an `HSV` image, sets saturation to 255, converts flow to magnitude/angle, assigns hue from angle (line 152), value from normalized magnitude (line 153), then converts `HSV` to `BGR` with `cv2.cvtColor` (line 154).",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 147,
+          "end": 156
+        }
+      ],
+      "title": "",
+      "id": "67659",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`process_stream_optical_flow` signature and docstring (lines 175–183) describe an **RxPY** pipeline that computes and visualizes optical flow without relevancy scoring for performance.",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 175,
+          "end": 183
+        }
+      ],
+      "title": "",
+      "id": "67660",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `ops.scan` operator applies `compute_optical_flow` to consecutive frames. The subsequent operators transform the stream by first extracting the raw flow data, then filtering out any initial `None` results. Finally, the pipeline maps the valid flow data to `visualize_flow`, producing a stream of colorized flow frames.",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 209,
+          "end": 216
+        }
+      ],
+      "title": "",
+      "id": "67661",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`process_stream_optical_flow_with_relevancy` signature and docstring (lines 218–224) describe a pipeline emitting both visualized flow and relevancy scores for motion detection.",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 218,
+          "end": 224
+        }
+      ],
+      "title": "",
+      "id": "67662",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `scan` operator is now configured to compute a relevancy score. The subsequent `filter` handles the initial state where flow cannot yet be calculated. Finally, the `map` operator prepares the output by creating a visualization of the flow and pairing it with the relevancy score, providing quantified motion data.",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 256,
+          "end": 262
+        }
+      ],
+      "title": "",
+      "id": "67663",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the `process_stream_optical_flow_with_relevancy` pipeline (lines 256-262), what is the structure of each item emitted by the final `Observable`?\n\nOptions:\n\n A). A tuple containing the raw flow data and the relevancy score.\n\nB). A tuple containing the visualized flow image and the relevancy score.\n\nC). Only the visualized flow image.\n\nD). A tuple containing the current frame, the raw flow data, and the relevancy score.\n\n\nCorrect: B). A tuple containing the visualized flow image and the relevancy score.\n\nExplanation: The correct answer is a tuple containing the visualized flow image and the relevancy score. The pipeline's final `ops.map` (lines 261-262) explicitly constructs this tuple by calling `self.visualize_flow(result[1])` for the first element and passing `result[2]` (the relevancy) as the second. The raw flow data is an intermediate result from `ops.scan` but is not directly emitted. Emitting only the visualized flow is the behavior of the other function, `process_stream_optical_flow`.",
+      "title": "",
+      "id": "67667",
+      "text": "In the `process_stream_optical_flow_with_relevancy` pipeline (lines 256-262), what is the structure of each item emitted by the final `Observable`?",
+      "answers": [
+        "A tuple containing the raw flow data and the relevancy score.",
+        "A tuple containing the visualized flow image and the relevancy score.",
+        "Only the visualized flow image.",
+        "A tuple containing the current frame, the raw flow data, and the relevancy score."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is a tuple containing the visualized flow image and the relevancy score. The pipeline's final `ops.map` (lines 261-262) explicitly constructs this tuple by calling `self.visualize_flow(result[1])` for the first element and passing `result[2]` (the relevancy) as the second. The raw flow data is an intermediate result from `ops.scan` but is not directly emitted. Emitting only the visualized flow is the behavior of the other function, `process_stream_optical_flow`."
+    },
+    {
+      "type": "highlight",
+      "description": "The `with_optical_flow` operator (lines 200–212) in `VideoOperators` mirrors `process_stream_optical_flow` using a functional approach: `scan`, `map flow`, `filter None`, and `map to visualize_flow`.",
+      "file": "dimos/stream/video_operators.py",
+      "highlight": [
+        {
+          "start": 200,
+          "end": 212
+        }
+      ],
+      "title": "",
+      "id": "67664",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Agents can subscribe to these optical flow streams with visual data and relevancy scores to trigger behaviors like pausing on sudden movement, adjusting processing based on activity levels, or implementing motion-based controls in real-time video applications.",
+      "title": "",
+      "id": "67665"
+    }
+  ]
+}

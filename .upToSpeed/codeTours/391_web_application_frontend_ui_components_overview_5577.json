@@ -1,0 +1,85 @@
+{
+  "title": "39.1: Web Application: Frontend UI Components: Overview",
+  "id": "DcvP44d4ogl9XpruHHN8wexkGPyxyzprRiZfZDl4CGU=",
+  "originalId": 5577,
+  "position": 156,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour will provide an overview of the four main UI components that make up the web-based terminal interface.",
+      "title": "",
+      "id": "69315"
+    },
+    {
+      "type": "highlight",
+      "description": "First, `Input.svelte` is the core component for handling user input. It features an `<input>` element that captures commands and a `handleKeyDown` function to process them.",
+      "file": "dimos/web/dimos_interface/src/components/Input.svelte",
+      "highlight": [
+        {
+          "start": 91,
+          "end": 105
+        }
+      ],
+      "title": "",
+      "id": "69316",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Next, `History.svelte` is responsible for displaying the list of previously executed commands and their outputs. It iterates through the `$history` store and renders each command and its corresponding output.",
+      "file": "dimos/web/dimos_interface/src/components/History.svelte",
+      "highlight": [
+        {
+          "start": 7,
+          "end": 25
+        }
+      ],
+      "title": "",
+      "id": "69317",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Ps1.svelte` component's role is to render the command prompt. It uses the hostname and a predefined theme to create the familiar `user@hostname:~$` prompt.",
+      "file": "dimos/web/dimos_interface/src/components/Ps1.svelte",
+      "highlight": [
+        {
+          "start": 6,
+          "end": 11
+        }
+      ],
+      "title": "",
+      "id": "69318",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, `StreamViewer.svelte` displays the robot's video streams. It dynamically creates a grid of video feeds that adapts to the number of available streams and includes error handling for robust streaming.",
+      "file": "dimos/web/dimos_interface/src/components/StreamViewer.svelte",
+      "highlight": [
+        {
+          "start": 88,
+          "end": 113
+        }
+      ],
+      "title": "",
+      "id": "69319",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the component interactions, which statement best describes how the command prompt is rendered for historical commands?\n\nOptions:\n\n A). `Input.svelte` is responsible for rendering the prompt for both the active command line and all historical entries.\n\nB). `Ps1.svelte` is a presentational component, but `History.svelte` is responsible for invoking it within the history list.\n\nC). `Ps1.svelte` independently monitors the history store and renders a new prompt for each entry added.\n\nD). `StreamViewer.svelte` includes logic to render the correct prompt based on the robot's hostname.\n\n\nCorrect: B). `Ps1.svelte` is a presentational component, but `History.svelte` is responsible for invoking it within the history list.\n\nExplanation: This seems to be the right way to look at it. The `History.svelte` component is responsible for laying out the historical entries. As it loops through each command, it uses the `<Ps1 />` component to render the prompt part. `Ps1.svelte` itself just knows how to draw one prompt; `History.svelte` is what places it correctly within the list of past commands. The other components have different jobs: `Input.svelte` handles the live command line, and `StreamViewer.svelte` manages video feeds.",
+      "title": "",
+      "id": "69320",
+      "text": "Based on the component interactions, which statement best describes how the command prompt is rendered for historical commands?",
+      "answers": [
+        "`Input.svelte` is responsible for rendering the prompt for both the active command line and all historical entries.",
+        "`Ps1.svelte` is a presentational component, but `History.svelte` is responsible for invoking it within the history list.",
+        "`Ps1.svelte` independently monitors the history store and renders a new prompt for each entry added.",
+        "`StreamViewer.svelte` includes logic to render the correct prompt based on the robot's hostname."
+      ],
+      "correct": 1,
+      "explanation": "This seems to be the right way to look at it. The `History.svelte` component is responsible for laying out the historical entries. As it loops through each command, it uses the `<Ps1 />` component to render the prompt part. `Ps1.svelte` itself just knows how to draw one prompt; `History.svelte` is what places it correctly within the list of past commands. The other components have different jobs: `Input.svelte` handles the live command line, and `StreamViewer.svelte` manages video feeds."
+    }
+  ]
+}

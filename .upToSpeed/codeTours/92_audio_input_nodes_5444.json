@@ -1,0 +1,229 @@
+{
+  "title": "9.2: Audio Input Nodes",
+  "id": "whvfvmr58Fx3xHn6Eyp/xW7oWBgpBfC88055uPj+ztI=",
+  "originalId": 5444,
+  "position": 30,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough explores the three main audio input nodes in the **DIMOS system**, each serving different purposes for capturing and feeding audio into processing pipelines.",
+      "title": "",
+      "id": "67633"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/stream/audio/base.py"
+      ],
+      "description": "First, let's look at the foundation - the **base classes** that define the audio processing architecture. All **audio nodes** inherit from these **abstract classes**, ensuring consistent interfaces throughout the system.",
+      "title": "",
+      "id": "67634",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `AudioEvent` class is the data structure that flows through the system. It wraps audio data with metadata like sample rate, timestamp, and channel count. This information is used for audio processing.",
+      "file": "dimos/stream/audio/base.py",
+      "highlight": [
+        {
+          "start": 44,
+          "end": 64
+        }
+      ],
+      "title": "",
+      "id": "67635",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/stream/audio/node_microphone.py"
+      ],
+      "description": "Now let's examine the `SounddeviceAudioSource` - the primary way to capture real-time audio from physical microphones. This node uses the `sounddevice` library to interface with system audio devices.",
+      "title": "",
+      "id": "67636",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **constructor** configures audio capture parameters. Notice how it accepts `device selection`, `sample rate`, `channels`, `block size`, and `data type` - giving precise control over audio acquisition.",
+      "file": "dimos/stream/audio/node_microphone.py",
+      "highlight": [
+        {
+          "start": 21,
+          "end": 47
+        }
+      ],
+      "title": "",
+      "id": "67637",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The heart of the microphone node is the `emit_audio` method. It creates a reactive observable that starts a sounddevice input stream. The callback function on lines 58-70 processes each audio chunk and wraps it in an `AudioEvent` before emitting it downstream.",
+      "file": "dimos/stream/audio/node_microphone.py",
+      "highlight": [
+        {
+          "start": 56,
+          "end": 83
+        }
+      ],
+      "title": "",
+      "id": "67638",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Proper resource cleanup is handled through the disposable pattern. When the observable is disposed, it stops and closes the audio stream, preventing resource leaks.",
+      "file": "dimos/stream/audio/node_microphone.py",
+      "highlight": [
+        {
+          "start": 95,
+          "end": 103
+        }
+      ],
+      "title": "",
+      "id": "67639",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/stream/audio/node_key_recorder.py"
+      ],
+      "description": "Next is the `KeyRecorder` - a more sophisticated audio input that records only when a key is pressed. This provides user-controlled audio capture, useful for voice commands or dictation.",
+      "title": "",
+      "id": "67640",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `KeyRecorder` constructor sets up recording parameters and starts a background thread to monitor keyboard input. The `always_subscribe` parameter controls whether it maintains a continuous connection to the audio source or connects only during recording.",
+      "file": "dimos/stream/audio/node_key_recorder.py",
+      "highlight": [
+        {
+          "start": 24,
+          "end": 57
+        }
+      ],
+      "title": "",
+      "id": "67641",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The input monitoring uses `select.select` to check for stdin input without blocking. When Enter is pressed, it toggles between starting and stopping recording, providing responsive user control without requiring external libraries.",
+      "file": "dimos/stream/audio/node_key_recorder.py",
+      "highlight": [
+        {
+          "start": 120,
+          "end": 135
+        }
+      ],
+      "title": "",
+      "id": "67642",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Recording initiation involves subscribing to the audio source (if not already subscribed) and setting up the recording state. The buffer is cleared and timing begins for the new recording session.",
+      "file": "dimos/stream/audio/node_key_recorder.py",
+      "highlight": [
+        {
+          "start": 137,
+          "end": 156
+        }
+      ],
+      "title": "",
+      "id": "67643",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "When recording stops, the accumulated audio events are combined into a single recording. This method handles different audio shapes (mono vs. multichannel) and filters out empty or invalid events before concatenating the audio data.",
+      "file": "dimos/stream/audio/node_key_recorder.py",
+      "highlight": [
+        {
+          "start": 201,
+          "end": 240
+        }
+      ],
+      "title": "",
+      "id": "67644",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/stream/audio/node_simulated.py"
+      ],
+      "description": "Finally, we have the `SimulatedAudioSource` - a testing and development tool that generates synthetic audio. This is invaluable for debugging pipelines without requiring physical hardware.",
+      "title": "",
+      "id": "67645",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The simulator offers extensive customization: different waveforms (sine, square, triangle, sawtooth), frequency modulation, and volume oscillation. These parameters create rich test signals that can exercise different parts of audio processing pipelines.",
+      "file": "dimos/stream/audio/node_simulated.py",
+      "highlight": [
+        {
+          "start": 18,
+          "end": 57
+        }
+      ],
+      "title": "",
+      "id": "67646",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Waveform generation supports multiple types beyond basic sine waves. The square, triangle, and sawtooth options provide different harmonic content, useful for testing how pipelines handle various audio characteristics.",
+      "file": "dimos/stream/audio/node_simulated.py",
+      "highlight": [
+        {
+          "start": 77,
+          "end": 99
+        }
+      ],
+      "title": "",
+      "id": "67647",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The audio generation runs in a separate thread to simulate real-time behavior. It calculates precise timing for each frame and sleeps appropriately to maintain the target frame rate, creating realistic audio streaming conditions.",
+      "file": "dimos/stream/audio/node_simulated.py",
+      "highlight": [
+        {
+          "start": 136,
+          "end": 166
+        }
+      ],
+      "title": "",
+      "id": "67648",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "These three audio input nodes provide comprehensive coverage for different use cases: **real-time microphone capture** for live audio, **user-controlled recording** for interactive applications, and **synthetic audio generation** for testing and development.",
+      "title": "",
+      "id": "67649"
+    },
+    {
+      "type": "mcq",
+      "description": "A developer needs to write a **unit test** for a new audio transform. The test must be fully automated, run in a **CI/CD pipeline** where no **physical microphone** is present, and produce a consistent, predictable audio signal to verify the transform's logic. Which approach is most appropriate for this scenario?\n\nOptions:\n\n A). Use `SounddeviceAudioSource` to capture audio from a virtual microphone device in the CI runner.\n\nB). Use `SimulatedAudioSource` to generate a predictable waveform.\n\nC). Use `KeyRecorder` to programmatically trigger a short, silent recording for the test.\n\nD). Manually construct an `AudioEvent` with a NumPy array of zeros.\n\n\nCorrect: B). Use `SimulatedAudioSource` to generate a predictable waveform.\n\nExplanation: `SimulatedAudioSource` is the correct choice because it is designed to generate predictable, synthetic audio signals without requiring any physical hardware. This makes it ideal for creating reproducible, automated unit tests in a CI/CD environment. `SounddeviceAudioSource` requires hardware and is not reproducible. `KeyRecorder` requires user interaction and an upstream source. Manually creating a single `AudioEvent` is possible but `SimulatedAudioSource` is the component designed to stream test data.",
+      "title": "",
+      "id": "67650",
+      "text": "A developer needs to write a **unit test** for a new audio transform. The test must be fully automated, run in a **CI/CD pipeline** where no **physical microphone** is present, and produce a consistent, predictable audio signal to verify the transform's logic. Which approach is most appropriate for this scenario?",
+      "answers": [
+        "Use `SounddeviceAudioSource` to capture audio from a virtual microphone device in the CI runner.",
+        "Use `SimulatedAudioSource` to generate a predictable waveform.",
+        "Use `KeyRecorder` to programmatically trigger a short, silent recording for the test.",
+        "Manually construct an `AudioEvent` with a NumPy array of zeros."
+      ],
+      "correct": 1,
+      "explanation": "`SimulatedAudioSource` is the correct choice because it is designed to generate predictable, synthetic audio signals without requiring any physical hardware. This makes it ideal for creating reproducible, automated unit tests in a CI/CD environment. `SounddeviceAudioSource` requires hardware and is not reproducible. `KeyRecorder` requires user interaction and an upstream source. Manually creating a single `AudioEvent` is possible but `SimulatedAudioSource` is the component designed to stream test data."
+    }
+  ]
+}

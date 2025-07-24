@@ -1,0 +1,188 @@
+{
+  "title": "13.4: Continuous Monitoring Skills",
+  "id": "qj3qWNvYipyAr5nBVVDnXJLBsnNimGGN8EILZOFZ6Qc=",
+  "originalId": 5460,
+  "position": 48,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to this walkthrough of the `ObserveStream` skill! This tour will guide you through implementing a long-running `Observable`-based skill that integrates video streams with AI agents for continuous monitoring and perception.",
+      "title": "",
+      "id": "68613"
+    },
+    {
+      "type": "highlight",
+      "description": "The `ObserveStream` class extends `AbstractRobotSkill` to create a skill for continuous video monitoring. Notice the detailed docstring at lines 40-46 explaining its non-halting behavior and use cases for passive monitoring like waiting for people or environmental changes.",
+      "file": "dimos/skills/observe_stream.py",
+      "highlight": [
+        {
+          "start": 39,
+          "end": 46
+        }
+      ],
+      "title": "",
+      "id": "68614",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Three key configuration fields control the observation behavior: `timestep` sets the interval between observations (60 seconds default), `query_text` defines what to ask the AI agent, and `max_duration` optionally limits runtime (0 means indefinite).",
+      "file": "dimos/skills/observe_stream.py",
+      "highlight": [
+        {
+          "start": 48,
+          "end": 52
+        }
+      ],
+      "title": "",
+      "id": "68615",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__` method establishes the skill's core dependencies. The `agent` parameter at line 63 provides the AI capability, while internal state variables like `_stop_event` (line 64) and `_subscription` (line 67) manage the reactive stream lifecycle. The video stream is obtained from the robot at line 71.",
+      "file": "dimos/skills/observe_stream.py",
+      "highlight": [
+        {
+          "start": 53,
+          "end": 74
+        }
+      ],
+      "title": "",
+      "id": "68616",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__call__` method transforms the skill from configuration to active monitoring. After calling the parent class method at line 83, it validates dependencies and prepares to start the reactive observation process using `RxPY`.",
+      "file": "dimos/skills/observe_stream.py",
+      "highlight": [
+        {
+          "start": 76,
+          "end": 83
+        }
+      ],
+      "title": "",
+      "id": "68617",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Registration as a running skill at line 114 allows the robot's skill system to track and manage this long-running process. The `subscription object` enables proper cleanup when needed.",
+      "file": "dimos/skills/observe_stream.py",
+      "highlight": [
+        {
+          "start": 114,
+          "end": 114
+        }
+      ],
+      "title": "",
+      "id": "68618",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's the reactive programming core: `rx.interval` creates a timer that emits every `timestep` seconds on line 102. The `take_while` operator at line 103 provides clean shutdown control by checking the `_stop_event`. Lines 107-111 set up the subscription with proper error handling and completion callbacks.",
+      "file": "dimos/skills/observe_stream.py",
+      "highlight": [
+        {
+          "start": 102,
+          "end": 111
+        }
+      ],
+      "title": "",
+      "id": "68619",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`_monitor_iteration` executes for each timer event. Lines 127-132 implement duration limiting (if `max_duration` > 0), line 137 gets a frame from the video stream, and lines 139-142 process the frame if available. The iteration parameter comes from `RxPY`'s interval operator.",
+      "file": "dimos/skills/observe_stream.py",
+      "highlight": [
+        {
+          "start": 119,
+          "end": 145
+        }
+      ],
+      "title": "",
+      "id": "68620",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`_get_frame_from_stream` demonstrates extracting a single frame from a continuous video stream. It returns a single frame or **None** if unavailable, setting up the infrastructure for synchronous frame capture from an asynchronous stream.",
+      "file": "dimos/skills/observe_stream.py",
+      "highlight": [
+        {
+          "start": 147,
+          "end": 156
+        }
+      ],
+      "title": "",
+      "id": "68621",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The frame capture implementation uses `RxPY`'s `take(1)` at line 162 to get just one frame. Lines 168-178 implement a timeout mechanism that prevents hanging - it polls for 5 seconds waiting for a frame, combining reactive streams with traditional polling for robustness.",
+      "file": "dimos/skills/observe_stream.py",
+      "highlight": [
+        {
+          "start": 157,
+          "end": 182
+        }
+      ],
+      "title": "",
+      "id": "68622",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`_process_frame` shows the AI integration pattern. Line 194 uses `cv2.imencode` to convert the frame to JPEG format, line 195 encodes it as base64 for transmission. Lines 197-201 call the agent's `run_observable_query` method to process the image with the configured query text asynchronously.",
+      "file": "dimos/skills/observe_stream.py",
+      "highlight": [
+        {
+          "start": 184,
+          "end": 209
+        }
+      ],
+      "title": "",
+      "id": "68623",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `stop` method provides graceful shutdown. Line 221 checks if a subscription exists and isn't disposed, line 223 sets the stop event, and line 224 calls `dispose()` on the subscription. This ensures proper resource cleanup and prevents memory leaks in long-running applications.",
+      "file": "dimos/skills/observe_stream.py",
+      "highlight": [
+        {
+          "start": 214,
+          "end": 228
+        }
+      ],
+      "title": "",
+      "id": "68624",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the `stop()` method, both `self._stop_event.set()` and `self._subscription.dispose()` are used to terminate the monitoring process. What is the functional difference between these two actions?\n\nOptions:\n\n A). `_stop_event.set()` is redundant; `_subscription.dispose()` is the only call needed to stop the stream.\n\nB). `_stop_event.set()` signals the `take_while` operator to complete the stream gracefully, while `_subscription.dispose()` immediately terminates the subscription to prevent further processing and release resources.\n\nC). `_subscription.dispose()` triggers the `on_completed` callback, while `_stop_event.set()` is a fallback mechanism to handle cases where the subscription fails to dispose.\n\n\nCorrect: B). `_stop_event.set()` signals the `take_while` operator to complete the stream gracefully, while `_subscription.dispose()` immediately terminates the subscription to prevent further processing and release resources.\n\nExplanation: The correct answer accurately describes the distinct roles of the two calls. `_stop_event.set()` acts as a flag for the `take_while` operator, allowing the reactive stream to follow its designed completion path. `_subscription.dispose()` is a more direct command from the RxPY library that immediately severs the subscription, ensuring that no more events are processed and associated resources are freed. Using both provides a robust and immediate shutdown.",
+      "title": "",
+      "id": "68626",
+      "text": "In the `stop()` method, both `self._stop_event.set()` and `self._subscription.dispose()` are used to terminate the monitoring process. What is the functional difference between these two actions?",
+      "answers": [
+        "`_stop_event.set()` is redundant; `_subscription.dispose()` is the only call needed to stop the stream.",
+        "`_stop_event.set()` signals the `take_while` operator to complete the stream gracefully, while `_subscription.dispose()` immediately terminates the subscription to prevent further processing and release resources.",
+        "`_subscription.dispose()` triggers the `on_completed` callback, while `_stop_event.set()` is a fallback mechanism to handle cases where the subscription fails to dispose."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer accurately describes the distinct roles of the two calls. `_stop_event.set()` acts as a flag for the `take_while` operator, allowing the reactive stream to follow its designed completion path. `_subscription.dispose()` is a more direct command from the RxPY library that immediately severs the subscription, ensuring that no more events are processed and associated resources are freed. Using both provides a robust and immediate shutdown."
+    },
+    {
+      "type": "textOnly",
+      "description": "You now understand how to implement a long-running `Observable`-based skill that integrates video streams with AI agents. The key patterns are: **reactive streams for timing**, **proper resource management**, **asynchronous frame processing**, and **graceful shutdown mechanisms**.",
+      "title": "",
+      "id": "68625"
+    }
+  ]
+}

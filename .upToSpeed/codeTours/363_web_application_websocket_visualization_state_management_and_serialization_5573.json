@@ -1,0 +1,199 @@
+{
+  "title": "36.3: Web Application: Websocket Visualization: State Management & Serialization",
+  "id": "oNERxRbYnSXwn9AF45nJW/AYsvR7afC7ZISsxkv+quo=",
+  "originalId": 5573,
+  "position": 138,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to a tour of the `WebSocket` visualization system's **state management** and **drawable serialization**. This system enables real-time visualization of robotics data by streaming `Python objects` to web clients. We'll explore how **state patches** are efficiently merged, **broadcast to clients**, and how `Python objects` are converted to `JSON`-compatible data for web rendering.",
+      "title": "",
+      "id": "69273"
+    },
+    {
+      "type": "highlight",
+      "description": "The `deep_merge` utility function performs recursive dictionary merging to handle state patches. Instead of replacing entire state objects, it selectively updates only the changed fields while preserving nested structures. Notice on line 72 how it explicitly states that lists are replaced, not merged - this prevents array concatenation issues in real-time data streams.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 68,
+          "end": 81
+        }
+      ],
+      "title": "",
+      "id": "69274",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `update_state` function orchestrates state broadcasting. It applies patches using `deep_merge` (line 88) to update the global state, then broadcasts only the incremental changes via `state_update` events (line 90). This approach minimizes network traffic - clients receive only what changed, not the entire state.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 85,
+          "end": 90
+        }
+      ],
+      "title": "",
+      "id": "69275",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's how the system connects to reactive streams. The `connect` method subscribes to `Observable` streams of drawable objects. When new data arrives (line 156), it processes the drawable and updates state using the nested structure `{\\\"draw\\\": {name: processed_drawable}}`. This creates a clean separation between different visualization channels.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 149,
+          "end": 163
+        }
+      ],
+      "title": "",
+      "id": "69276",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `process_drawable` method handles Python object serialization. It checks if the drawable is a **tuple** (object + configuration) or standalone object, then calls the appropriate `serialize()` method. **Tuples** return both the serialized object and its drawing configuration as a **list**, enabling flexible styling options.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 141,
+          "end": 147
+        }
+      ],
+      "title": "",
+      "id": "69277",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/web/websocket_vis/types.py"
+      ],
+      "description": "Now let's examine the type system that defines drawable objects and their configurations. This establishes the contract between Python objects and their visual representation, ensuring type safety and clear documentation of rendering options.",
+      "title": "",
+      "id": "69278",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "These **TypedDict classes** define optional drawing configurations for each drawable type. The `total=False` parameter makes all fields optional, allowing flexible customization of visual properties. Notice how each type has specific rendering options - vectors have width and style, paths can have fill options, and costmaps support colormaps and opacity.",
+      "file": "dimos/web/websocket_vis/types.py",
+      "highlight": [
+        {
+          "start": 8,
+          "end": 25
+        }
+      ],
+      "title": "",
+      "id": "69279",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Drawable` union type defines what can be visualized. It supports both standalone objects (`Vector`, `Path`, `Costmap`) and tuples pairing objects with draw configurations. This design maintains clean separation between data and presentation while allowing optional styling through the tuple pattern.",
+      "file": "dimos/web/websocket_vis/types.py",
+      "highlight": [
+        {
+          "start": 27,
+          "end": 34
+        }
+      ],
+      "title": "",
+      "id": "69280",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on `process_drawable` and the `Drawable` type, how does the system process a `Drawable` provided as a `Tuple[Vector, VectorDrawConfig]`?\n\nOptions:\n\n A). It merges the `VectorDrawConfig` into the serialized `Vector` data, returning a single dictionary.\n\nB). It returns a list containing two elements: the serialized `Vector` object and the `VectorDrawConfig` dictionary.\n\nC). It returns only the serialized `Vector` data, as the configuration is handled separately on the client side.\n\nD). It returns a dictionary with 'object' and 'config' keys pointing to the serialized vector and its configuration.\n\n\nCorrect: B). It returns a list containing two elements: the serialized `Vector` object and the `VectorDrawConfig` dictionary.\n\nExplanation: The correct answer is based on lines 143-145 in `server.py`. The `process_drawable` function explicitly checks if the `drawable` is a tuple. If it is, it unpacks the object and its configuration, then returns them as a two-element list: `[obj.serialize(), config]`. The other options describe plausible but incorrect implementations.",
+      "title": "",
+      "id": "69287",
+      "text": "Based on `process_drawable` and the `Drawable` type, how does the system process a `Drawable` provided as a `Tuple[Vector, VectorDrawConfig]`?",
+      "answers": [
+        "It merges the `VectorDrawConfig` into the serialized `Vector` data, returning a single dictionary.",
+        "It returns a list containing two elements: the serialized `Vector` object and the `VectorDrawConfig` dictionary.",
+        "It returns only the serialized `Vector` data, as the configuration is handled separately on the client side.",
+        "It returns a dictionary with 'object' and 'config' keys pointing to the serialized vector and its configuration."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is based on lines 143-145 in `server.py`. The `process_drawable` function explicitly checks if the `drawable` is a tuple. If it is, it unpacks the object and its configuration, then returns them as a two-element list: `[obj.serialize(), config]`. The other options describe plausible but incorrect implementations."
+    },
+    {
+      "type": "highlight",
+      "description": "Here's what the `serialize()` method returns for `Vector` objects. It creates a dictionary with a type identifier and the coordinate data as a list. This JSON-compatible format enables transmission over `WebSocket` connections while preserving all necessary geometric information.",
+      "file": "dimos/types/vector.py",
+      "highlight": [
+        {
+          "start": 114,
+          "end": 116
+        }
+      ],
+      "title": "",
+      "id": "69281",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Path serialization follows the same pattern, returning a type-tagged dictionary with the points array. The `tolist()` method converts `NumPy` arrays to standard Python lists, ensuring JSON compatibility for web transmission.",
+      "file": "dimos/types/path.py",
+      "highlight": [
+        {
+          "start": 57,
+          "end": 62
+        }
+      ],
+      "title": "",
+      "id": "69282",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Costmap serialization** is more complex, including the grid data, spatial origin, resolution, and orientation. Notice how it calls `encode_ndarray()` for the grid data and recursively serializes the origin `Vector`. This preserves all spatial information needed for accurate rendering.",
+      "file": "dimos/types/costmap.py",
+      "highlight": [
+        {
+          "start": 64,
+          "end": 72
+        }
+      ],
+      "title": "",
+      "id": "69283",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "On the client side, the state update process mirrors the server. Incoming drawable data is decoded from `JSON` back to `TypeScript` objects (line 79), then merged into `client state` using the same **deep merge pattern**. This maintains consistency between `server` and `client state` representations.",
+      "file": "dimos/web/websocket_vis/clientside/init.ts",
+      "highlight": [
+        {
+          "start": 74,
+          "end": 87
+        }
+      ],
+      "title": "",
+      "id": "69284",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The client-side decoder reverses the serialization process, using type tags to determine which decoder to apply. Each drawable type has a corresponding `decode()` static method that reconstructs the **TypeScript** objects from JSON data, completing the serialization round-trip.",
+      "file": "dimos/web/websocket_vis/clientside/decoder.ts",
+      "highlight": [
+        {
+          "start": 4,
+          "end": 20
+        }
+      ],
+      "title": "",
+      "id": "69285",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This visualization system separates concerns across several key functions: `deep_merge` handles incremental state updates, `update_state` manages broadcasting, `process_drawable` handles serialization, and the type system ensures consistency. Together, they enable real-time streaming of complex robotics data from Python to web browsers, supporting interactive visualization of robot perception, planning, and control systems.",
+      "title": "",
+      "id": "69286"
+    }
+  ]
+}

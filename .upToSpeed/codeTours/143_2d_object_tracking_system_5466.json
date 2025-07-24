@@ -1,0 +1,271 @@
+{
+  "title": "14.3: 2D Object Tracking System",
+  "id": "t4+7OZ/F7AoGp5TvvFtb3f6L4S9q7a/3EgBoFiw/h3U=",
+  "originalId": 5466,
+  "position": 52,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to this walkthrough of the `detection2d_tracker.py` file! I'll guide you through how individual objects are tracked using the `target2d` class, then explain how the `target2dTracker` class manages multiple targets across frames.\n\nLet's start with understanding how individual tracked objects are represented.",
+      "title": "",
+      "id": "67846"
+    },
+    {
+      "type": "highlight",
+      "description": "The `target2d` class represents a single tracked object. It maintains the latest detection data along with a rolling history of key metrics like probabilities and texture values.",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 56,
+          "end": 61
+        }
+      ],
+      "title": "",
+      "id": "67847",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The constructor initializes the target with its first detection. On lines 81-82, it uses `deque` containers with `maxlen=history_size` to store a fixed-length history of probabilities and texture values. This provides a rolling-window mechanism by automatically discarding the oldest entries as new ones are added. The `target_id` is a unique identifier assigned by the tracker, separate from the detection's `track_id`.",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 62,
+          "end": 87
+        }
+      ],
+      "title": "",
+      "id": "67848",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "When a new detection is matched to this target, the `update` method refreshes its state. Line 97-98 show how new probability and texture values are appended to the history deques, while line 100 marks this frame as `\"seen\"` in the frame count history.",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 88,
+          "end": 102
+        }
+      ],
+      "title": "",
+      "id": "67849",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "When no detection is matched in a frame, `mark_missed` increments the consecutive missed frames counter. Line 108 appends a `0` to the frame count history, indicating the target wasn't seen this frame. This history of seen and missed frames is used to track **target reliability**.",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 103,
+          "end": 109
+        }
+      ],
+      "title": "",
+      "id": "67850",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Now let's examine the sophisticated scoring system that determines target quality and reliability.",
+      "title": "",
+      "id": "67851"
+    },
+    {
+      "type": "highlight",
+      "description": "The `compute_score` method calculates a comprehensive quality score based on five factors: detection probability, temporal stability, texture quality, border proximity, and object size. This score drives decisions about publishing and removing targets.",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 110,
+          "end": 134
+        }
+      ],
+      "title": "",
+      "id": "67852",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The first three scoring factors are computed here:\n- **Detection probability** (`line 146`): Average of recent detection probabilities\n- **Temporal stability** (`line 148`): How consistently the target appears (mean of `frame_count`)\n- **Texture quality** (`lines 150-156`): Average texture normalized to `[0,1]` range using the provided `texture_range`",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 145,
+          "end": 157
+        }
+      ],
+      "title": "",
+      "id": "67853",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The remaining two factors focus on spatial characteristics:\n- **Border proximity** (lines 158-164): Penalizes objects too close to image edges, with full score (1.0) when at least `border_safe_distance` pixels away\n- **Size factor** (lines 166-176): Penalizes objects outside the acceptable size range defined by `min_area_ratio` and `max_area_ratio`",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 158,
+          "end": 177
+        }
+      ],
+      "title": "",
+      "id": "67854",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "All factors are combined using a weighted sum (lines 188-192). Each factor can have a custom weight, and the final score is normalized by the total weight. Line 194 stores this computed score in `self.score` for later use.",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 178,
+          "end": 196
+        }
+      ],
+      "title": "",
+      "id": "67855",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Now let's explore the `target2dTracker` class that manages multiple targets across frames.",
+      "title": "",
+      "id": "67856"
+    },
+    {
+      "type": "highlight",
+      "description": "The `target2dTracker` manages multiple `target2d` objects across frames. It uses sophisticated scoring to incorporate detection probability, temporal stability, texture quality, border proximity, and object size. Targets are published when they exceed quality thresholds and removed when they fall below them.",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 198,
+          "end": 213
+        }
+      ],
+      "title": "",
+      "id": "67857",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The tracker initialization sets up key parameters:\n- Scoring thresholds (`score_threshold_start`, `score_threshold_stop`) control when targets are published/removed\n- `max_missed_frames` limits how long a target can go undetected\n- Size constraints (`min_area_ratio`, `max_area_ratio`) define acceptable object sizes\n- Line 250 initializes the `targets` dictionary that maps `target_id` to `target2d` instances",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 214,
+          "end": 252
+        }
+      ],
+      "title": "",
+      "id": "67858",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `update` method is the core tracking logic. It processes new detections from the current frame and attempts to match them with existing targets. The method returns a list of published targets that meet quality criteria.",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 253,
+          "end": 272
+        }
+      ],
+      "title": "",
+      "id": "67859",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Detection matching uses a two-step approach:\n1. **Track ID matching** (lines 278-282): First tries to find targets with matching `track_id` - the most reliable method\n2. **IoU matching** (lines 285-291): Falls back to spatial overlap, matching with the target having highest IoU above 0.5 threshold",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 274,
+          "end": 292
+        }
+      ],
+      "title": "",
+      "id": "67860",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "After matching, the tracker either updates an existing target (line 295) or creates a new one (lines 298-301). Each new target gets a unique `target_id` from `self.next_target_id`, which is then incremented. The `updated_target_ids` set tracks which targets were matched this frame.",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 293,
+          "end": 302
+        }
+      ],
+      "title": "",
+      "id": "67861",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Cleanup phase handles unmatched targets:\n- Targets not updated this frame are marked as missed (line 306)\n- Targets exceeding `max_missed_frames` are deleted (lines 307-309)\n- Targets with scores below `score_threshold_stop` are also removed (lines 315-316)\nThis prevents accumulation of stale or low-quality tracks.",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 303,
+          "end": 317
+        }
+      ],
+      "title": "",
+      "id": "67862",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "During the cleanup phase of the `target2dTracker.update` method, a target is evaluated for removal. Under which condition will an existing target be definitively removed from `self.targets`?\n\nOptions:\n\n A). Its `missed_frames` count becomes equal to the `max_missed_frames` threshold.\n\nB). Its computed score falls below `score_threshold_stop`, even if it was updated in the current frame.\n\nC). It is not matched by a new detection, causing its score to drop below `score_threshold_start`.\n\nD). It is only removed if it is missed in the current frame AND its score is below `score_threshold_stop`.\n\n\nCorrect: B). Its computed score falls below `score_threshold_stop`, even if it was updated in the current frame.\n\nExplanation: A target is removed if its score falls below `score_threshold_stop`. As seen on lines 311-316, this check is performed for every target that wasn't already removed for exceeding `max_missed_frames`. A target can be updated with a new detection but still be removed if its overall quality score is too low. The `missed_frames` check on line 307 uses `>` not `==`. The `score_threshold_start` is for publishing, not removal.",
+      "title": "",
+      "id": "67866",
+      "text": "During the cleanup phase of the `target2dTracker.update` method, a target is evaluated for removal. Under which condition will an existing target be definitively removed from `self.targets`?",
+      "answers": [
+        "Its `missed_frames` count becomes equal to the `max_missed_frames` threshold.",
+        "Its computed score falls below `score_threshold_stop`, even if it was updated in the current frame.",
+        "It is not matched by a new detection, causing its score to drop below `score_threshold_start`.",
+        "It is only removed if it is missed in the current frame AND its score is below `score_threshold_stop`."
+      ],
+      "correct": 1,
+      "explanation": "A target is removed if its score falls below `score_threshold_stop`. As seen on lines 311-316, this check is performed for every target that wasn't already removed for exceeding `max_missed_frames`. A target can be updated with a new detection but still be removed if its overall quality score is too low. The `missed_frames` check on line 307 uses `>` not `==`. The `score_threshold_start` is for publishing, not removal."
+    },
+    {
+      "type": "highlight",
+      "description": "The final publishing step determines which targets represent reliable tracking results. A target is published if:\n- Its score exceeds `score_threshold_start` (line 325)\n- It has been seen for at least `min_frame_count` frames (line 326)\n- It hasn't been missed too recently (line 327)\nThese published targets are the high-confidence tracking output.",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 318,
+          "end": 330
+        }
+      ],
+      "title": "",
+      "id": "67863",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `get_tracked_results` helper function extracts usable data from published targets. It returns tuples of masks, bounding boxes, track IDs, scores, and names - making it easy to consume the tracking results in downstream applications.",
+      "file": "dimos/perception/common/detection2d_tracker.py",
+      "highlight": [
+        {
+          "start": 23,
+          "end": 52
+        }
+      ],
+      "title": "",
+      "id": "67864",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This completes our tour of the **detection tracker**! We've seen how individual objects are represented with history management and scoring, how multiple targets are managed across frames with the matching logic, and how the scoring system balances multiple quality factors to determine the final tracking results.",
+      "title": "",
+      "id": "67865"
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "title": "36.2: Web Application: Websocket Visualization: Server Setup & Flow",
+  "id": "gc06bDxDAGA/QgnSADus1/Z3tGmH/FLjQ73Yvz75Ht0=",
+  "originalId": 5572,
+  "position": 137,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to this walkthrough of the WebSocket visualization server architecture. We'll explore how the server assembles its core components, handles client connections, and manages different execution modes for development and production use.",
+      "title": "",
+      "id": "69239"
+    },
+    {
+      "type": "highlight",
+      "description": "The server begins by creating a global `AsyncServer` instance with `CORS` support (line 25), then assembles a `Starlette` `ASGI` application with routing (lines 28-29) and static file serving (lines 32-33). Finally, it wraps everything into a single ASGI app using `socketio.ASGIApp` (line 36), creating a unified interface that handles both HTTP requests and WebSocket connections.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 24,
+          "end": 36
+        }
+      ],
+      "title": "",
+      "id": "69240",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The server maintains a global state dictionary that tracks the current status and number of connected clients. This shared state enables coordination between different parts of the application and provides a foundation for broadcasting updates to all connected clients.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 38,
+          "end": 42
+        }
+      ],
+      "title": "",
+      "id": "69241",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **connect event handler** demonstrates the **session management pattern**. When a client connects, it increments the `connected_clients` counter (line 47) and immediately sends the complete current state to the new client using **room-specific emission** (line 48). This ensures new clients receive the full application state upon connection.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 44,
+          "end": 49
+        }
+      ],
+      "title": "",
+      "id": "69242",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The disconnect handler provides the complementary cleanup logic, decrementing the client counter when a client leaves. This maintains accurate session tracking for the application's monitoring and state management needs.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 51,
+          "end": 55
+        }
+      ],
+      "title": "",
+      "id": "69243",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `message handler` acts as a bridge between client communications and the `WebsocketVis` instance. It extracts the `message type` (line 62) and forwards the complete message to the `vis_instance`'s `handle_message` method (line 63). This design allows for flexible message processing while maintaining clean separation of concerns.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 57,
+          "end": 64
+        }
+      ],
+      "title": "",
+      "id": "69244",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `WebsocketVis.start()` method offers two distinct execution modes. Hot-reload mode (lines 115-123) runs in the main thread and uses `uvicorn`'s string-based app import to enable automatic code reloading during development. This mode blocks the calling thread but provides immediate feedback on code changes.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 113,
+          "end": 124
+        }
+      ],
+      "title": "",
+      "id": "69245",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Background-thread mode** (lines 127-138) creates a daemon thread to run the server, allowing the main application to continue executing. It uses the direct `app` object reference (line 132) rather than a **string import**, which is suitable for production deployments where hot-reload isn't needed.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 126,
+          "end": 139
+        }
+      ],
+      "title": "",
+      "id": "69246",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In `WebsocketVis.start()`, why does the hot-reload mode use an import string (`\"server:app\"`) for `uvicorn.run`, while the background-thread mode uses the direct `app` object?\n\nOptions:\n\n A). The background thread requires a direct object reference to become a `daemon` process.\n\nB). The import string allows `uvicorn`'s reloader to re-import the module when files change, which is not possible with a direct object reference.\n\nC). The `host` and `port` can only be configured correctly when using the import string.\n\nD). The direct `app` object is more memory-efficient and intended only for production use.\n\n\nCorrect: B). The import string allows `uvicorn`'s reloader to re-import the module when files change, which is not possible with a direct object reference.\n\nExplanation: This is correct. The hot-reload feature in `uvicorn` needs to know the module path to monitor files and re-import the application when changes are detected. Passing the direct object reference is fine when you don't need reloading, like in the background thread mode.",
+      "title": "",
+      "id": "69271",
+      "text": "In `WebsocketVis.start()`, why does the hot-reload mode use an import string (`\"server:app\"`) for `uvicorn.run`, while the background-thread mode uses the direct `app` object?",
+      "answers": [
+        "The background thread requires a direct object reference to become a `daemon` process.",
+        "The import string allows `uvicorn`'s reloader to re-import the module when files change, which is not possible with a direct object reference.",
+        "The `host` and `port` can only be configured correctly when using the import string.",
+        "The direct `app` object is more memory-efficient and intended only for production use."
+      ],
+      "correct": 1,
+      "explanation": "This is correct. The hot-reload feature in `uvicorn` needs to know the module path to monitor files and re-import the application when changes are detected. Passing the direct object reference is fine when you don't need reloading, like in the background thread mode."
+    },
+    {
+      "type": "textOnly",
+      "description": "**Example: Connect Event Flow**\n\nWhen a client connects:\n1. The `connect` handler receives the session ID\n2. It updates `main_state['connected_clients']` by incrementing the count\n3. The `update_state` function performs a deep merge of the new data\n4. A `full_state` event is emitted specifically to the connecting client's room\n5. The client receives the complete current application state immediately upon connection\n\nThis pattern ensures that new clients are instantly synchronized with the current application state, providing a consistent user experience regardless of when they join the session.",
+      "title": "",
+      "id": "69247"
+    }
+  ]
+}

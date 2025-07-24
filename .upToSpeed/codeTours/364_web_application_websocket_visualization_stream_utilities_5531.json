@@ -1,0 +1,171 @@
+{
+  "title": "36.4: Web Application: Websocket Visualization: Stream Utilities",
+  "id": "kPI4Z91WRwz5tBa+tjVRMk2OrhABHU3uTYlbE1SUyNE=",
+  "originalId": 5531,
+  "position": 139,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Let's explore how `RxPY` powers the visualization system in this robotics codebase. We'll see how robot components can emit visualization data through reactive streams that feed into a `WebSocket` server for real-time display.",
+      "title": "",
+      "id": "68718"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/web/websocket_vis/helpers.py"
+      ],
+      "description": "The `helpers.py` file contains two key components: the **Visualizable** base class that enables components to emit visualization data, and the `vector_stream` function that creates reactive streams using `RxPY` operators.",
+      "title": "",
+      "id": "68719",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Visualizable` base class provides a simple interface for robot components to emit visualization data. Line 23 initializes an `RxPY` Subject (both observable and observer). The `vis()` method (line 26) pushes named drawable objects into that Subject via `on_next()` (line 29).",
+      "file": "dimos/web/websocket_vis/helpers.py",
+      "highlight": [
+        {
+          "start": 16,
+          "end": 30
+        }
+      ],
+      "title": "",
+      "id": "68720",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Robot components inherit from `Visualizable`. The `Planner` class extends `Visualizable`, giving it access to the `vis()` method for emitting visualization data.",
+      "file": "dimos/robot/global_planner/planner.py",
+      "highlight": [
+        {
+          "start": 30,
+          "end": 32
+        }
+      ],
+      "title": "",
+      "id": "68721",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "In practice, the planner calls `self.vis()` to emit visualization elements: the `costmap` (line 59), the `target goal` (line 60), and the computed **A*** path (line 66). Each call pushes a (name, drawable) tuple into the reactive stream.",
+      "file": "dimos/robot/global_planner/planner.py",
+      "highlight": [
+        {
+          "start": 59,
+          "end": 66
+        }
+      ],
+      "title": "",
+      "id": "68722",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `vector_stream` function builds a reactive pipeline for tracking moving objects. It starts on line 35 by creating an observable that emits ticks at regular intervals. These ticks then enter a pipe of **RxPY** operators.",
+      "file": "dimos/web/websocket_vis/helpers.py",
+      "highlight": [
+        {
+          "start": 32,
+          "end": 35
+        }
+      ],
+      "title": "",
+      "id": "68723",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "First, `map()` calls the `pos()` function to sample the current `Vector` each tick. Then `distinct_until_changed()` filters out small movements using a comparer that checks if the distance between consecutive positions is under the precision threshold.",
+      "file": "dimos/web/websocket_vis/helpers.py",
+      "highlight": [
+        {
+          "start": 35,
+          "end": 39
+        }
+      ],
+      "title": "",
+      "id": "68724",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Next, `scan()` maintains a rolling history of positions. Starting with an empty `Path()` seed (line 42), it accumulates new positions using `ipush()` and trims the tail to the desired history length via `iclip_tail()` (line 41).",
+      "file": "dimos/web/websocket_vis/helpers.py",
+      "highlight": [
+        {
+          "start": 40,
+          "end": 43
+        }
+      ],
+      "title": "",
+      "id": "68725",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the `vector_stream` pipeline, what is the primary role of the `ops.scan` operator?\n\nOptions:\n\n A). It filters out consecutive `Vector`s that are too close together.\n\nB). It splits each incoming `Path` into two separate `(name, drawable)` emissions.\n\nC). It accumulates a stateful `Path` of recent positions from the stream of individual `Vector`s.\n\nD). It samples the current `Vector` position at each time interval.\n\n\nCorrect: C). It accumulates a stateful `Path` of recent positions from the stream of individual `Vector`s.\n\nExplanation: The `ops.scan` operator is used for stateful accumulation. It starts with a `seed` value (an empty `Path`) and applies an accumulator function to each item, building up a history. Filtering is done by `ops.distinct_until_changed`, splitting one emission into multiple is done by `ops.flat_map`, and sampling the position is done by the initial `ops.map` operator.",
+      "title": "",
+      "id": "68738",
+      "text": "In the `vector_stream` pipeline, what is the primary role of the `ops.scan` operator?",
+      "answers": [
+        "It filters out consecutive `Vector`s that are too close together.",
+        "It splits each incoming `Path` into two separate `(name, drawable)` emissions.",
+        "It accumulates a stateful `Path` of recent positions from the stream of individual `Vector`s.",
+        "It samples the current `Vector` position at each time interval."
+      ],
+      "correct": 2,
+      "explanation": "The `ops.scan` operator is used for stateful accumulation. It starts with a `seed` value (an empty `Path`) and applies an accumulator function to each item, building up a history. Filtering is done by `ops.distinct_until_changed`, splitting one emission into multiple is done by `ops.flat_map`, and sampling the position is done by the initial `ops.map` operator."
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, `flat_map()` transforms each `Path` into two emissions: the history trail (`\"name_hst\"`) and the current position (`\"name\"`). `rx.from_()` flattens this list into successive `on_next` calls.",
+      "file": "dimos/web/websocket_vis/helpers.py",
+      "highlight": [
+        {
+          "start": 44,
+          "end": 45
+        }
+      ],
+      "title": "",
+      "id": "68726",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Streams produced by `Visualizable.vis_stream()` or `vector_stream` feed into `WebsocketVis.connect()`. It subscribes to the observable (line 159) and defines `new_update` (lines 155–157) to process each (name, drawable) tuple, merging it into the shared state under the `\"draw\"` key.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 150,
+          "end": 163
+        }
+      ],
+      "title": "",
+      "id": "68727",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `process_drawable` method serializes drawable objects. If the drawable is a `tuple` of (object, config), it serializes both; otherwise it calls `serialize()` on the drawable itself.",
+      "file": "dimos/web/websocket_vis/server.py",
+      "highlight": [
+        {
+          "start": 142,
+          "end": 148
+        }
+      ],
+      "title": "",
+      "id": "68728",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This reactive architecture delivers a real-time visualization pipeline: robot components emit data via `vis()`, `vector_stream` applies `RxPY` transformations to sample, filter, and accumulate positions, and `WebsocketVis.connect()` consumes these streams to broadcast updates to web clients.",
+      "title": "",
+      "id": "68729"
+    }
+  ]
+}

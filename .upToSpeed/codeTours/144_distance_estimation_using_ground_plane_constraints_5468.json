@@ -1,0 +1,203 @@
+{
+  "title": "14.4: Distance Estimation Using Ground Plane Constraints",
+  "id": "VqiLi7YzsYT6cKXS+9Y3EjEBFymga3aFlix8RRy4+gE=",
+  "originalId": 5468,
+  "position": 53,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough explores the `ibvs.py` file, which provides two complementary approaches for estimating distance and angle to objects in images. We'll examine the geometric calculations, coordinate transformations, and practical applications of both **PersonDistanceEstimator** and **ObjectDistanceEstimator** classes.",
+      "title": "",
+      "id": "68627"
+    },
+    {
+      "type": "highlight",
+      "description": "`PersonDistanceEstimator` uses ground plane geometry for distance estimation. The constructor accepts camera intrinsics `K`, camera pitch angle, and camera height above ground. `Line 19` pre-computes the inverse intrinsic matrix `K_inv`, which will be used to project 2D image points into 3D rays.",
+      "file": "dimos/perception/common/ibvs.py",
+      "highlight": [
+        {
+          "start": 3,
+          "end": 19
+        }
+      ],
+      "title": "",
+      "id": "68628",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Two critical coordinate transformations are defined here. `Matrix T` (lines 22-24) converts from camera coordinates (Z-forward, Y-down) to robot coordinates (X-forward, Z-up). The pitch rotation matrix `R_pitch` (lines 28-32) accounts for the camera's upward or downward tilt angle, with the **negative sign** on line 27 ensuring correct rotation direction.",
+      "file": "dimos/perception/common/ibvs.py",
+      "highlight": [
+        {
+          "start": 21,
+          "end": 32
+        }
+      ],
+      "title": "",
+      "id": "68629",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The transformation matrices are combined into matrix `A` (line `35`), which performs both coordinate frame conversion and pitch correction in one operation. The focal length `fx` and principal point `cx` are extracted for later angle calculations.",
+      "file": "dimos/perception/common/ibvs.py",
+      "highlight": [
+        {
+          "start": 34,
+          "end": 39
+        }
+      ],
+      "title": "",
+      "id": "68630",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The distance estimation begins by identifying the ground contact point. Lines 57-59 extract the `center-bottom` of the `bounding box` as the feet position, assuming `y_max` represents where the person touches the ground. Line 63 projects this `2D point` into a `3D ray direction` using the inverse camera matrix.",
+      "file": "dimos/perception/common/ibvs.py",
+      "highlight": [
+        {
+          "start": 55,
+          "end": 63
+        }
+      ],
+      "title": "",
+      "id": "68631",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Dynamic pitch correction handles robot body tilt. When `robot_pitch` is provided, lines 68-75 recalculate the **transformation matrix** combining both camera pitch and `robot_pitch`. Line 81 transforms the ray from camera coordinates to robot coordinates using the appropriate **transformation matrix**.",
+      "file": "dimos/perception/common/ibvs.py",
+      "highlight": [
+        {
+          "start": 66,
+          "end": 81
+        }
+      ],
+      "title": "",
+      "id": "68632",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The core geometric calculation finds where the 3D ray intersects the ground plane (Z=0). **Line 89** solves for scaling factor `t` using the formula `t = -camera_height / ray_z_component`. This tells us how far along the ray to travel to reach ground level. **Line 92** calculates the 3D intersection point, and **Line 95** transforms it back to camera coordinates to extract depth.",
+      "file": "dimos/perception/common/ibvs.py",
+      "highlight": [
+        {
+          "start": 83,
+          "end": 98
+        }
+      ],
+      "title": "",
+      "id": "68633",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The final calculations extract depth from the Z-component of the camera-frame intersection point (line 98) and compute horizontal angle using arctangent of the `pixel offset` from `image center` divided by `focal length` (line 101). This provides both distance and angular direction to the object.",
+      "file": "dimos/perception/common/ibvs.py",
+      "highlight": [
+        {
+          "start": 100,
+          "end": 103
+        }
+      ],
+      "title": "",
+      "id": "68634",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`ObjectDistanceEstimator` takes a different approach based on known object sizes. The initialization is nearly identical, setting up the same coordinate transformations. However, it stores both `fx` and `fy` focal lengths (lines 147-148) since it needs vertical pixel measurements for size calculations, and initializes `estimated_object_size` to None.",
+      "file": "dimos/perception/common/ibvs.py",
+      "highlight": [
+        {
+          "start": 106,
+          "end": 150
+        }
+      ],
+      "title": "",
+      "id": "68635",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `estimate_object_size` method performs calibration. Given a bounding box and known distance, line **167** calculates pixel height, and line **170** applies the pinhole camera formula: `physical_size = pixel_height * distance / focal_length_y`. This calibrated size is stored in `self.estimated_object_size` for future distance estimations.",
+      "file": "dimos/perception/common/ibvs.py",
+      "highlight": [
+        {
+          "start": 152,
+          "end": 173
+        }
+      ],
+      "title": "",
+      "id": "68636",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`ObjectDistanceEstimator`'s distance estimation reverses the calibration calculation. Lines 203-204 return None if no object size is known. Line 213 measures current pixel height, and line 214 applies the **inverse formula**: `depth = physical_size * focal_length_y / pixel_height`. The angle calculation (line 217) remains identical to `PersonDistanceEstimator`.",
+      "file": "dimos/perception/common/ibvs.py",
+      "highlight": [
+        {
+          "start": 184,
+          "end": 219
+        }
+      ],
+      "title": "",
+      "id": "68637",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The example demonstrates practical workflow. Lines 225-227 define camera intrinsics with 600-pixel focal length. Lines 233-234 initialize both estimators. The key workflow: line 239 uses `PersonDistanceEstimator` for ground-truth distance, line 241 calibrates `ObjectDistanceEstimator` with this distance, and line 242 shows both methods producing consistent results.",
+      "file": "dimos/perception/common/ibvs.py",
+      "highlight": [
+        {
+          "start": 223,
+          "end": 242
+        }
+      ],
+      "title": "",
+      "id": "68638",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Sensitivity analysis shrinks the bounding box (lines 256-264) and re-estimates distances. This reveals different sensitivities: `PersonDistanceEstimator` primarily depends on `y_max` (feet position) for ground plane intersection, while `ObjectDistanceEstimator` depends on overall pixel height for size-based calculation. The different results highlight each method's underlying assumptions.",
+      "file": "dimos/perception/common/ibvs.py",
+      "highlight": [
+        {
+          "start": 249,
+          "end": 273
+        }
+      ],
+      "title": "",
+      "id": "68639",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "If a bounding box is detected 20 pixels higher than its actual position in the image, but its pixel height remains the same, how would this error impact the two estimators?\n\nOptions:\n\n A). `PersonDistanceEstimator` would calculate a larger distance, while `ObjectDistanceEstimator`'s calculation would remain unchanged.\n\nB). `ObjectDistanceEstimator` would calculate a larger distance, while `PersonDistanceEstimator`'s calculation would remain unchanged.\n\nC). Both estimators would calculate a larger distance.\n\nD). Both estimators' calculations would remain unchanged.\n\n\nCorrect: A). `PersonDistanceEstimator` would calculate a larger distance, while `ObjectDistanceEstimator`'s calculation would remain unchanged.\n\nExplanation: `PersonDistanceEstimator` uses the `y_max` coordinate (line 59) to define the ground contact point. Shifting the box up decreases `y_max`, causing the projected ray to intersect the ground plane further away, thus increasing the estimated distance. `ObjectDistanceEstimator` uses the pixel height (`y_max - y_min`) (line 213). Since a vertical shift does not change the box's height, its distance estimate is unaffected.",
+      "title": "",
+      "id": "68641",
+      "text": "If a bounding box is detected 20 pixels higher than its actual position in the image, but its pixel height remains the same, how would this error impact the two estimators?",
+      "answers": [
+        "`PersonDistanceEstimator` would calculate a larger distance, while `ObjectDistanceEstimator`'s calculation would remain unchanged.",
+        "`ObjectDistanceEstimator` would calculate a larger distance, while `PersonDistanceEstimator`'s calculation would remain unchanged.",
+        "Both estimators would calculate a larger distance.",
+        "Both estimators' calculations would remain unchanged."
+      ],
+      "correct": 0,
+      "explanation": "`PersonDistanceEstimator` uses the `y_max` coordinate (line 59) to define the ground contact point. Shifting the box up decreases `y_max`, causing the projected ray to intersect the ground plane further away, thus increasing the estimated distance. `ObjectDistanceEstimator` uses the pixel height (`y_max - y_min`) (line 213). Since a vertical shift does not change the box's height, its distance estimate is unaffected."
+    },
+    {
+      "type": "textOnly",
+      "description": "`PersonDistanceEstimator` operates on objects assumed to be on the ground plane, using geometric constraints that focus on ground contact points. In contrast, `ObjectDistanceEstimator` can be used for any object with known dimensions. The example demonstrates a workflow: using ground-plane estimation for initial calibration, then leveraging size-based estimation for ongoing tracking and recognition tasks.",
+      "title": "",
+      "id": "68640"
+    }
+  ]
+}

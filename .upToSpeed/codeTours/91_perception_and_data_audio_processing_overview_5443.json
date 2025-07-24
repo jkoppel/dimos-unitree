@@ -1,0 +1,284 @@
+{
+  "title": "9.1: Perception & Data: Audio Processing Overview",
+  "id": "IcpYq7CJp8LbHyUpzg7cTbyrnfKxniRs8s53OIDp+ac=",
+  "originalId": 5443,
+  "position": 29,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to a walkthrough of the audio processing capabilities in the `DimOS codebase`.\n\nWe'll explore the fundamental building blocks of the **audio pipeline**, from capturing input to generating output, including the AI-powered features for **speech-to-text** and **text-to-speech**.",
+      "title": "",
+      "id": "68542"
+    },
+    {
+      "type": "highlight",
+      "description": "All audio processing in DimOS is built on three **core abstract classes**. The `AbstractAudioEmitter` provides audio data, defining the interface for components that generate audio streams.",
+      "file": "dimos/stream/audio/base.py",
+      "highlight": [
+        {
+          "start": 6,
+          "end": 16
+        }
+      ],
+      "title": "",
+      "id": "68543",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `AbstractAudioConsumer` receives and processes audio data. It defines how components accept audio input from other parts of the pipeline.",
+      "file": "dimos/stream/audio/base.py",
+      "highlight": [
+        {
+          "start": 19,
+          "end": 32
+        }
+      ],
+      "title": "",
+      "id": "68544",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `AbstractAudioTransform` combines both capabilities\u001fconsuming audio from one source and emitting processed audio to the next stage in the pipeline.",
+      "file": "dimos/stream/audio/base.py",
+      "highlight": [
+        {
+          "start": 35,
+          "end": 41
+        }
+      ],
+      "title": "",
+      "id": "68545",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Suppose we need to build a new `node` that applies an `echo effect`. This `node` would take an `audio stream` as input, add the echo, and then make the modified stream available for other nodes to use. Which `base class` would be the most suitable starting point for this component?\n\nOptions:\n\n A). AbstractAudioEmitter\n\nB). AbstractAudioConsumer\n\nC). AbstractAudioTransform\n\n\nCorrect: C). AbstractAudioTransform\n\nExplanation: The correct answer is `AbstractAudioTransform`. This class is designed for components that both consume and emit audio, which is what a node applying an echo effect would do. It receives audio (consume), modifies it, and then passes it along (emit). `AbstractAudioEmitter` is only for sources, like a microphone, and `AbstractAudioConsumer` is only for sinks, like writing to a file without passing the data on.",
+      "title": "",
+      "id": "68565",
+      "text": "Suppose we need to build a new `node` that applies an `echo effect`. This `node` would take an `audio stream` as input, add the echo, and then make the modified stream available for other nodes to use. Which `base class` would be the most suitable starting point for this component?",
+      "answers": [
+        "AbstractAudioEmitter",
+        "AbstractAudioConsumer",
+        "AbstractAudioTransform"
+      ],
+      "correct": 2,
+      "explanation": "The correct answer is `AbstractAudioTransform`. This class is designed for components that both consume and emit audio, which is what a node applying an echo effect would do. It receives audio (consume), modifies it, and then passes it along (emit). `AbstractAudioEmitter` is only for sources, like a microphone, and `AbstractAudioConsumer` is only for sinks, like writing to a file without passing the data on."
+    },
+    {
+      "type": "highlight",
+      "description": "Audio data flows through the system as `AudioEvent` objects. Each event contains raw audio data as a `numpy` array, along with metadata like sample rate, timestamp, and channel information.",
+      "file": "dimos/stream/audio/base.py",
+      "highlight": [
+        {
+          "start": 44,
+          "end": 64
+        }
+      ],
+      "title": "",
+      "id": "68546",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Files in `dimos/stream/audio/` directory:\n**__init__.py**\n`base.py`\n`node_key_recorder.py`\n`node_microphone.py`\n`node_normalizer.py`\n`node_output.py`\n`node_simulated.py`\n`node_volume_monitor.py`\n`pipelines.py`\n`stt/`\n`text/`\n`tts/`\n`utils.py`\n`volume.py`\n\nThese files are organized into categories such as **input**, **processing**, **STT**, **TTS**, **output**, **text**, and **utilities**.",
+      "title": "",
+      "id": "68547"
+    },
+    {
+      "type": "highlight",
+      "description": "Input nodes capture audio from various sources. The `SounddeviceAudioSource` uses the `sounddevice` library to record from the system microphone with configurable sample rate, channels, and block size.",
+      "file": "dimos/stream/audio/node_microphone.py",
+      "highlight": [
+        {
+          "start": 18,
+          "end": 28
+        }
+      ],
+      "title": "",
+      "id": "68548",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Inside `emit_audio`, the node creates `AudioEvent` objects (lines 63–68) and emits them on each audio callback, turning raw samples into structured events.",
+      "file": "dimos/stream/audio/node_microphone.py",
+      "highlight": [
+        {
+          "start": 62,
+          "end": 70
+        }
+      ],
+      "title": "",
+      "id": "68549",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Processing nodes transform audio data. `AudioNormalizer` dynamically rescales audio frames to a target volume, tracking the maximum volume and adapting gain.",
+      "file": "dimos/stream/audio/node_normalizer.py",
+      "highlight": [
+        {
+          "start": 21,
+          "end": 36
+        }
+      ],
+      "title": "",
+      "id": "68550",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "In `_normalize_audio`, the node computes the current volume (line `76`), updates the decaying maximum (line `79`), calculates ideal gain, and smoothly adapts the gain (lines `91`–`93`) before applying and clipping the result.",
+      "file": "dimos/stream/audio/node_normalizer.py",
+      "highlight": [
+        {
+          "start": 75,
+          "end": 96
+        }
+      ],
+      "title": "",
+      "id": "68551",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "STT nodes convert audio to text. `WhisperNode` loads an OpenAI Whisper model during initialization (line 28) and prepares to consume `AudioEvent` streams.",
+      "file": "dimos/stream/audio/stt/node_whisper.py",
+      "highlight": [
+        {
+          "start": 16,
+          "end": 28
+        }
+      ],
+      "title": "",
+      "id": "68552",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `on_audio_event` callback flattens the audio array (line 60), passes it to `model.transcribe`, and emits the cleaned text (line 62) via the observer.",
+      "file": "dimos/stream/audio/stt/node_whisper.py",
+      "highlight": [
+        {
+          "start": 57,
+          "end": 65
+        }
+      ],
+      "title": "",
+      "id": "68553",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "TTS nodes convert text to speech. `OpenAITTSNode` implements both text consumption and audio emission, configured with a voice, model, and speed.",
+      "file": "dimos/stream/audio/tts/node_openai.py",
+      "highlight": [
+        {
+          "start": 33,
+          "end": 49
+        }
+      ],
+      "title": "",
+      "id": "68554",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "During synthesis, the node calls the **OpenAI API** (lines 155–157) and reads the returned audio file via `soundfile` (lines 164–168) to extract samples and sample rate.",
+      "file": "dimos/stream/audio/tts/node_openai.py",
+      "highlight": [
+        {
+          "start": 154,
+          "end": 168
+        }
+      ],
+      "title": "",
+      "id": "68555",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "It then wraps the `numpy` array in an `AudioEvent` (lines 176–181) with fixed 24 kHz sample rate and channel count before emitting it.",
+      "file": "dimos/stream/audio/tts/node_openai.py",
+      "highlight": [
+        {
+          "start": 175,
+          "end": 183
+        }
+      ],
+      "title": "",
+      "id": "68556",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Output nodes play audio. `SounddeviceAudioOutput` uses a sounddevice `OutputStream` and implements `AbstractAudioTransform` to optionally pass audio through.",
+      "file": "dimos/stream/audio/node_output.py",
+      "highlight": [
+        {
+          "start": 15,
+          "end": 31
+        }
+      ],
+      "title": "",
+      "id": "68557",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Playback logic ensures the event’s `dtype` matches the `stream` (lines 128–132) before writing samples to the audio device.",
+      "file": "dimos/stream/audio/node_output.py",
+      "highlight": [
+        {
+          "start": 127,
+          "end": 135
+        }
+      ],
+      "title": "",
+      "id": "68558",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Pipelines assemble nodes into workflows. Although the plan mentioned a `create_audio_pipeline` function, the code defines two explicit pipeline functions.",
+      "title": "",
+      "id": "68559"
+    },
+    {
+      "type": "highlight",
+      "description": "`stt()` creates a speech-to-text pipeline: microphone → normalizer → key recorder → `Whisper` transcription, with volume monitoring and text printing.",
+      "file": "dimos/stream/audio/pipelines.py",
+      "highlight": [
+        {
+          "start": 11,
+          "end": 27
+        }
+      ],
+      "title": "",
+      "id": "68560",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`tts()` creates a text-to-speech pipeline: `OpenAI TTS` → text printer → audio output, configured for **ONYX** voice at 1.2× speed.",
+      "file": "dimos/stream/audio/pipelines.py",
+      "highlight": [
+        {
+          "start": 30,
+          "end": 38
+        }
+      ],
+      "title": "",
+      "id": "68561",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This modular, reactive design, powered by `RxPY` observables and AI models, makes **DimOS** a flexible platform for building advanced audio applications\u00151whether capturing, processing, recognizing, or generating speech.",
+      "title": "",
+      "id": "68562"
+    }
+  ]
+}

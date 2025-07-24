@@ -1,0 +1,167 @@
+{
+  "title": "33.5: The Planning Agent",
+  "id": "AIaH2hgxSvezpVFZb5XaqgcOS/VzvgZ8vIjBWKu54rc=",
+  "originalId": 5524,
+  "position": 126,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to the `PlanningAgent` walkthrough! We'll explore how this specialized agent breaks down complex user tasks into executable steps for other agents.",
+      "title": "",
+      "id": "68600"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/planning_agent.py"
+      ],
+      "description": "The `PlanningAgent` is defined in this file. Unlike other agents that directly execute tasks, the `PlanningAgent`'s primary role is to understand complex user requests and break them down into concrete, sequential steps.",
+      "title": "",
+      "id": "68601",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `PlanningAgent` class extends `OpenAIAgent` and is specifically designed for task decomposition. Notice how its **docstring** emphasizes dialogue, breaking tasks into steps, and streaming to `ExecutionAgents` - it's built for **agent chaining**.",
+      "file": "dimos/agents/planning_agent.py",
+      "highlight": [
+        {
+          "start": 36,
+          "end": 48
+        }
+      ],
+      "title": "",
+      "id": "68602",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's the system prompt that transforms the language model into a planning assistant. This detailed prompt enforces structured JSON output with two response types: `dialogue` for conversation and `plan` for step lists. Lines `85-91` show the required **JSON schema**.",
+      "file": "dimos/agents/planning_agent.py",
+      "highlight": [
+        {
+          "start": 76,
+          "end": 113
+        }
+      ],
+      "title": "",
+      "id": "68603",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `PlanningAgentResponse` model validates the structured output format. The `content` field can hold either a single dialogue message or a list of executable steps, while `needs_confirmation` indicates if user approval is required.",
+      "file": "dimos/agents/planning_agent.py",
+      "highlight": [
+        {
+          "start": 31,
+          "end": 35
+        }
+      ],
+      "title": "",
+      "id": "68604",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `process_user_input` method orchestrates the planning workflow. Lines 211-223 show how it detects plan confirmations (`'yes'`, `'y'`, `'confirm'`) and triggers **step streaming**. This is where user dialogue transitions into executable output.",
+      "file": "dimos/agents/planning_agent.py",
+      "highlight": [
+        {
+          "start": 202,
+          "end": 223
+        }
+      ],
+      "title": "",
+      "id": "68605",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "When a plan is confirmed, `_stream_plan()` emits each step individually through the `response_subject` (line 173). The small delays between steps and the final `on_completed()` call ensure proper streaming for downstream agents.",
+      "file": "dimos/agents/planning_agent.py",
+      "highlight": [
+        {
+          "start": 163,
+          "end": 179
+        }
+      ],
+      "title": "",
+      "id": "68606",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `get_response_observable` method is the heart of agent chaining. Lines 314-316 show how it processes responses, extracts content, and flattens plan steps into individual emissions. This **Observable** becomes the input stream for the next agent.",
+      "file": "dimos/agents/planning_agent.py",
+      "highlight": [
+        {
+          "start": 291,
+          "end": 317
+        }
+      ],
+      "title": "",
+      "id": "68607",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "When a `PlanningAgent` proposes a three-step plan, what does the `get_response_observable()` method emit to a subscribing agent?\n\nOptions:\n\n A). A single JSON object representing the `PlanningAgentResponse`.\n\nB). A single Python list object containing the three plan steps as strings.\n\nC). Three separate string emissions, with each emission containing one step of the plan.\n\nD). A single string containing all three plan steps concatenated together.\n\n\nCorrect: C). Three separate string emissions, with each emission containing one step of the plan.\n\nExplanation: The correct answer is that three separate string emissions are sent. The `get_response_observable` method is designed to prepare the `PlanningAgent`'s output for another agent. It uses `ops.map(extract_content)` to pull the list of plan steps from the `PlanningAgentResponse` object. Then, crucially, it uses `ops.flat_map` to take that list and emit each item individually. This ensures the consuming agent receives a stream of single, executable commands, not a single object or list it would have to parse itself.",
+      "title": "",
+      "id": "68612",
+      "text": "When a `PlanningAgent` proposes a three-step plan, what does the `get_response_observable()` method emit to a subscribing agent?",
+      "answers": [
+        "A single JSON object representing the `PlanningAgentResponse`.",
+        "A single Python list object containing the three plan steps as strings.",
+        "Three separate string emissions, with each emission containing one step of the plan.",
+        "A single string containing all three plan steps concatenated together."
+      ],
+      "correct": 2,
+      "explanation": "The correct answer is that three separate string emissions are sent. The `get_response_observable` method is designed to prepare the `PlanningAgent`'s output for another agent. It uses `ops.map(extract_content)` to pull the list of plan steps from the `PlanningAgentResponse` object. Then, crucially, it uses `ops.flat_map` to take that list and emit each item individually. This ensures the consuming agent receives a stream of single, executable commands, not a single object or list it would have to parse itself."
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "tests/test_planning_robot_agent.py"
+      ],
+      "description": "Now let's see the `PlanningAgent` in action. This `test file` demonstrates a complete agent chaining setup where a **planning agent** and **execution agent** work together.",
+      "title": "",
+      "id": "68608",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here's the `PlanningAgent` instantiation with robot skills. The `skills` parameter provides context about available robot actions, which the planner references when creating executable steps.",
+      "file": "tests/test_planning_robot_agent.py",
+      "highlight": [
+        {
+          "start": 68,
+          "end": 86
+        }
+      ],
+      "title": "",
+      "id": "68609",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "This is agent chaining in practice. Line 90 captures the planner's response observable, and line 104 feeds it directly into the `OpenAIAgent`'s `input_query_stream`. The `PlanningAgent`'s output becomes the `ExecutionAgent`'s input, forming a processing pipeline.",
+      "file": "tests/test_planning_robot_agent.py",
+      "highlight": [
+        {
+          "start": 88,
+          "end": 109
+        }
+      ],
+      "title": "",
+      "id": "68610",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "The `PlanningAgent` demonstrates the power of specialized agents working together. Through `RxPY` `Observables` and structured response formats, it transforms high-level user goals into executable steps for downstream agents, creating a modular and flexible AI system.",
+      "title": "",
+      "id": "68611"
+    }
+  ]
+}

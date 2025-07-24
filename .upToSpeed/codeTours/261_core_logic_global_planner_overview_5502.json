@@ -1,0 +1,223 @@
+{
+  "title": "26.1: Core Logic: Global Planner: Overview",
+  "id": "D6lBUajveBzTSPG8NYdrkHiLWlau1BmXu2IvEBlLOZY=",
+  "originalId": 5502,
+  "position": 95,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough explores the `Global Planner` component—a critical system for autonomous robot navigation that computes optimal collision-free paths through the environment.",
+      "title": "",
+      "id": "68365"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/robot/global_planner/planner.py"
+      ],
+      "description": "The `planner.py` file defines the high-level planner interface (**Planner**) and its concrete A* implementation (**AstarPlanner**).",
+      "title": "",
+      "id": "68366",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Planner` abstract base class establishes a contract for global planners. The `@abstractmethod` decorator on line 34 enforces that each concrete planner implements the `plan` method, enabling pluggable algorithms.",
+      "file": "dimos/robot/global_planner/planner.py",
+      "highlight": [
+        {
+          "start": 30,
+          "end": 35
+        }
+      ],
+      "title": "",
+      "id": "68367",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `set_goal` method orchestrates the planning workflow: convert the goal to a 2D vector, invoke `plan`, handle failures, and forward the resulting path to the local navigation system. The `stop_event` parameter allows for graceful interruption.",
+      "file": "dimos/robot/global_planner/planner.py",
+      "highlight": [
+        {
+          "start": 37,
+          "end": 45
+        }
+      ],
+      "title": "",
+      "id": "68368",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **`AstarPlanner`** **dataclass** injects dependencies via callbacks `get_costmap`, `get_robot_pos`, and `set_local_nav`. The `conservativism` parameter tunes obstacle inflation for safer paths.",
+      "file": "dimos/robot/global_planner/planner.py",
+      "highlight": [
+        {
+          "start": 48,
+          "end": 54
+        }
+      ],
+      "title": "",
+      "id": "68369",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "In `plan`, the robot’s current position and costmap (with inflated obstacles via `smudge`) are visualized. Line 62 calls `astar` to compute the path, which is then resampled on line 65 to 0.1 m intervals for smooth motion.",
+      "file": "dimos/robot/global_planner/planner.py",
+      "highlight": [
+        {
+          "start": 55,
+          "end": 63
+        }
+      ],
+      "title": "",
+      "id": "68370",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/robot/global_planner/algo.py"
+      ],
+      "description": "The `algo.py` file contains two core algorithms: `find_nearest_free_cell` for obstacle recovery and `astar` for path planning.",
+      "title": "",
+      "id": "68371",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `find_nearest_free_cell` function uses a **BFS** to locate the nearest grid cell whose cost is below a threshold (default 90), solving cases where the start or goal lies inside an obstacle.",
+      "file": "dimos/robot/global_planner/algo.py",
+      "highlight": [
+        {
+          "start": 10,
+          "end": 15
+        }
+      ],
+      "title": "",
+      "id": "68372",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **BFS** operates on an an `8-connected grid`: lines 43–46 define horizontal, vertical, and diagonal movements, ensuring nearest free cell discovery without revisiting nodes.",
+      "file": "dimos/robot/global_planner/algo.py",
+      "highlight": [
+        {
+          "start": 43,
+          "end": 46
+        }
+      ],
+      "title": "",
+      "id": "68373",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `astar` function signature (lines 73–79) shows configurable parameters: a costmap, start and goal vectors, `cost_threshold` for obstacles, and an `allow_diagonal` flag to control movement connectivity.",
+      "file": "dimos/robot/global_planner/algo.py",
+      "highlight": [
+        {
+          "start": 73,
+          "end": 79
+        }
+      ],
+      "title": "",
+      "id": "68374",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Before searching, lines 112–118 validate the start position. If invalid, `find_nearest_free_cell` is called (line 114) to adjust to the nearest valid free cell. This ensures the planner can begin from a valid location.",
+      "file": "dimos/robot/global_planner/algo.py",
+      "highlight": [
+        {
+          "start": 112,
+          "end": 118
+        }
+      ],
+      "title": "",
+      "id": "68375",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 126–130 perform analogous validation for the goal position, ensuring the pathfinding always runs on free cells.",
+      "file": "dimos/robot/global_planner/algo.py",
+      "highlight": [
+        {
+          "start": 126,
+          "end": 130
+        }
+      ],
+      "title": "",
+      "id": "68376",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The core A* loop uses a priority queue (`open_set`) and an admissible Euclidean heuristic (lines 167–168) to explore nodes by lowest `f_score`, guaranteeing optimal paths efficiently.",
+      "file": "dimos/robot/global_planner/algo.py",
+      "highlight": [
+        {
+          "start": 167,
+          "end": 173
+        }
+      ],
+      "title": "",
+      "id": "68377",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "An obstacle proximity penalty on line 229 increases `g_score` near obstacles, biasing the search toward safer routes that maintain clearance.",
+      "file": "dimos/robot/global_planner/algo.py",
+      "highlight": [
+        {
+          "start": 229,
+          "end": 231
+        }
+      ],
+      "title": "",
+      "id": "68378",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "If `AstarPlanner.plan()` is called with a goal coordinate that corresponds to a cell within an obstacle (cost >= `cost_threshold`), what is the expected behavior?\n\nOptions:\n\n A). The `plan` method will return `None`, as pathfinding to an occupied goal is not possible.\n\nB). The `astar` function will call `find_nearest_free_cell` to identify a reachable cell near the original goal and then compute a path to this adjusted target.\n\nC). A path will be generated directly to the obstacle, relying on the local navigation system to handle the final approach and potential collision.\n\nD). An `IndexError` will be raised when the `astar` function attempts to check the cost of the goal cell, which is out of bounds.\n\n\nCorrect: B). The `astar` function will call `find_nearest_free_cell` to identify a reachable cell near the original goal and then compute a path to this adjusted target.\n\nExplanation: The `astar` function in `algo.py` includes a validation step (lines 126-128) that checks if the goal is in an obstacle. If it is, the function calls `find_nearest_free_cell` to find a valid, reachable target nearby. The path is then planned to this adjusted goal, making the system more robust. The planner does not fail immediately or delegate obstacle handling to the local navigator in this scenario.",
+      "title": "",
+      "id": "68381",
+      "text": "If `AstarPlanner.plan()` is called with a goal coordinate that corresponds to a cell within an obstacle (cost >= `cost_threshold`), what is the expected behavior?",
+      "answers": [
+        "The `plan` method will return `None`, as pathfinding to an occupied goal is not possible.",
+        "The `astar` function will call `find_nearest_free_cell` to identify a reachable cell near the original goal and then compute a path to this adjusted target.",
+        "A path will be generated directly to the obstacle, relying on the local navigation system to handle the final approach and potential collision.",
+        "An `IndexError` will be raised when the `astar` function attempts to check the cost of the goal cell, which is out of bounds."
+      ],
+      "correct": 1,
+      "explanation": "The `astar` function in `algo.py` includes a validation step (lines 126-128) that checks if the goal is in an obstacle. If it is, the function calls `find_nearest_free_cell` to find a valid, reachable target nearby. The path is then planned to this adjusted goal, making the system more robust. The planner does not fail immediately or delegate obstacle handling to the local navigator in this scenario."
+    },
+    {
+      "type": "highlight",
+      "description": "On line 23, `planner.py` imports `astar` from `algo.py`, illustrating the separation between the high-level planner interface and algorithm implementations for modularity.",
+      "file": "dimos/robot/global_planner/planner.py",
+      "highlight": [
+        {
+          "start": 23,
+          "end": 23
+        }
+      ],
+      "title": "",
+      "id": "68379",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "By separating the abstract planner interface, concrete `A*` implementation, and recovery helpers, this design achieves **modularity, testability, and safety**.",
+      "title": "",
+      "id": "68380"
+    }
+  ]
+}

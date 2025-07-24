@@ -1,0 +1,102 @@
+{
+  "title": "29.1: Core Logic: Agent Tokenizers: Overview",
+  "id": "D65H5LDlT8BkZhJZiQBIDp3KF5XULgl/i+5K1/iJGyk=",
+  "originalId": 5517,
+  "position": 108,
+  "steps": [
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/tokenizer/__init__.py"
+      ],
+      "description": "The `dimos/agents/tokenizer` directory groups all tokenizer implementations under a simple package root. The empty `__init__.py` indicates no initialization logic is required.",
+      "title": "",
+      "id": "68526",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Tokenizers convert text and images into tokens to manage API costs, context windows, and memory constraints in robotics. `AbstractTokenizer` defines a pluggable interface: subclasses must implement `tokenize_text`, `detokenize_text`, `token_count`, and `image_token_count`, enabling flexible LLM backend swaps without changing agent logic.",
+      "file": "dimos/agents/tokenizer/base.py",
+      "highlight": [
+        {
+          "start": 24,
+          "end": 41
+        }
+      ],
+      "title": "",
+      "id": "68527",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`OpenAITokenizer` implements `AbstractTokenizer` for OpenAI models using the `tiktoken` library. The call to `encoding_for_model` on line 27 creates a model-specific encoder, ensuring token counts match OpenAI's own scheme for accurate cost estimation and context management. The `try...except` block handles initialization failures by raising a `ValueError` that includes the model name and the original error.",
+      "file": "dimos/agents/tokenizer/openai_tokenizer.py",
+      "highlight": [
+        {
+          "start": 19,
+          "end": 31
+        }
+      ],
+      "title": "",
+      "id": "68528",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`HuggingFaceTokenizer` implements `AbstractTokenizer` using **Hugging Face's** `AutoTokenizer`. This dynamic loader supports any HF model (defaulting to `\"Qwen/Qwen2.5-0.5B\"`), demonstrating the system's flexibility to work with multiple model providers via a shared interface.",
+      "file": "dimos/agents/tokenizer/huggingface_tokenizer.py",
+      "highlight": [
+        {
+          "start": 19,
+          "end": 31
+        }
+      ],
+      "title": "",
+      "id": "68529",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "In `OpenAIAgent`'s constructor, the tokenizer is injected via `tokenizer or OpenAITokenizer(model_name)`, defaulting to `OpenAITokenizer`. This dependency injection pattern keeps agent code agnostic to the tokenizer implementation while enabling configurability.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 762,
+          "end": 763
+        }
+      ],
+      "title": "",
+      "id": "68530",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `PromptBuilder` accepts a tokenizer on line 51, using it to count tokens and apply truncation strategies. This ensures built prompts respect model context windows and avoid costly API rejections.",
+      "file": "dimos/agents/prompt_builder/impl.py",
+      "highlight": [
+        {
+          "start": 51,
+          "end": 51
+        }
+      ],
+      "title": "",
+      "id": "68531",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Given the `AbstractTokenizer` interface and its implementations (`OpenAITokenizer`, `HuggingFaceTokenizer`), what is the primary architectural advantage of this design when a developer needs to switch from using an OpenAI model to a locally hosted Hugging Face model?\n\nOptions:\n\n A). It allows the underlying model provider to be changed by injecting a different tokenizer implementation, without requiring modifications to the `OpenAIAgent` or `PromptBuilder`.\n\nB). It standardizes the tokenization algorithm, ensuring text is converted into the exact same tokens regardless of whether `tiktoken` or `AutoTokenizer` is used.\n\nC). It optimizes performance by choosing the most efficient tokenizer library at runtime based on the model name specified in the agent.\n\n\nCorrect: A). It allows the underlying model provider to be changed by injecting a different tokenizer implementation, without requiring modifications to the `OpenAIAgent` or `PromptBuilder`.\n\nExplanation: The correct answer is the first option. The primary benefit of the `AbstractTokenizer` interface is that it decouples the agent and prompt builder from concrete tokenizer implementations. This allows developers to swap backends (e.g., from OpenAI to Hugging Face) by simply providing a different tokenizer that adheres to the abstract interface, without changing the agent's code. The other options are incorrect because different models use different tokenization schemes, so the tokens are not identical, and the tokenizer is selected at initialization, not dynamically at runtime for performance.",
+      "title": "",
+      "id": "68532",
+      "text": "Given the `AbstractTokenizer` interface and its implementations (`OpenAITokenizer`, `HuggingFaceTokenizer`), what is the primary architectural advantage of this design when a developer needs to switch from using an OpenAI model to a locally hosted Hugging Face model?",
+      "answers": [
+        "It allows the underlying model provider to be changed by injecting a different tokenizer implementation, without requiring modifications to the `OpenAIAgent` or `PromptBuilder`.",
+        "It standardizes the tokenization algorithm, ensuring text is converted into the exact same tokens regardless of whether `tiktoken` or `AutoTokenizer` is used.",
+        "It optimizes performance by choosing the most efficient tokenizer library at runtime based on the model name specified in the agent."
+      ],
+      "correct": 0,
+      "explanation": "The correct answer is the first option. The primary benefit of the `AbstractTokenizer` interface is that it decouples the agent and prompt builder from concrete tokenizer implementations. This allows developers to swap backends (e.g., from OpenAI to Hugging Face) by simply providing a different tokenizer that adheres to the abstract interface, without changing the agent's code. The other options are incorrect because different models use different tokenization schemes, so the tokens are not identical, and the tokenizer is selected at initialization, not dynamically at runtime for performance."
+    }
+  ]
+}

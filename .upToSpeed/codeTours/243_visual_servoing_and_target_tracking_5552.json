@@ -1,0 +1,215 @@
+{
+  "title": "24.3: Visual Servoing and Target Tracking",
+  "id": "XP8TJhUi5EU7Rgx3FRxFyr5ZYn1HEMaiFMZq7SdBkVM=",
+  "originalId": 5552,
+  "position": 87,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour walks through `VisualServoing` to show how it selects, tracks, and follows a human target using a PID-based control loop.",
+      "title": "",
+      "id": "69293"
+    },
+    {
+      "type": "highlight",
+      "description": "The `VisualServoing` class is initialized with parameters that define its core behavior. `tracking_stream` is an observable that emits detection results. Key tuning parameters include `desired_distance` (the target range), `max_linear_speed` and `max_angular_speed` for safety, `iou_threshold` for matching bounding boxes between frames, and `max_lost_frames` to determine when to abandon a lost target.",
+      "file": "dimos/perception/visual_servoing.py",
+      "highlight": [
+        {
+          "start": 51,
+          "end": 68
+        }
+      ],
+      "title": "",
+      "id": "69294",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The class uses two PID controllers\t6one for distance and one for angle\t6to generate smooth and responsive movements. The gains are tuned for tracking a slow-moving human, with integral limits to prevent windup and deadbands to avoid small, unnecessary adjustments. The `invert` parameter for the angle controller (line 91) is `True`, which is necessary because a positive angle error (target is to the right) requires a negative (clockwise) angular velocity to correct.",
+      "file": "dimos/perception/visual_servoing.py",
+      "highlight": [
+        {
+          "start": 70,
+          "end": 92
+        }
+      ],
+      "title": "",
+      "id": "69295",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "To receive detection data, the class subscribes to the `tracking_stream`. The subscription is initiated in the `__init__` method by calling `_subscribe_to_tracking_stream`.",
+      "file": "dimos/perception/visual_servoing.py",
+      "highlight": [
+        {
+          "start": 116,
+          "end": 118
+        }
+      ],
+      "title": "",
+      "id": "69296",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `_subscribe_to_tracking_stream` method sets up the subscription, linking the `_on_tracking_result` callback to handle incoming data from the stream.",
+      "file": "dimos/perception/visual_servoing.py",
+      "highlight": [
+        {
+          "start": 381,
+          "end": 397
+        }
+      ],
+      "title": "",
+      "id": "69297",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `_on_tracking_result` callback is where the `VisualServoing` class receives new tracking data. To prevent race conditions, it uses a `threading.Lock` (`self.result_lock`) to ensure that `self.latest_result` is updated in a thread-safe way, as this callback is executed in a separate thread by the `tracking_stream` observable.",
+      "file": "dimos/perception/visual_servoing.py",
+      "highlight": [
+        {
+          "start": 401,
+          "end": 416
+        }
+      ],
+      "title": "",
+      "id": "69298",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `start_tracking` method begins the tracking process. It includes a retry loop that calls `_get_current_tracking_result` to handle potential delays in the data stream. After finding a target, it computes the initial control command.",
+      "file": "dimos/perception/visual_servoing.py",
+      "highlight": [
+        {
+          "start": 119,
+          "end": 197
+        }
+      ],
+      "title": "",
+      "id": "69299",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "One strategy for target selection is `_find_target_by_point`, which identifies a person by checking if a given point is within their bounding box.",
+      "file": "dimos/perception/visual_servoing.py",
+      "highlight": [
+        {
+          "start": 202,
+          "end": 221
+        }
+      ],
+      "title": "",
+      "id": "69300",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Alternatively, `_find_closest_target` selects the person nearest to the robot based on distance estimates.",
+      "file": "dimos/perception/visual_servoing.py",
+      "highlight": [
+        {
+          "start": 357,
+          "end": 378
+        }
+      ],
+      "title": "",
+      "id": "69301",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `updateTracking` method forms the core of the tracking loop. It retrieves the latest detection result and tries to find the target, first by its ID and then by IOU if the ID is not found. If the target remains lost for more than `max_lost_frames`, the tracking is stopped. The method returns a dictionary containing the linear and angular velocities.",
+      "file": "dimos/perception/visual_servoing.py",
+      "highlight": [
+        {
+          "start": 223,
+          "end": 292
+        }
+      ],
+      "title": "",
+      "id": "69302",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`_find_best_target_by_iou` helps re-acquire a target if its ID changes. It finds the new bounding box that has the highest Intersection over **Union (IOU)** with the last known bounding box, provided the IOU is above the configured `iou_threshold`.",
+      "file": "dimos/perception/visual_servoing.py",
+      "highlight": [
+        {
+          "start": 328,
+          "end": 356
+        }
+      ],
+      "title": "",
+      "id": "69303",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the `updateTracking` method, if the current target is not found in a new frame (neither by ID nor IOU), what is the immediate consequence within that method call?\n\nOptions:\n\n A). The `stop_tracking()` method is called, halting the robot.\n\nB). The `target_lost_frames` counter is incremented, and zero velocity is returned for that update.\n\nC). The robot switches to tracking the new closest person found in the frame.\n\nD). The `iou_threshold` is temporarily lowered to re-acquire the target.\n\n\nCorrect: B). The `target_lost_frames` counter is incremented, and zero velocity is returned for that update.\n\nExplanation: The correct action is that `target_lost_frames` is incremented (line 283). If a target isn't found by ID or IOU, the method eventually returns zero for linear and angular velocity for that cycle (line 292). The `stop_tracking()` method is only called if `target_lost_frames` reaches `max_lost_frames` (line 287). The system does not automatically select a new target or adjust the IOU threshold.",
+      "title": "",
+      "id": "69309",
+      "text": "In the `updateTracking` method, if the current target is not found in a new frame (neither by ID nor IOU), what is the immediate consequence within that method call?",
+      "answers": [
+        "The `stop_tracking()` method is called, halting the robot.",
+        "The `target_lost_frames` counter is incremented, and zero velocity is returned for that update.",
+        "The robot switches to tracking the new closest person found in the frame.",
+        "The `iou_threshold` is temporarily lowered to re-acquire the target."
+      ],
+      "correct": 1,
+      "explanation": "The correct action is that `target_lost_frames` is incremented (line 283). If a target isn't found by ID or IOU, the method eventually returns zero for linear and angular velocity for that cycle (line 292). The `stop_tracking()` method is only called if `target_lost_frames` reaches `max_lost_frames` (line 287). The system does not automatically select a new target or adjust the IOU threshold."
+    },
+    {
+      "type": "highlight",
+      "description": "`_compute_control` calculates the required velocities. It measures the time delta (`dt`) from the last computation and calls the `VisualServoingController` to determine the new linear and angular velocities based on the current distance and angle to the target. It also provides debug logs.",
+      "file": "dimos/perception/visual_servoing.py",
+      "highlight": [
+        {
+          "start": 295,
+          "end": 326
+        }
+      ],
+      "title": "",
+      "id": "69304",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "The returned dictionary can then be used to send velocity commands to the robot's control loop.",
+      "title": "",
+      "id": "69305"
+    },
+    {
+      "type": "highlight",
+      "description": "The `is_goal_reached` method checks whether the robot has reached its target by comparing the `distance_error` and `angle_error` against specified thresholds.",
+      "file": "dimos/perception/visual_servoing.py",
+      "highlight": [
+        {
+          "start": 454,
+          "end": 479
+        }
+      ],
+      "title": "",
+      "id": "69306",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Example usage.",
+      "title": "",
+      "id": "69307"
+    },
+    {
+      "type": "textOnly",
+      "description": "In practice, `VisualServoing` would be wrapped in a robot skill or agent loop. This higher-level logic would manage the lifecycle of the `VisualServoing` object and send its computed velocity commands to the robot's controllers at a regular frequency.",
+      "title": "",
+      "id": "69308"
+    }
+  ]
+}

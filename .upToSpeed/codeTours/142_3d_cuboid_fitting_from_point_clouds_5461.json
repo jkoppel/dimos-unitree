@@ -1,0 +1,199 @@
+{
+  "title": "14.2: 3D Cuboid Fitting from Point Clouds",
+  "id": "6afqIS6Xdt3dUurCKAi2c+pvtKS3OF9TBhIbpxANn5s=",
+  "originalId": 5461,
+  "position": 51,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to this technical walkthrough of the cuboid fitting algorithm. This implementation converts 2D depth images into 3D point clouds and then fits oriented cuboids using an iterative Principal Component Analysis approach with robust outlier rejection.",
+      "title": "",
+      "id": "67828"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/common/cuboid_fit.py"
+      ],
+      "description": "The cuboid_fit.py module implements a complete pipeline for fitting 3D cuboids to point cloud data derived from depth images. The algorithm combines computer vision, multivariate statistics, and robust estimation theory into a practical 3D object fitting solution.",
+      "title": "",
+      "id": "67829",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The depth_to_point_cloud function transforms 2D depth images into 3D point clouds using the pinhole camera model. It extracts the camera intrinsics - focal lengths (fx, fy) and principal point (cx, cy) - which are essential parameters for accurate 3D reconstruction.",
+      "file": "dimos/perception/common/cuboid_fit.py",
+      "highlight": [
+        {
+          "start": 8,
+          "end": 26
+        }
+      ],
+      "title": "",
+      "id": "67830",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The mathematical core of the projection occurs in lines 44-46. Each pixel (x,y) with depth z is transformed using: X = (x - cx) * z / fx and Y = (y - cy) * z / fy. This implements the inverse pinhole projection, converting image coordinates to 3D world coordinates. The subsample_factor reduces computational load by creating a sparser point cloud.",
+      "file": "dimos/perception/common/cuboid_fit.py",
+      "highlight": [
+        {
+          "start": 27,
+          "end": 48
+        }
+      ],
+      "title": "",
+      "id": "67831",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The fit_cuboid function implements the core iterative algorithm. It begins with a robust center estimate using the median (line 73) instead of the mean, which is less sensitive to outliers. The algorithm maintains the best parameters across iterations to ensure convergence to an optimal solution.",
+      "file": "dimos/perception/common/cuboid_fit.py",
+      "highlight": [
+        {
+          "start": 50,
+          "end": 75
+        }
+      ],
+      "title": "",
+      "id": "67832",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Each iteration starts with Principal Component Analysis to determine the dominant axes of the point cloud. The PCA components matrix becomes the rotation matrix (line 85), defining the cuboid's orientation. Points are then transformed to this local coordinate system (line 88) where the cuboid is axis-aligned, simplifying dimension calculations.",
+      "file": "dimos/perception/common/cuboid_fit.py",
+      "highlight": [
+        {
+          "start": 76,
+          "end": 92
+        }
+      ],
+      "title": "",
+      "id": "67833",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The outlier rejection mechanism uses robust statistics applied separately to each dimension. The Median Absolute Deviation (MAD) is computed and scaled by 1.4826 to estimate the standard deviation (line 102). This scaling factor makes MAD equivalent to standard deviation for normally distributed data, while remaining robust to outliers.",
+      "file": "dimos/perception/common/cuboid_fit.py",
+      "highlight": [
+        {
+          "start": 94,
+          "end": 116
+        }
+      ],
+      "title": "",
+      "id": "67834",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the `fit_cuboid` function (lines 94-116), why is Median Absolute Deviation (MAD) used to estimate the data's standard deviation (`sigma`) for outlier rejection?\n\nOptions:\n\n A). It is computationally less expensive to calculate for large point clouds.\n\nB). It provides a robust estimate of statistical dispersion that is less sensitive to extreme outliers.\n\nC). It is a required statistical measure for the `sklearn.decomposition.PCA` algorithm.\n\nD). It directly measures the distance of points to the cuboid surface for error calculation.\n\n\nCorrect: B). It provides a robust estimate of statistical dispersion that is less sensitive to extreme outliers.\n\nExplanation: The correct answer is that Median Absolute Deviation (MAD) provides a robust estimate of statistical dispersion. Unlike standard deviation, which is heavily influenced by the magnitude of outliers, MAD is based on the median, making it resistant to extreme values. In this algorithm, it allows for a more reliable identification of inliers by establishing a stable threshold (`inlier_thresh * sigma`) even when significant noise is present in the point cloud.",
+      "title": "",
+      "id": "67845",
+      "text": "In the `fit_cuboid` function (lines 94-116), why is Median Absolute Deviation (MAD) used to estimate the data's standard deviation (`sigma`) for outlier rejection?",
+      "answers": [
+        "It is computationally less expensive to calculate for large point clouds.",
+        "It provides a robust estimate of statistical dispersion that is less sensitive to extreme outliers.",
+        "It is a required statistical measure for the `sklearn.decomposition.PCA` algorithm.",
+        "It directly measures the distance of points to the cuboid surface for error calculation."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that Median Absolute Deviation (MAD) provides a robust estimate of statistical dispersion. Unlike standard deviation, which is heavily influenced by the magnitude of outliers, MAD is based on the median, making it resistant to extreme values. In this algorithm, it allows for a more reliable identification of inliers by establishing a stable threshold (`inlier_thresh * sigma`) even when significant noise is present in the point cloud."
+    },
+    {
+      "type": "highlight",
+      "description": "The error computation calculates the mean squared distance from points to the cuboid surface using a sophisticated distance metric. Lines 128-132 handle both exterior points (outside_dist) and interior points (inside_dist), creating a continuous error function that properly penalizes deviations from the cuboid boundary.",
+      "file": "dimos/perception/common/cuboid_fit.py",
+      "highlight": [
+        {
+          "start": 121,
+          "end": 145
+        }
+      ],
+      "title": "",
+      "id": "67835",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The compute_fitting_error function implements the mathematical distance calculation in detail. For points outside the cuboid, it computes Euclidean distance to the nearest surface. For interior points, it uses the negative of the minimum distance to any face, ensuring the error function is continuous across the cuboid boundary.",
+      "file": "dimos/perception/common/cuboid_fit.py",
+      "highlight": [
+        {
+          "start": 149,
+          "end": 162
+        }
+      ],
+      "title": "",
+      "id": "67836",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The get_cuboid_corners function generates the 8 corner vertices by defining them in local coordinates as all combinations of ±half_dimensions (lines 167-176). These local coordinates are then transformed to world coordinates using matrix multiplication with the rotation matrix and translation by the center point.",
+      "file": "dimos/perception/common/cuboid_fit.py",
+      "highlight": [
+        {
+          "start": 164,
+          "end": 178
+        }
+      ],
+      "title": "",
+      "id": "67837",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The visualize_fit function projects the 3D cuboid back onto the original 2D image using OpenCV's projectPoints function. This handles the forward pinhole projection, transforming 3D corners to 2D image coordinates. Optional rotation and translation parameters allow handling different coordinate frame transformations.",
+      "file": "dimos/perception/common/cuboid_fit.py",
+      "highlight": [
+        {
+          "start": 180,
+          "end": 201
+        }
+      ],
+      "title": "",
+      "id": "67838",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The wireframe visualization connects the 8 corners using a carefully defined edge pattern: 4 edges for the bottom face, 4 for the top face, and 4 vertical edges connecting corresponding corners. The dimensions are overlaid as text, providing quantitative feedback about the fitted cuboid's size.",
+      "file": "dimos/perception/common/cuboid_fit.py",
+      "highlight": [
+        {
+          "start": 204,
+          "end": 227
+        }
+      ],
+      "title": "",
+      "id": "67839",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The plot_3d_fit function creates comprehensive 3D visualizations using matplotlib. The key insight is in lines 268-283, which ensure uniform scaling across all axes by calculating the maximum range and centering the view. This prevents visual distortion that could mislead assessment of fit quality.",
+      "file": "dimos/perception/common/cuboid_fit.py",
+      "highlight": [
+        {
+          "start": 229,
+          "end": 285
+        }
+      ],
+      "title": "",
+      "id": "67840",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This iterative PCA approach represents a sophisticated solution to 3D object fitting. The algorithm's strength lies in combining classical techniques - PCA for orientation estimation, MAD for robust statistics, and iterative refinement for convergence - with practical considerations like computational efficiency and visualization capabilities.",
+      "title": "",
+      "id": "67841"
+    }
+  ]
+}

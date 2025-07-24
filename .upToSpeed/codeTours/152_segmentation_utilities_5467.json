@@ -1,0 +1,176 @@
+{
+  "title": "15.2: Segmentation Utilities",
+  "id": "eP048LFAnIt78bl+QrnxlfBfKMi2opCshc+y1Env2f4=",
+  "originalId": 5467,
+  "position": 55,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This tour explores the utility functions in `dimos/models/segmentation/segment_utils.py`, focusing on three key functions that handle point clustering, heatmap sampling, and image masking.",
+      "title": "",
+      "id": "67878"
+    },
+    {
+      "type": "highlight",
+      "description": "The `find_medoid_and_closest_points` function finds the **medoid** (most central point) from a collection of points and returns the closest points to it. The **medoid** is the point that minimizes the sum of distances to all other points.",
+      "file": "dimos/models/segmentation/segment_utils.py",
+      "highlight": [
+        {
+          "start": 18,
+          "end": 29
+        }
+      ],
+      "title": "",
+      "id": "67879",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The distance calculation uses `numpy` broadcasting to efficiently compute all pairwise Euclidean distances. Line 30 creates a 3D array where each element [i,j] contains the squared distance between points i and j.",
+      "file": "dimos/models/segmentation/segment_utils.py",
+      "highlight": [
+        {
+          "start": 30,
+          "end": 31
+        }
+      ],
+      "title": "",
+      "id": "67880",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The medoid is identified by finding the point with the minimum sum of distances to all other points (line 32). Then it sorts all points by their distance to the medoid and selects the closest ones, excluding the medoid itself (line 35).",
+      "file": "dimos/models/segmentation/segment_utils.py",
+      "highlight": [
+        {
+          "start": 32,
+          "end": 36
+        }
+      ],
+      "title": "",
+      "id": "67881",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In `find_medoid_and_closest_points`, why does the selection of `closest_indices` on line 35 start from index 1 (`sorted_indices[1:num_closest + 1]`)?\n\nOptions:\n\n A). To exclude the point farthest from the medoid.\n\nB). To exclude the medoid itself from the list of closest points.\n\nC). To align with a 1-based `num_closest` parameter in a 0-indexed array.\n\nD). To ensure the function returns `num_closest - 1` points.\n\n\nCorrect: B). To exclude the medoid itself from the list of closest points.\n\nExplanation: The correct answer is that slicing from index 1 excludes the medoid. The `sorted_indices` array is sorted by distance from the medoid in ascending order. The point at index 0 is the medoid itself (with a distance of 0), so the slice `[1:num_closest + 1]` correctly selects the `num_closest` points nearest to the medoid, without including the medoid in that list.",
+      "title": "",
+      "id": "67889",
+      "text": "In `find_medoid_and_closest_points`, why does the selection of `closest_indices` on line 35 start from index 1 (`sorted_indices[1:num_closest + 1]`)?",
+      "answers": [
+        "To exclude the point farthest from the medoid.",
+        "To exclude the medoid itself from the list of closest points.",
+        "To align with a 1-based `num_closest` parameter in a 0-indexed array.",
+        "To ensure the function returns `num_closest - 1` points."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that slicing from index 1 excludes the medoid. The `sorted_indices` array is sorted by distance from the medoid in ascending order. The point at index 0 is the medoid itself (with a distance of 0), so the slice `[1:num_closest + 1]` correctly selects the `num_closest` points nearest to the medoid, without including the medoid in that list."
+    },
+    {
+      "type": "highlight",
+      "description": "The `sample_points_from_heatmap` function samples points from a heatmap with bias towards areas of high activation. This is useful for focusing attention on salient regions in computer vision tasks.",
+      "file": "dimos/models/segmentation/segment_utils.py",
+      "highlight": [
+        {
+          "start": 38,
+          "end": 41
+        }
+      ],
+      "title": "",
+      "id": "67882",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The function creates a threshold at the `95th percentile` of heatmap values (`line 43`), masks out low-activation areas by setting them to zero (`line 44`), and converts the result to a probability distribution using `softmax` (`line 45`).",
+      "file": "dimos/models/segmentation/segment_utils.py",
+      "highlight": [
+        {
+          "start": 42,
+          "end": 46
+        }
+      ],
+      "title": "",
+      "id": "67883",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "After computing attention weights with `sigmoid` (line 47), it performs multinomial sampling to select points according to their activation probabilities (line 49). The sampled indices are converted to 2D coordinates (line 51), then clustered using the `medoid` function.",
+      "file": "dimos/models/segmentation/segment_utils.py",
+      "highlight": [
+        {
+          "start": 47,
+          "end": 52
+        }
+      ],
+      "title": "",
+      "id": "67884",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In `sample_points_from_heatmap`, what is the effect of the coordinate transformation performed in lines 56-58?\n\nOptions:\n\n A). To rotate the sampled points by 90 degrees to match the orientation of the input heatmap.\n\nB). To scale the sampled coordinates from the heatmap's dimensions to the original image's dimensions without altering their orientation.\n\nC). To scale the sampled coordinates from the heatmap's dimensions to the original image's dimensions and convert them from matrix (row, col) indexing to image (x, y) coordinates.\n\nD). To re-center the sampled points around the calculated medoid before returning them.\n\n\nCorrect: C). To scale the sampled coordinates from the heatmap's dimensions to the original image's dimensions and convert them from matrix (row, col) indexing to image (x, y) coordinates.\n\nExplanation: The correct answer is that the code scales coordinates and converts them from matrix to image indexing. The transformation `x = height * x / w` and `y = width * y / w` scales the points. The final step `pts.append([y, x])` swaps the coordinates because NumPy uses (row, column) indexing which corresponds to (y, x) in an image coordinate system, while many graphics libraries expect (x, y).",
+      "title": "",
+      "id": "67890",
+      "text": "In `sample_points_from_heatmap`, what is the effect of the coordinate transformation performed in lines 56-58?",
+      "answers": [
+        "To rotate the sampled points by 90 degrees to match the orientation of the input heatmap.",
+        "To scale the sampled coordinates from the heatmap's dimensions to the original image's dimensions without altering their orientation.",
+        "To scale the sampled coordinates from the heatmap's dimensions to the original image's dimensions and convert them from matrix (row, col) indexing to image (x, y) coordinates.",
+        "To re-center the sampled points around the calculated medoid before returning them."
+      ],
+      "correct": 2,
+      "explanation": "The correct answer is that the code scales coordinates and converts them from matrix to image indexing. The transformation `x = height * x / w` and `y = width * y / w` scales the points. The final step `pts.append([y, x])` swaps the coordinates because NumPy uses (row, column) indexing which corresponds to (y, x) in an image coordinate system, while many graphics libraries expect (x, y)."
+    },
+    {
+      "type": "highlight",
+      "description": "The coordinates are scaled from heatmap dimensions to the original image size. Notice the coordinate transformation in lines 56-58: the function swaps `x` and `y` coordinates to convert from matrix indexing (`row`, `column`) to image coordinates (`x`, `y`).",
+      "file": "dimos/models/segmentation/segment_utils.py",
+      "highlight": [
+        {
+          "start": 53,
+          "end": 59
+        }
+      ],
+      "title": "",
+      "id": "67885",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `apply_mask_to_image` function applies a binary mask to an image. The mask should contain True for regions to keep and False for regions to discard.",
+      "file": "dimos/models/segmentation/segment_utils.py",
+      "highlight": [
+        {
+          "start": 62,
+          "end": 65
+        }
+      ],
+      "title": "",
+      "id": "67886",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The implementation creates a copy of the input image (line 66) and multiplies each color channel by the mask (lines 67-68). Since boolean **True** equals 1 and **False** equals 0, this preserves pixels in the masked region and zeros out the rest.",
+      "file": "dimos/models/segmentation/segment_utils.py",
+      "highlight": [
+        {
+          "start": 66,
+          "end": 69
+        }
+      ],
+      "title": "",
+      "id": "67887",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "These utility functions work together in segmentation workflows: the `heatmap sampler` identifies important regions, the `medoid finder` clusters points for stability, and the `mask applier` extracts regions of interest from images.",
+      "title": "",
+      "id": "67888"
+    }
+  ]
+}

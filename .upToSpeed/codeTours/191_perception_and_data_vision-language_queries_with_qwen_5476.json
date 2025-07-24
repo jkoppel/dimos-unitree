@@ -1,0 +1,207 @@
+{
+  "title": "19.1: Perception & Data: Vision-Language Queries with Qwen",
+  "id": "5FxyF4WklP05RLAwQwoqzFjCPCQ3y9DrTdQEan3FYx0=",
+  "originalId": 5476,
+  "position": 64,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "The file `dimos/models/qwen/video_query.py` provides utilities to interact with the **Qwen vision-language model**. It offers four main functions: two for performing a query on a single image and two helpers for extracting bounding box data from an image. These functions come in two flavors: a simple synchronous version for single images and an asynchronous, observable-based version for video streams.",
+      "title": "",
+      "id": "67950"
+    },
+    {
+      "type": "textOnly",
+      "description": "The `query_single_frame` function is a synchronous method that sends a single `PIL` image and a text query to the `Qwen` model. It blocks execution until it receives and returns the model's string response.",
+      "title": "",
+      "id": "67951"
+    },
+    {
+      "type": "highlight",
+      "description": "This is the full definition of the synchronous `query_single_frame` function.",
+      "file": "dimos/models/qwen/video_query.py",
+      "highlight": [
+        {
+          "start": 90,
+          "end": 162
+        }
+      ],
+      "title": "",
+      "id": "67952",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Internally, it creates a temporary `OpenAIAgent` to handle the request. This agent is configured with the `Qwen` client, `model details`, and the user's query.",
+      "file": "dimos/models/qwen/video_query.py",
+      "highlight": [
+        {
+          "start": 127,
+          "end": 135
+        }
+      ],
+      "title": "",
+      "id": "67953",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Although it uses `RxPY` (ReactiveX for Python) concepts like `Subject` and `Observable` internally, it forces synchronous execution by immediately emitting the frame and then calling `.run()` on the observable. This blocks until the single response is received.",
+      "file": "dimos/models/qwen/video_query.py",
+      "highlight": [
+        {
+          "start": 141,
+          "end": 156
+        }
+      ],
+      "title": "",
+      "id": "67954",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "The `query_single_frame_observable` function is the asynchronous counterpart. It's designed for reactive pipelines, taking an `Observable` video stream as input and returning an `Observable` that will emit the model's response for the *first frame* of the stream.",
+      "title": "",
+      "id": "67955"
+    },
+    {
+      "type": "highlight",
+      "description": "Here is the full definition of the asynchronous `query_single_frame_observable` function.",
+      "file": "dimos/models/qwen/video_query.py",
+      "highlight": [
+        {
+          "start": 17,
+          "end": 88
+        }
+      ],
+      "title": "",
+      "id": "67956",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "It uses the RxPY operator `ops.take(1)` to ensure that it only processes the very first frame emitted by the input `video_observable`.",
+      "file": "dimos/models/qwen/video_query.py",
+      "highlight": [
+        {
+          "start": 68,
+          "end": 70
+        }
+      ],
+      "title": "",
+      "id": "67957",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Unlike the synchronous version, it returns a `Subject` directly. The caller is responsible for subscribing to this observable to receive the response asynchronously. The function also sets up cleanup logic to dispose of the agent once the response sequence is complete.",
+      "file": "dimos/models/qwen/video_query.py",
+      "highlight": [
+        {
+          "start": 76,
+          "end": 87
+        }
+      ],
+      "title": "",
+      "id": "67958",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "The first helper, `get_bbox_from_qwen_frame`, is a synchronous function that builds on `query_single_frame`. Its goal is to extract the bounding box and estimated size of an object from a single image frame.",
+      "title": "",
+      "id": "67959"
+    },
+    {
+      "type": "highlight",
+      "description": "This is the complete helper function for synchronously getting a bounding box from a single frame.",
+      "file": "dimos/models/qwen/video_query.py",
+      "highlight": [
+        {
+          "start": 201,
+          "end": 243
+        }
+      ],
+      "title": "",
+      "id": "67960",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "It uses a carefully crafted prompt to instruct the model to return *only* a `JSON` object in a specific format. This technique, known as **prompt engineering**, is used to get structured data from the language model.",
+      "file": "dimos/models/qwen/video_query.py",
+      "highlight": [
+        {
+          "start": 220,
+          "end": 224
+        }
+      ],
+      "title": "",
+      "id": "67961",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "After receiving the raw string response from `query_single_frame`, it attempts to find and parse the JSON content within that string. If successful, it returns the bounding box and size.",
+      "file": "dimos/models/qwen/video_query.py",
+      "highlight": [
+        {
+          "start": 228,
+          "end": 238
+        }
+      ],
+      "title": "",
+      "id": "67962",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Finally, `get_bbox_from_qwen` is the observable-based version of the bounding box helper. It takes a video stream and uses `query_single_frame_observable` to perform the query.",
+      "title": "",
+      "id": "67963"
+    },
+    {
+      "type": "highlight",
+      "description": "Here is the full definition for `get_bbox_from_qwen`, which works with observable streams.",
+      "file": "dimos/models/qwen/video_query.py",
+      "highlight": [
+        {
+          "start": 163,
+          "end": 199
+        }
+      ],
+      "title": "",
+      "id": "67964",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Interestingly, while this function uses the asynchronous `query_single_frame_observable`, it immediately converts the operation to a synchronous one by calling `.run()`. This makes it a blocking call, just like its non-observable counterpart.\n\nAlso, note the slight inconsistency: the type hint suggests it returns an `Optional[list]`, but the implementation actually returns a `tuple` containing the bbox and size, or `None`.",
+      "file": "dimos/models/qwen/video_query.py",
+      "highlight": [
+        {
+          "start": 182,
+          "end": 194
+        }
+      ],
+      "title": "",
+      "id": "67965",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "What is the primary difference in the execution flow and return value between `query_single_frame` and `query_single_frame_observable`?\n\nOptions:\n\n A). `query_single_frame` is non-blocking and returns an `Observable`; `query_single_frame_observable` is blocking and returns a string.\n\nB). `query_single_frame` is blocking and returns a string; `query_single_frame_observable` is non-blocking and returns an `Observable`.\n\nC). Both functions are blocking, but `query_single_frame` takes a PIL image while `query_single_frame_observable` takes a video stream `Observable`.\n\nD). Both functions are non-blocking, but `query_single_frame_observable` processes multiple frames while `query_single_frame` processes only one.\n\n\nCorrect: B). `query_single_frame` is blocking and returns a string; `query_single_frame_observable` is non-blocking and returns an `Observable`.\n\nExplanation: `query_single_frame` is a synchronous, blocking function that returns the final string response. It uses RxPY internally but calls `.run()` to wait for the result. In contrast, `query_single_frame_observable` is designed for asynchronous pipelines; it is non-blocking and returns an `Observable` that the caller must subscribe to in order to receive the response.",
+      "title": "",
+      "id": "67984",
+      "text": "What is the primary difference in the execution flow and return value between `query_single_frame` and `query_single_frame_observable`?",
+      "answers": [
+        "`query_single_frame` is non-blocking and returns an `Observable`; `query_single_frame_observable` is blocking and returns a string.",
+        "`query_single_frame` is blocking and returns a string; `query_single_frame_observable` is non-blocking and returns an `Observable`.",
+        "Both functions are blocking, but `query_single_frame` takes a PIL image while `query_single_frame_observable` takes a video stream `Observable`.",
+        "Both functions are non-blocking, but `query_single_frame_observable` processes multiple frames while `query_single_frame` processes only one."
+      ],
+      "correct": 1,
+      "explanation": "`query_single_frame` is a synchronous, blocking function that returns the final string response. It uses RxPY internally but calls `.run()` to wait for the result. In contrast, `query_single_frame_observable` is designed for asynchronous pipelines; it is non-blocking and returns an `Observable` that the caller must subscribe to in order to receive the response."
+    }
+  ]
+}

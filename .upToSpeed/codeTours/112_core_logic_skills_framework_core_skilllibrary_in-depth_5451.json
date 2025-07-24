@@ -1,0 +1,249 @@
+{
+  "title": "11.2: Core Logic: Skills Framework Core: SkillLibrary In-Depth",
+  "id": "TpYsVeN3819DNbNCWuSzHkbHdQg+KDesumdHoTeKFeY=",
+  "originalId": 5451,
+  "position": 42,
+  "steps": [
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/skills/skills.py"
+      ],
+      "description": "Welcome to the in-depth tour of the `SkillLibrary` class. This class is the cornerstone of the skills framework, responsible for managing, executing, and integrating skills with AI agents.\n\nLet's start by examining the `__init__` method to understand how the `SkillLibrary` is initialized.",
+      "title": "",
+      "id": "67674",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `__init__` method initializes the `SkillLibrary`. The `registered_skills` list is the key component here, acting as a central registry for all skills that are available to the system. It's populated by the `init` method, which in turn calls `refresh_class_skills`.\n\nThe `_running_skills` dictionary is used to track skills that are currently executing, which is important for managing long-running or asynchronous tasks.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 33,
+          "end": 36
+        }
+      ],
+      "title": "",
+      "id": "67675",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/skills/skills.py"
+      ],
+      "description": "Now, let's look at how skills are added to and removed from the library. This is how we dynamically manage the available skills at runtime.",
+      "title": "",
+      "id": "67676",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `add` method provides a simple way to register a new skill with the `library`. It checks if the skill is already present in the `registered_skills` list before appending it, preventing duplicates. This allows for skills to be added dynamically as new capabilities are loaded or become available.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 76,
+          "end": 79
+        }
+      ],
+      "title": "",
+      "id": "67677",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `remove` method is the counterpart to `add`. It allows for the removal of a skill from the `registered_skills` list. This is useful for scenarios where a skill is no longer available or needs to be disabled. If a non-existent skill is attempted to be removed, a warning is logged.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 83,
+          "end": 88
+        }
+      ],
+      "title": "",
+      "id": "67678",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/skills/skills.py"
+      ],
+      "description": "Next, we'll explore how skills are executed. The `call` and `create_instance` methods are the primary entry points for invoking a skill's functionality.",
+      "title": "",
+      "id": "67679",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `call` method is the workhorse of skill execution. It dynamically finds a skill class by its name, instantiates it with the provided arguments, and then executes it. This method is what an agent or any other part of the system would use to invoke a skill. It first searches for the skill in the class's attributes and then falls back to searching the `registered_skills` list.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 119,
+          "end": 141
+        }
+      ],
+      "title": "",
+      "id": "67680",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `create_instance` method allows for pre-configuring the arguments for a skill before it's executed. It stores the arguments in the `_instances` dictionary, which are then merged with any arguments passed directly to the `call` method. This is useful for setting up skills with default parameters or for creating specialized instances of a skill.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 108,
+          "end": 118
+        }
+      ],
+      "title": "",
+      "id": "67681",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "A developer first calls `skill_library.create_instance('MySkill', param_a=10)` and later invokes the same skill using `skill_library.call('MySkill', param_a=20, param_b=30)`. According to the `call` method's implementation, which set of arguments will be used to create the `MySkill` instance?\n\nOptions:\n\n A). {'param_a': 20, 'param_b': 30}\n\nB). {'param_a': 10, 'param_b': 30}\n\nC). {'param_a': 10}\n\nD). A ValueError will be raised due to conflicting arguments.\n\n\nCorrect: B). {'param_a': 10, 'param_b': 30}\n\nExplanation: The `call` method merges arguments from `create_instance` (`stored_args`) and the direct invocation (`args`). The implementation `complete_args = {**args, **stored_args}` uses dictionary unpacking. In Python, when dictionaries are merged this way, the values from the right-hand dictionary (`stored_args`) overwrite values for any matching keys from the left-hand dictionary (`args`). Therefore, `param_a` from `create_instance` (value 10) takes precedence, while the non-conflicting `param_b` from `call` is included.",
+      "title": "",
+      "id": "67730",
+      "text": "A developer first calls `skill_library.create_instance('MySkill', param_a=10)` and later invokes the same skill using `skill_library.call('MySkill', param_a=20, param_b=30)`. According to the `call` method's implementation, which set of arguments will be used to create the `MySkill` instance?",
+      "answers": [
+        "{'param_a': 20, 'param_b': 30}",
+        "{'param_a': 10, 'param_b': 30}",
+        "{'param_a': 10}",
+        "A ValueError will be raised due to conflicting arguments."
+      ],
+      "correct": 1,
+      "explanation": "The `call` method merges arguments from `create_instance` (`stored_args`) and the direct invocation (`args`). The implementation `complete_args = {**args, **stored_args}` uses dictionary unpacking. In Python, when dictionaries are merged this way, the values from the right-hand dictionary (`stored_args`) overwrite values for any matching keys from the left-hand dictionary (`args`). Therefore, `param_a` from `create_instance` (value 10) takes precedence, while the non-conflicting `param_b` from `call` is included."
+    },
+    {
+      "type": "mcq",
+      "description": "When `SkillLibrary.call()` is invoked for a skill that has pre-configured arguments from a prior `create_instance()` call, how are the final arguments for the skill's constructor determined?\n\nOptions:\n\n A). Arguments from the `call` method overwrite any identically named arguments from `create_instance`.\n\nB). Arguments from `create_instance` overwrite any identically named arguments provided in the `call` method.\n\nC). Only the arguments from `create_instance` are used; arguments in `call` are ignored.\n\nD). A `ValueError` is raised if arguments are provided in both methods for the same skill.\n\n\nCorrect: B). Arguments from `create_instance` overwrite any identically named arguments provided in the `call` method.\n\nExplanation: The correct answer is that arguments from `create_instance` have priority. In the `call` method, the line `complete_args = {**args, **stored_args}` merges the two dictionaries. In Python's dictionary unpacking, key-value pairs from the right-hand dictionary (`stored_args`) will overwrite those from the left-hand dictionary (`args`) if the keys are the same. This allows `create_instance` to set durable, default parameters that are used during the `call`.",
+      "title": "",
+      "id": "67731",
+      "text": "When `SkillLibrary.call()` is invoked for a skill that has pre-configured arguments from a prior `create_instance()` call, how are the final arguments for the skill's constructor determined?",
+      "answers": [
+        "Arguments from the `call` method overwrite any identically named arguments from `create_instance`.",
+        "Arguments from `create_instance` overwrite any identically named arguments provided in the `call` method.",
+        "Only the arguments from `create_instance` are used; arguments in `call` are ignored.",
+        "A `ValueError` is raised if arguments are provided in both methods for the same skill."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that arguments from `create_instance` have priority. In the `call` method, the line `complete_args = {**args, **stored_args}` merges the two dictionaries. In Python's dictionary unpacking, key-value pairs from the right-hand dictionary (`stored_args`) will overwrite those from the left-hand dictionary (`args`) if the keys are the same. This allows `create_instance` to set durable, default parameters that are used during the `call`."
+    },
+    {
+      "type": "mcq",
+      "description": "When invoking a skill with `call`, how does the `SkillLibrary` resolve arguments if the same parameter is provided both in `create_instance` and the `call` invocation?\n\nOptions:\n\n A). The argument from the `call` invocation takes precedence.\n\nB). The argument from the `create_instance` pre-configuration takes precedence.\n\nC). It raises a `ValueError` due to the conflicting arguments.\n\nD). It combines both arguments into a list.\n\n\nCorrect: B). The argument from the `create_instance` pre-configuration takes precedence.\n\nExplanation: The correct answer is that the `create_instance` argument takes precedence. In the `call` method, the arguments are merged using `complete_args = {**args, **stored_args}`. In Python's dictionary unpacking, key-value pairs from the right-hand dictionary (`stored_args`) will overwrite those from the left-hand dictionary (`args`) if the keys are the same. This allows pre-configured values to act as overrides.",
+      "title": "",
+      "id": "67732",
+      "text": "When invoking a skill with `call`, how does the `SkillLibrary` resolve arguments if the same parameter is provided both in `create_instance` and the `call` invocation?",
+      "answers": [
+        "The argument from the `call` invocation takes precedence.",
+        "The argument from the `create_instance` pre-configuration takes precedence.",
+        "It raises a `ValueError` due to the conflicting arguments.",
+        "It combines both arguments into a list."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that the `create_instance` argument takes precedence. In the `call` method, the arguments are merged using `complete_args = {**args, **stored_args}`. In Python's dictionary unpacking, key-value pairs from the right-hand dictionary (`stored_args`) will overwrite those from the left-hand dictionary (`args`) if the keys are the same. This allows pre-configured values to act as overrides."
+    },
+    {
+      "type": "mcq",
+      "description": "A developer first calls `skill_library.create_instance('Navigate', destination='Lobby', speed='normal')` and later executes `skill_library.call('Navigate', speed='fast')`.\n\nBased on the merging logic in `call` (line 124), with what `speed` value will the `Navigate` skill be initialized?\n\nOptions:\n\n A). `speed='normal'`, because arguments from `create_instance` take precedence over those in `call`.\n\nB). `speed='fast'`, because arguments passed directly to `call` have higher priority.\n\nC). It will raise a `TypeError` because the `speed` argument is provided in both calls.\n\n\nCorrect: A). `speed='normal'`, because arguments from `create_instance` take precedence over those in `call`.\n\nExplanation: The correct answer is `speed='normal'`. The `call` method merges arguments using `{**args, **stored_args}`. In Python dictionary unpacking, the dictionary on the right (`stored_args`, from `create_instance`) overwrites any conflicting keys from the dictionary on the left (`args`, from `call`). Therefore, the `speed` value from `create_instance` is used.",
+      "title": "",
+      "id": "67733",
+      "text": "A developer first calls `skill_library.create_instance('Navigate', destination='Lobby', speed='normal')` and later executes `skill_library.call('Navigate', speed='fast')`.\n\nBased on the merging logic in `call` (line 124), with what `speed` value will the `Navigate` skill be initialized?",
+      "answers": [
+        "`speed='normal'`, because arguments from `create_instance` take precedence over those in `call`.",
+        "`speed='fast'`, because arguments passed directly to `call` have higher priority.",
+        "It will raise a `TypeError` because the `speed` argument is provided in both calls."
+      ],
+      "correct": 0,
+      "explanation": "The correct answer is `speed='normal'`. The `call` method merges arguments using `{**args, **stored_args}`. In Python dictionary unpacking, the dictionary on the right (`stored_args`, from `create_instance`) overwrites any conflicting keys from the dictionary on the left (`args`, from `call`). Therefore, the `speed` value from `create_instance` is used."
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/skills/skills.py"
+      ],
+      "description": "The `SkillLibrary` can integrate with AI agents. This is achieved by converting the registered skills into a format that language models can understand and use. Let's examine the methods that enable this integration.",
+      "title": "",
+      "id": "67682",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `get_tools` and `get_list_of_skills_as_json` methods are the bridge between the skills and the AI agents. `get_tools` retrieves the list of registered skills and `get_list_of_skills_as_json` converts them into a JSON format using the `pydantic_function_tool` from the `openai` library. This JSON representation is what allows a language model to understand the available skills and how to use them.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 145,
+          "end": 151
+        }
+      ],
+      "title": "",
+      "id": "67683",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/skills/skills.py"
+      ],
+      "description": "Finally, let's look at how the `SkillLibrary` manages long-running or asynchronous skills. The concept of **running skills** is introduced to track and manage these types of tasks.",
+      "title": "",
+      "id": "67684",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `register_running_skill` method is used to keep track of skills that are currently executing. It stores the skill's instance and an optional subscription object in the `_running_skills` dictionary. This allows for monitoring the status of long-running tasks.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 154,
+          "end": 166
+        }
+      ],
+      "title": "",
+      "id": "67685",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `unregister_running_skill` method removes a skill from the `_running_skills` dictionary. This is called when a skill has finished executing or has been terminated.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 167,
+          "end": 182
+        }
+      ],
+      "title": "",
+      "id": "67686",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `terminate_skill` method provides a way to stop a running skill. It looks up the skill in the `_running_skills` dictionary and, if found, calls the `stop` method on the skill's instance if it exists. It also handles the disposal of any associated subscriptions. This is a **critical feature** for managing tasks that need to be interruptible.",
+      "file": "dimos/skills/skills.py",
+      "highlight": [
+        {
+          "start": 193,
+          "end": 233
+        }
+      ],
+      "title": "",
+      "id": "67687",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This concludes our in-depth tour of the `SkillLibrary` class. You should now have a solid understanding of its core functionalities, including skill registration, execution, and integration with AI agents. The `SkillLibrary` is a vital component that enables the robot to leverage a dynamic set of capabilities in a structured and manageable way.",
+      "title": "",
+      "id": "67688"
+    }
+  ]
+}

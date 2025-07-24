@@ -1,0 +1,191 @@
+{
+  "title": "8.1: Stream Infrastructure Overview",
+  "id": "IgajXI8v2MVc2IB9YdM2i8kb0m9tGW4VW6G1CinIp2A=",
+  "originalId": 5432,
+  "position": 24,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to a walkthrough of `DimOS`'s `stream` module, the data pipeline that connects robot sensors to AI agents for **neurosymbolic reasoning**. We'll explore how live sensor data flows through processing stages to enable intelligent robotic behavior.",
+      "title": "",
+      "id": "67570"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/stream/__init__.py"
+      ],
+      "description": "The stream module begins with an empty package initializer. While minimal, this file establishes the `dimos.stream` package namespace and could serve as a central point for exporting key classes if needed in the future.",
+      "title": "",
+      "id": "67571",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "At the heart of the data flow sits `AbstractDataProvider`, the base class for all data sources. It uses `ReactiveX`'s Subject pattern to create observable streams that AI agents can subscribe to. The `push_data` method feeds new information into the stream, while `data_stream` provides the observable interface.",
+      "file": "dimos/stream/data_provider.py",
+      "highlight": [
+        {
+          "start": 30,
+          "end": 48
+        }
+      ],
+      "title": "",
+      "id": "67572",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The first concrete provider is `ROSDataProvider`, which bridges robot sensors (cameras, lidars, encoders) to the reactive data pipeline. Notice line 59 - it logs the data type being pushed, which helps with debugging the sensor → AI agent data flow.",
+      "file": "dimos/stream/data_provider.py",
+      "highlight": [
+        {
+          "start": 50,
+          "end": 61
+        }
+      ],
+      "title": "",
+      "id": "67573",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `capture_data_as_observable` method transforms raw sensor streams into rate-limited observables. Lines 89-96 show how it applies **frame rate limiting** for video streams - critical for preventing AI agents from being overwhelmed by high-frequency sensor data.",
+      "file": "dimos/stream/data_provider.py",
+      "highlight": [
+        {
+          "start": 63,
+          "end": 102
+        }
+      ],
+      "title": "",
+      "id": "67574",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The second provider is `QueryDataProvider`, which generates timed text queries for AI agents. This enables the **symbolic** part of neurosymbolic AI by providing structured language prompts that guide agent reasoning.",
+      "file": "dimos/stream/data_provider.py",
+      "highlight": [
+        {
+          "start": 104,
+          "end": 125
+        }
+      ],
+      "title": "",
+      "id": "67575",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The query generation logic creates numbered prompts with specific robot commands. **Lines 153-156** show conditional instructions: numbers **500-999** trigger rotation, **1000-1999** trigger hand waving, and **2000+** trigger debris clearing. This demonstrates how symbolic reasoning guides robotic actions.",
+      "file": "dimos/stream/data_provider.py",
+      "highlight": [
+        {
+          "start": 149,
+          "end": 180
+        }
+      ],
+      "title": "",
+      "id": "67576",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/stream/frame_processor.py"
+      ],
+      "description": "Moving from data sources to processing, `FrameProcessor` applies computer vision transforms to video streams. This enables the \"neuro\" part of neurosymbolic AI by extracting visual features that AI agents can reason about.",
+      "title": "",
+      "id": "67577",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The processor provides CV operations: `to_grayscale` for reducing computational load, `edge_detection` using **Canny edge detection** for boundary detection, and `resize` for scaling frames. These transforms prepare raw visual data for AI analysis.",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 60,
+          "end": 71
+        }
+      ],
+      "title": "",
+      "id": "67578",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `compute_optical_flow` method tracks motion between frames using the **Farneback algorithm**. Lines 140-141 calculate a **relevancy score** - the **average motion magnitude** - which helps AI agents focus on scenes with significant movement rather than static environments.",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 94,
+          "end": 144
+        }
+      ],
+      "title": "",
+      "id": "67579",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Stream processing methods like `process_stream_optical_flow` apply these transforms to entire video streams using `ReactiveX` operators. The `scan` operator (line 208) maintains state between frames, while `filter` (line 213) removes invalid results, ensuring clean data reaches **AI agents**.",
+      "file": "dimos/stream/frame_processor.py",
+      "highlight": [
+        {
+          "start": 174,
+          "end": 215
+        }
+      ],
+      "title": "",
+      "id": "67580",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/stream/stream_merger.py"
+      ],
+      "description": "The final piece is stream synchronization. The `create_stream_merger` function solves a critical challenge: how to pair slow text queries (every few seconds) with fast sensor data (30+ FPS) so AI agents receive both symbolic and sensory input together.",
+      "title": "",
+      "id": "67581",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The merger uses `ReactiveX`'s `with_latest_from` operator to combine streams with different frequencies. When a text query arrives, it's paired with the most recent sensor data (line 32). Lines 24-27 wrap data in lists to avoid boolean evaluation issues with `numpy` arrays - a subtle but important detail for reliable stream processing.",
+      "file": "dimos/stream/stream_merger.py",
+      "highlight": [
+        {
+          "start": 8,
+          "end": 33
+        }
+      ],
+      "title": "",
+      "id": "67582",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the DimOS stream architecture, what is the primary function of the `create_stream_merger`?\n\nOptions:\n\n A). To buffer all sensor data frames that arrive between two consecutive text queries and emit them as a single batch.\n\nB). To rate-limit the high-frequency sensor data stream to match the emission frequency of the text query stream.\n\nC). To synchronize a low-frequency text query stream with a high-frequency sensor data stream, pairing each query with the latest sensor data.\n\nD). To apply computer vision transformations from `FrameProcessor` to the raw sensor data before forwarding it to the query provider.\n\n\nCorrect: C). To synchronize a low-frequency text query stream with a high-frequency sensor data stream, pairing each query with the latest sensor data.\n\nExplanation: The `create_stream_merger` uses the `with_latest_from` operator. This operator's specific function is to take the latest value from one stream (the fast sensor data) whenever a new value is emitted on another stream (the slow text query). This effectively synchronizes the two streams by pairing each query with the most recent sensor frame. It does not buffer all intermediate frames, nor does it perform rate-limiting or CV transformations, which are handled by other components.",
+      "title": "",
+      "id": "67584",
+      "text": "In the DimOS stream architecture, what is the primary function of the `create_stream_merger`?",
+      "answers": [
+        "To buffer all sensor data frames that arrive between two consecutive text queries and emit them as a single batch.",
+        "To rate-limit the high-frequency sensor data stream to match the emission frequency of the text query stream.",
+        "To synchronize a low-frequency text query stream with a high-frequency sensor data stream, pairing each query with the latest sensor data.",
+        "To apply computer vision transformations from `FrameProcessor` to the raw sensor data before forwarding it to the query provider."
+      ],
+      "correct": 2,
+      "explanation": "The `create_stream_merger` uses the `with_latest_from` operator. This operator's specific function is to take the latest value from one stream (the fast sensor data) whenever a new value is emitted on another stream (the slow text query). This effectively synchronizes the two streams by pairing each query with the most recent sensor frame. It does not buffer all intermediate frames, nor does it perform rate-limiting or CV transformations, which are handled by other components."
+    },
+    {
+      "type": "textOnly",
+      "description": "**The Complete Data Flow**: Robot sensors → `ROSDataProvider` → `FrameProcessor` (CV transforms) → `create_stream_merger` (synchronizes with `QueryDataProvider` queries) → AI agents receive paired (`query`, `sensor_data`) for neurosymbolic reasoning → planning ⇄ execution loop. This architecture enables robots to combine symbolic reasoning with sensory perception for intelligent behavior.",
+      "title": "",
+      "id": "67583"
+    }
+  ]
+}

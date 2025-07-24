@@ -1,0 +1,77 @@
+{
+  "title": "8.5: Stream Merger & Agent Integration",
+  "id": "AVy0zuqPFCdsWaGiNYa2iOPqYAc8JmmpPycueKyO39c=",
+  "originalId": 5438,
+  "position": 28,
+  "steps": [
+    {
+      "type": "highlight",
+      "description": "The function `create_stream_merger` is defined with two streams as input: `data_input_stream` and `text_query_stream`. The output will be an `Observable` that emits a tuple containing items from both streams.",
+      "file": "dimos/stream/stream_merger.py",
+      "highlight": [
+        {
+          "start": 8,
+          "end": 11
+        }
+      ],
+      "title": "",
+      "id": "67550",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `data_input_stream` is wrapped in a list. This is to avoid potential issues with boolean evaluations of **NumPy** arrays, ensuring the data is passed through without unintended side effects.",
+      "file": "dimos/stream/stream_merger.py",
+      "highlight": [
+        {
+          "start": 24,
+          "end": 28
+        }
+      ],
+      "title": "",
+      "id": "67551",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The core of the synchronization logic lies in the `with_latest_from` operator. It combines the `text_query_stream` with the latest value from the `safe_data_stream`. This means that every time a new text query is emitted, it's paired with the most recent frame from the video stream.",
+      "file": "dimos/stream/stream_merger.py",
+      "highlight": [
+        {
+          "start": 31,
+          "end": 33
+        }
+      ],
+      "title": "",
+      "id": "67552",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "The `with_latest_from` operator is used here. When would the merged stream produce a new value?\n\nOptions:\n\n A). It produces a value for every new frame from `data_input_stream`.\n\nB). It produces a value only when a new query arrives from `text_query_stream`.\n\nC). It produces a value when either stream emits something.\n\nD). It waits for a new frame and a new query to arrive together.\n\n\nCorrect: B). It produces a value only when a new query arrives from `text_query_stream`.\n\nExplanation: The correct choice is the second one. The `pipe` is called on `text_query_stream`, so it acts as the driver. `with_latest_from` waits for an emission from this source stream and then combines it with the most recent value from `safe_data_stream`. The other behaviors describe different operators; for instance, the last option is similar to how `zip` works.",
+      "title": "",
+      "id": "67556",
+      "text": "The `with_latest_from` operator is used here. When would the merged stream produce a new value?",
+      "answers": [
+        "It produces a value for every new frame from `data_input_stream`.",
+        "It produces a value only when a new query arrives from `text_query_stream`.",
+        "It produces a value when either stream emits something.",
+        "It waits for a new frame and a new query to arrive together."
+      ],
+      "correct": 1,
+      "explanation": "The correct choice is the second one. The `pipe` is called on `text_query_stream`, so it acts as the driver. `with_latest_from` waits for an emission from this source stream and then combines it with the most recent value from `safe_data_stream`. The other behaviors describe different operators; for instance, the last option is similar to how `zip` works."
+    },
+    {
+      "type": "textOnly",
+      "description": "This pairing underpins neurosymbolic loops—planning agent queries fuse with execution agent observations to close the perception–action cycle.",
+      "title": "",
+      "id": "67553"
+    },
+    {
+      "type": "textOnly",
+      "description": "This merging strategy is a foundational element in **neurosymbolic systems**. It enables a tight feedback loop where a planning agent's queries (text) are fused with an execution agent's observations (video frames). This fusion of symbolic queries and sensor data closes the perception-action cycle, allowing the agent to reason about and act upon its environment in real-time.",
+      "title": "",
+      "id": "67554"
+    }
+  ]
+}

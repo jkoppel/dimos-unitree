@@ -1,0 +1,112 @@
+{
+  "title": "36.6: Web Application: Websocket Visualization: Data Decoding",
+  "id": "RqTOWbqQ8bOH0mgBX1XuRBf1Id2QHlbh5E08U+/slmg=",
+  "originalId": 5533,
+  "position": 141,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "The codebase uses a serialization pattern where objects are encoded into a format that can be sent over the network and then decoded back into their class representations on the clientside. This is handled by a `decode` method on each class and a generic `decode` function that dispatches to the correct class-specific decoder based on a `type` field.\n\nLet's look at the `decode` methods for `Vector`, `Path`, `Costmap`, and `Grid` in `clientside/types.ts`.",
+      "title": "",
+      "id": "68758"
+    },
+    {
+      "type": "highlight",
+      "description": "The **`static method`** `Vector.decode` reconstructs a `Vector` object from an `EncodedVector`. The `EncodedVector` contains the vector's components in a numeric array `c`. The `decode` method uses the spread operator (`...`) to pass these components as arguments to the `Vector` constructor.",
+      "file": "dimos/web/websocket_vis/clientside/types.ts",
+      "highlight": [
+        {
+          "start": 11,
+          "end": 14
+        }
+      ],
+      "title": "",
+      "id": "68759",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Path.decode` static method reconstructs a `Path` object from an `EncodedPath`. The `EncodedPath` stores the path's points in the `points` property. The `decode` method passes this array directly to the `Path` constructor.",
+      "file": "dimos/web/websocket_vis/clientside/types.ts",
+      "highlight": [
+        {
+          "start": 24,
+          "end": 27
+        }
+      ],
+      "title": "",
+      "id": "68760",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **`Costmap.decode`** static method reconstructs a `Costmap` object from an `EncodedCostmap`. This method demonstrates how decoding can be recursive. It decodes the `grid` and `origin` fields by calling the `decode` methods of the `Grid` and `Vector` classes, respectively. The `resolution` and `origin_theta` fields are primitive types and are used directly.",
+      "file": "dimos/web/websocket_vis/clientside/types.ts",
+      "highlight": [
+        {
+          "start": 49,
+          "end": 57
+        }
+      ],
+      "title": "",
+      "id": "68761",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **`static method`** `Grid.decode` reconstructs a `Grid` object from an `EncodedGrid`. It first decodes the base64-encoded `data` string into a `Uint8Array`. It then uses the `dtype` field to determine the correct typed array constructor (e.g., `Float32Array`, `Int32Array`) to create the grid's data buffer.",
+      "file": "dimos/web/websocket_vis/clientside/types.ts",
+      "highlight": [
+        {
+          "start": 79,
+          "end": 84
+        }
+      ],
+      "title": "",
+      "id": "68762",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Encoded<T>` type is a generic type that forms the basis for all encoded objects. It requires a `type` property of type `T`, which is a string literal. The `EncodedSomething` type is a union of all possible encoded object types, which allows the `decode` function to accept any of them.",
+      "file": "dimos/web/websocket_vis/clientside/types.ts",
+      "highlight": [
+        {
+          "start": 89,
+          "end": 98
+        }
+      ],
+      "title": "",
+      "id": "68763",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, let's look at the `decode` function in `decoder.ts`. This function takes an `EncodedSomething` object and uses a series of `if` statements to check the value of the `type` property. Based on this value, it calls the appropriate static `decode` method of the corresponding class (`Costmap`, `Vector`, `Grid`, or `Path`) to deserialize the data. If the `type` is unknown, it returns the string `\"UNKNOWN\"`. This dispatch mechanism is the core of the decoding process.",
+      "file": "dimos/web/websocket_vis/clientside/decoder.ts",
+      "highlight": [
+        {
+          "start": 3,
+          "end": 19
+        }
+      ],
+      "title": "",
+      "id": "68764",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Given the decoding pattern in `types.ts` and `decoder.ts`, what is the complete set of changes required to add support for a new `Polygon` class, which is deserialized from an `EncodedPolygon` object with `type: \"polygon\"`?\n\nOptions:\n\n A). Implement a static `Polygon.decode` method. The central `decode` function will automatically use it based on the class name.\n\nB). Add `EncodedPolygon` to the `EncodedSomething` union type. The decoding logic is then handled generically by the base `Encoded<T>` type.\n\nC). Implement a static `Polygon.decode` method, add `EncodedPolygon` to the `EncodedSomething` union, and add a conditional block for the `\"polygon\"` type to the main `decode` function.\n\n\nCorrect: C). Implement a static `Polygon.decode` method, add `EncodedPolygon` to the `EncodedSomething` union, and add a conditional block for the `\"polygon\"` type to the main `decode` function.\n\nExplanation: The correct approach requires three modifications. First, the `Polygon` class needs its own static `decode` method to handle its specific data structure. Second, the `EncodedPolygon` type must be added to the `EncodedSomething` union to ensure type safety throughout the application. Finally, the central `decode` function in `decoder.ts` must be explicitly updated with a new `if` statement to dispatch data with `type: \"polygon\"` to the new `Polygon.decode` method. The system does not automatically discover or dispatch to new decoders.",
+      "title": "",
+      "id": "68770",
+      "text": "Given the decoding pattern in `types.ts` and `decoder.ts`, what is the complete set of changes required to add support for a new `Polygon` class, which is deserialized from an `EncodedPolygon` object with `type: \"polygon\"`?",
+      "answers": [
+        "Implement a static `Polygon.decode` method. The central `decode` function will automatically use it based on the class name.",
+        "Add `EncodedPolygon` to the `EncodedSomething` union type. The decoding logic is then handled generically by the base `Encoded<T>` type.",
+        "Implement a static `Polygon.decode` method, add `EncodedPolygon` to the `EncodedSomething` union, and add a conditional block for the `\"polygon\"` type to the main `decode` function."
+      ],
+      "correct": 2,
+      "explanation": "The correct approach requires three modifications. First, the `Polygon` class needs its own static `decode` method to handle its specific data structure. Second, the `EncodedPolygon` type must be added to the `EncodedSomething` union to ensure type safety throughout the application. Finally, the central `decode` function in `decoder.ts` must be explicitly updated with a new `if` statement to dispatch data with `type: \"polygon\"` to the new `Polygon.decode` method. The system does not automatically discover or dispatch to new decoders."
+    }
+  ]
+}

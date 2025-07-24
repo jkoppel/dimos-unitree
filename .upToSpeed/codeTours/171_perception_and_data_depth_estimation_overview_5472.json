@@ -1,0 +1,79 @@
+{
+  "title": "17.1: Perception & Data: Depth Estimation: Overview",
+  "id": "L1UUG/XDzvH/AwUNo5RBOPIU/DFCuGVKS6XI7retsJ4=",
+  "originalId": 5472,
+  "position": 60,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to this walkthrough of the `Perception & Data: Depth Estimation` component. This component provides depth estimation from single images using a deep learning model to predict the distance of objects from the camera.",
+      "title": "",
+      "id": "68914"
+    },
+    {
+      "type": "textOnly",
+      "description": "This `__init__.py` file is empty. This is a standard Python convention that also signals this component's self-contained nature.",
+      "title": "",
+      "id": "68915"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/models/depth/__init__.py"
+      ],
+      "description": "The `__init__.py` file is completely empty, indicating this component is self-contained with no external dependencies or exports.",
+      "title": "",
+      "id": "68916",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `metric3d.py` file contains a single `Metric3D` class declaration starting at line 28. This class encapsulates all depth estimation logic. Note on line 32 how it loads a pretrained Vision Transformer model from `torch hub`, and on lines 38-42 it sets up camera intrinsics parameters that define the camera's focal length and optical center.",
+      "file": "dimos/models/depth/metric3d.py",
+      "highlight": [
+        {
+          "start": 28,
+          "end": 42
+        }
+      ],
+      "title": "",
+      "id": "68917",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Within `Metric3D`, the primary interface is the `infer_depth` method. Callers use this method to compute a depth map from an input image.",
+      "file": "dimos/models/depth/metric3d.py",
+      "highlight": [
+        {
+          "start": 58,
+          "end": 58
+        }
+      ],
+      "title": "",
+      "id": "68918",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This component demonstrates a clean, minimal design - a single `class` with one primary `method` that serves as the main interface for depth estimation functionality. The depth maps produced help the broader system understand 3D spatial relationships in captured images for applications like robotics navigation or augmented reality.",
+      "title": "",
+      "id": "68919"
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the provided tour of the **depth estimation component**, how does a developer obtain a **depth map** from a given image?\n\nOptions:\n\n A). By passing the image directly to the `Metric3D.__init__` constructor.\n\nB). By calling the `infer_depth(img)` method on an instance of `Metric3D`.\n\nC). By directly interacting with the `depth_model` attribute after it's loaded.\n\nD). By modifying the `intrinsic` list and re-instantiating the class for each image.\n\n\nCorrect: B). By calling the `infer_depth(img)` method on an instance of `Metric3D`.\n\nExplanation: The correct way to get a depth map is by calling the `infer_depth(img)` method, which is the designated public interface for this functionality. The constructor (`__init__`) is for setting up the model, not for processing images. Interacting directly with the `depth_model` would bypass necessary pre-processing and post-processing steps handled within `infer_depth`. Modifying intrinsics is part of the setup, not the per-image inference loop.",
+      "title": "",
+      "id": "68920",
+      "text": "Based on the provided tour of the **depth estimation component**, how does a developer obtain a **depth map** from a given image?",
+      "answers": [
+        "By passing the image directly to the `Metric3D.__init__` constructor.",
+        "By calling the `infer_depth(img)` method on an instance of `Metric3D`.",
+        "By directly interacting with the `depth_model` attribute after it's loaded.",
+        "By modifying the `intrinsic` list and re-instantiating the class for each image."
+      ],
+      "correct": 1,
+      "explanation": "The correct way to get a depth map is by calling the `infer_depth(img)` method, which is the designated public interface for this functionality. The constructor (`__init__`) is for setting up the model, not for processing images. Interacting directly with the `depth_model` would bypass necessary pre-processing and post-processing steps handled within `infer_depth`. Modifying intrinsics is part of the setup, not the per-image inference loop."
+    }
+  ]
+}

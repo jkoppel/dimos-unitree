@@ -1,0 +1,352 @@
+{
+  "title": "25.4: Command Queuing (`ros_command_queue.py`)",
+  "id": "YSYazuKlJsCpFLv+vjdPiZbSdIt/hyk0jNjjqKo0qPE=",
+  "originalId": 5499,
+  "position": 91,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough begins with an architectural overview: both `WebRTC API` calls and generic action commands are fed into a single **priority queue**. A **background thread** then processes them one at a time, only when the robot reports it’s **IDLE**, preventing overlapping or conflicting operations.",
+      "title": "",
+      "id": "69447"
+    },
+    {
+      "type": "highlight",
+      "description": "The module docstring (lines 15–21) declares its purpose: a unified, sequential command management system for robot commands. It ensures all `WebRTC` and action requests run one at a time, only when the robot is in the `IDLE` state.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 15,
+          "end": 21
+        }
+      ],
+      "title": "",
+      "id": "69448",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `**enum**` `CommandType` (lines 35–39) tags each `ROSCommand` as either a `WEBRTC` API request or an `ACTION` client call, driving dispatch logic and log statements.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 35,
+          "end": 39
+        }
+      ],
+      "title": "",
+      "id": "69426",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`WebRTCRequest` (lines 40–48) is a `NamedTuple` bundling every parameter for a WebRTC call—`id`, numeric `api_id`, ROS `topic`/`parameter`, plus `priority` and `timeout`. **Immutable records** ensure **clarity** and **thread-safety**.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 40,
+          "end": 48
+        }
+      ],
+      "title": "",
+      "id": "69450",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**`ROSCommand`** (lines 49–57) is a **generic wrapper**: it holds `id`, `cmd_type`, an `execute_func`, parameter dict for debugging, and `priority`/`timeout`. This decouples queue mechanics from execution logic.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 49,
+          "end": 57
+        }
+      ],
+      "title": "",
+      "id": "69451",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `ROSCommandQueue` class docstring (lines 58–65) restates sequential, one-at-a-time execution in **IDLE** state. Behind the scenes, it uses callbacks for readiness/busy checks and a `PriorityQueue` for storage.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 58,
+          "end": 65
+        }
+      ],
+      "title": "",
+      "id": "69429",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "In `__init__` (lines 66–74), the queue stores:\n- `self._webrtc_func`, `self._is_ready_func`, `self._is_busy_func` callbacks\n- Debug flag `self._debug` for extra logs",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 66,
+          "end": 74
+        }
+      ],
+      "title": "",
+      "id": "69430",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Continuing `__init__`:\n- A `PriorityQueue` is initialized to store and prioritize all incoming command tuples.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 80,
+          "end": 86
+        }
+      ],
+      "title": "",
+      "id": "69431",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Still in `__init__`: stats counters are set:\n- `self._command_count` breaks priority ties (FIFO for same priority)\n- `self._success_count`, `self._failure_count`, `self._command_history` track outcomes",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 96,
+          "end": 103
+        }
+      ],
+      "title": "",
+      "id": "69432",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`start()` (lines 109–118) kicks off a daemon thread running `_process_queue`. Using a daemon ensures the program can exit even if commands are still pending.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 109,
+          "end": 118
+        }
+      ],
+      "title": "",
+      "id": "69433",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`stop()` (lines 120–130) signals shutdown by setting `self._should_stop = True` and calling `join(timeout)`, ensuring the background thread cleans up before exit.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 120,
+          "end": 130
+        }
+      ],
+      "title": "",
+      "id": "69457",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**`queue_webrtc_request`** signature (lines 141–151) shows parameters: **`api_id`**, optional **`topic/parameter`**, auto-generated **`request_id`**, plus **`priority`** and **`timeout`**. A nested executor then performs the actual call.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 141,
+          "end": 151
+        }
+      ],
+      "title": "",
+      "id": "69435",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`execute_webrtc` polls `self._is_busy_func()` until completion or `timeout`. It injects a 0.5s stabilization delay, prints periodic debug updates, and aborts on exceptions or `timeout`.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 184,
+          "end": 194
+        }
+      ],
+      "title": "",
+      "id": "69470",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the code wraps `execute_webrtc` in a `ROSCommand` and enqueues it. The tuple passed to the queue ensures:\n- Lower `priority` values run first\n- `self._command_count` breaks ties to preserve **FIFO ordering**",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 213,
+          "end": 223
+        }
+      ],
+      "title": "",
+      "id": "69471",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Finally, the code wraps the `execute_webrtc` function in a `ROSCommand` and adds it to the queue. The item placed on the queue is a tuple whose structure ensures two things:\n- Lower `priority` values are processed first.\n- `self._command_count` breaks ties, preserving first-in, first-out (FIFO) ordering for commands of the same priority.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 213,
+          "end": 223
+        }
+      ],
+      "title": "",
+      "id": "69461",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In `queue_webrtc_request`, a command is enqueued using `self._queue.put((priority, self._command_count, command))`. What is the primary purpose of including `self._command_count` in this tuple?\n\nOptions:\n\n A). It provides a unique identifier for the command, replacing the UUID-based `request_id`.\n\nB). It acts as a tie-breaker to ensure First-In, First-Out (FIFO) ordering for commands with the same priority.\n\nC). It allows the system to dynamically increase a command's priority the longer it waits in the queue.\n\nD). It is used to track the total number of successfully executed commands for status reporting.\n\n\nCorrect: B). It acts as a tie-breaker to ensure First-In, First-Out (FIFO) ordering for commands with the same priority.\n\nExplanation: The `PriorityQueue` sorts its items lexicographically. By using the tuple `(priority, self._command_count, command)`, the queue first sorts by `priority` (lower numbers first). If two commands have the same priority, it then sorts by `self._command_count`, which is a simple incrementing integer. This ensures that commands added earlier (with a lower count) are processed before commands added later, achieving FIFO behavior for items of equal priority.",
+      "title": "",
+      "id": "69472",
+      "text": "In `queue_webrtc_request`, a command is enqueued using `self._queue.put((priority, self._command_count, command))`. What is the primary purpose of including `self._command_count` in this tuple?",
+      "answers": [
+        "It provides a unique identifier for the command, replacing the UUID-based `request_id`.",
+        "It acts as a tie-breaker to ensure First-In, First-Out (FIFO) ordering for commands with the same priority.",
+        "It allows the system to dynamically increase a command's priority the longer it waits in the queue.",
+        "It is used to track the total number of successfully executed commands for status reporting."
+      ],
+      "correct": 1,
+      "explanation": "The `PriorityQueue` sorts its items lexicographically. By using the tuple `(priority, self._command_count, command)`, the queue first sorts by `priority` (lower numbers first). If two commands have the same priority, it then sorts by `self._command_count`, which is a simple incrementing integer. This ensures that commands added earlier (with a lower count) are processed before commands added later, achieving FIFO behavior for items of equal priority."
+    },
+    {
+      "type": "mcq",
+      "description": "In `ros_command_queue.py`, commands are enqueued using a tuple: `(priority, self._command_count, command)`. If two commands with the same `priority` are added to the queue, what determines their execution order?\n\nOptions:\n\n A). The command with the shorter `timeout` value.\n\nB). The `_command_count`, which ensures FIFO (First-In, First-Out) ordering.\n\nC). The `CommandType`, with `WEBRTC` requests taking precedence over `ACTION` requests.\n\nD). The order is non-deterministic and depends on the thread scheduler.\n\n\nCorrect: B). The `_command_count`, which ensures FIFO (First-In, First-Out) ordering.\n\nExplanation: The `PriorityQueue` sorts items based on the tuple elements in order. The primary key is `priority`. If priorities are equal, it uses the next element, `_command_count`, as a tie-breaker. Since `_command_count` is a simple incrementing integer, it enforces that commands added earlier (with a lower count) are processed first, creating a FIFO behavior for items of the same priority. The other factors are not used for sorting.",
+      "title": "",
+      "id": "69462",
+      "text": "In `ros_command_queue.py`, commands are enqueued using a tuple: `(priority, self._command_count, command)`. If two commands with the same `priority` are added to the queue, what determines their execution order?",
+      "answers": [
+        "The command with the shorter `timeout` value.",
+        "The `_command_count`, which ensures FIFO (First-In, First-Out) ordering.",
+        "The `CommandType`, with `WEBRTC` requests taking precedence over `ACTION` requests.",
+        "The order is non-deterministic and depends on the thread scheduler."
+      ],
+      "correct": 1,
+      "explanation": "The `PriorityQueue` sorts items based on the tuple elements in order. The primary key is `priority`. If priorities are equal, it uses the next element, `_command_count`, as a tie-breaker. Since `_command_count` is a simple incrementing integer, it enforces that commands added earlier (with a lower count) are processed first, creating a FIFO behavior for items of the same priority. The other factors are not used for sorting."
+    },
+    {
+      "type": "highlight",
+      "description": "`queue_action_client_request` signature (lines 231–239) handles generic action calls, reusing the same queue/dispatch infrastructure.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 231,
+          "end": 239
+        }
+      ],
+      "title": "",
+      "id": "69473",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 246–259 create a new `request_id`, wrap `execute_func` in `ROSCommand`, and enqueue with `(priority, count, command)`, followed by debug logging—keeping WebRTC and action dispatch uniform.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 246,
+          "end": 259
+        }
+      ],
+      "title": "",
+      "id": "69474",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`_process_queue` start (lines 267–275) logs startup, then loops while `not self._should_stop`. Each iteration begins with `_print_queue_status()`.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 267,
+          "end": 275
+        }
+      ],
+      "title": "",
+      "id": "69475",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Within the loop, lines 279–280 call `is_ready = _is_ready_func()` and `is_busy = _is_busy_func()`. Lines 285–289 detect transitions and timestamp when the robot becomes busy.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 279,
+          "end": 289
+        }
+      ],
+      "title": "",
+      "id": "69465",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The highest-priority command is pulled from the queue. The retrieval is based on the item's priority and its insertion order, which enforces that more important commands run first, with a fallback to FIFO for commands of equal priority. The code then logs API or action details before execution.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 318,
+          "end": 330
+        }
+      ],
+      "title": "",
+      "id": "69467",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Lines 301–309 implement a **\"force processing\"** safety feature: if the robot remains busy longer than `_max_queue_wait_time`, `force_processing` is set to true, preventing deadlock.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 301,
+          "end": 309
+        }
+      ],
+      "title": "",
+      "id": "69476",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "After the command executes, this block handles the outcome. Based on the returned boolean value, the code increments the corresponding success or failure counter and logs the result, helping to maintain execution statistics.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 341,
+          "end": 349
+        }
+      ],
+      "title": "",
+      "id": "69477",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`_print_queue_status` (lines 383–413) rate-limits output to once per second, then logs a snapshot of queue size, robot READY/BUSY state, current command, and OK/FAIL stats—vital for real-time monitoring.",
+      "file": "dimos/robot/ros_command_queue.py",
+      "highlight": [
+        {
+          "start": 383,
+          "end": 413
+        }
+      ],
+      "title": "",
+      "id": "69478",
+      "hideAreas": []
+    }
+  ]
+}

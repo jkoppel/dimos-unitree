@@ -1,0 +1,161 @@
+{
+  "title": "3.6: Perception Data Types",
+  "id": "2vte0OVyEeDs4rQ1UWOGK3PJYOkFKfE8J5tEGQ8Fwn0=",
+  "originalId": 5420,
+  "position": 9,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough covers the standardized perception data types in the `codebase`. It shows how each wrapper class is defined, how they are instantiated in practice, and where `DepthMapType`, `PointCloudType`, `SegmentationType`, and `LabelType` fit in the perception pipeline.",
+      "title": "",
+      "id": "67475"
+    },
+    {
+      "type": "highlight",
+      "description": "**DepthMapType** wraps raw depth data in a `NumPy` array. Lines 19–28 show its constructor saving `depth_data: `np.ndarray`` and optional metadata, standardizing depth-camera output for later processing.",
+      "file": "dimos/types/depth_map.py",
+      "highlight": [
+        {
+          "start": 18,
+          "end": 28
+        }
+      ],
+      "title": "",
+      "id": "67476",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "In `DepthProcessor.process`, the return on line 96 instantiates `DepthMapType`: it packages the inferred depth map alongside its intrinsics metadata.",
+      "file": "dimos/data/depth.py",
+      "highlight": [
+        {
+          "start": 95,
+          "end": 97
+        }
+      ],
+      "title": "",
+      "id": "67477",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`PointCloudType` encapsulates `o3d.geometry.PointCloud`. Lines 19–28 show it storing the raw point cloud and metadata, offering a unified interface for LiDAR or RGB-D data.",
+      "file": "dimos/types/pointcloud.py",
+      "highlight": [
+        {
+          "start": 18,
+          "end": 28
+        }
+      ],
+      "title": "",
+      "id": "67478",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Within `PointCloudProcessor.process_frame`, line 116 wraps each filtered inlier cloud in `PointCloudType`, tagging it with `mask_index` metadata before saving.",
+      "file": "dimos/data/pointcloud.py",
+      "highlight": [
+        {
+          "start": 116,
+          "end": 120
+        }
+      ],
+      "title": "",
+      "id": "67479",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`SegmentationType` holds a list of binary masks (`List[np.ndarray]`). Lines 19–28 define its constructor, capturing per-object or per-region masks plus metadata.",
+      "file": "dimos/types/segmentation.py",
+      "highlight": [
+        {
+          "start": 18,
+          "end": 28
+        }
+      ],
+      "title": "",
+      "id": "67480",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "In `SemanticSegmentationStream.create_stream`, the model's output is converted into the standardized `SegmentationType` wrapper and returned.",
+      "file": "dimos/perception/semantic_seg.py",
+      "highlight": [
+        {
+          "start": 178,
+          "end": 180
+        }
+      ],
+      "title": "",
+      "id": "67481",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`LabelType` stores `labels: Dict[str, Any]`. Lines 18–25 show it accepting rich label dictionaries (e.g. object IDs and descriptions) plus optional metadata.",
+      "file": "dimos/types/label.py",
+      "highlight": [
+        {
+          "start": 17,
+          "end": 25
+        }
+      ],
+      "title": "",
+      "id": "67482",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Here on line 39, the model's output is packaged into the `LabelType` wrapper, along with the frame's ID as metadata.",
+      "file": "dimos/data/labels.py",
+      "highlight": [
+        {
+          "start": 36,
+          "end": 39
+        }
+      ],
+      "title": "",
+      "id": "67483",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`DataPipeline._process_frame` (lines 121–131) shows how these wrappers interoperate: depth maps feed point-cloud processing, labels enable segmentation, and all types flow through the pipeline.",
+      "file": "dimos/data/data_pipeline.py",
+      "highlight": [
+        {
+          "start": 121,
+          "end": 131
+        }
+      ],
+      "title": "",
+      "id": "67484",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In `DataPipeline._process_frame`, which data type instance must be available for the `segmentation_processor` to run?\n\nOptions:\n\n A). An instance of `DepthMapType`.\n\nB). An instance of `LabelType`.\n\nC). An instance of `PointCloudType`.\n\nD). A raw `np.ndarray` of masks.\n\n\nCorrect: B). An instance of `LabelType`.\n\nExplanation: The correct answer is an instance of `LabelType`. The conditional check on line 130, `isinstance(label, LabelType)`, confirms that a `LabelType` object must exist before the `segmentation_processor` can run. The pipeline uses the labels from this object to guide the segmentation. `DepthMapType` is required for point cloud processing, not segmentation, as shown on line 127.",
+      "title": "",
+      "id": "67486",
+      "text": "In `DataPipeline._process_frame`, which data type instance must be available for the `segmentation_processor` to run?",
+      "answers": [
+        "An instance of `DepthMapType`.",
+        "An instance of `LabelType`.",
+        "An instance of `PointCloudType`.",
+        "A raw `np.ndarray` of masks."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is an instance of `LabelType`. The conditional check on line 130, `isinstance(label, LabelType)`, confirms that a `LabelType` object must exist before the `segmentation_processor` can run. The pipeline uses the labels from this object to guide the segmentation. `DepthMapType` is required for point cloud processing, not segmentation, as shown on line 127."
+    },
+    {
+      "type": "textOnly",
+      "description": "Now you've seen class definitions and real instantiations of `DepthMapType`, `PointCloudType`, `SegmentationType`, and `LabelType`. These standardized wrappers—and their consistent constructor signatures—ensure smooth data exchange across the perception pipeline.",
+      "title": "",
+      "id": "67485"
+    }
+  ]
+}

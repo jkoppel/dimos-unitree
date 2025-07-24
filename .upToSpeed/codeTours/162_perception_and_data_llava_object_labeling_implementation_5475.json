@@ -1,0 +1,154 @@
+{
+  "title": "16.2: Perception & Data: LLaVA Object Labeling Implementation",
+  "id": "TbrZmG1CV4NlprhghmOrg07nVKSKDcV2yOgsxblGybg=",
+  "originalId": 5475,
+  "position": 59,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Let's explore the **LLaVA-34B** vision-language model implementation in the `DIMOS` robotics codebase. This walkthrough will show how camera frames are transformed into structured object descriptions that enable robotic planning and navigation.",
+      "title": "",
+      "id": "67972"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/models/labels/llava-34b.py"
+      ],
+      "description": "This file implements a wrapper around the `LLaVA` (Large Language and Vision Assistant) model. `LLaVA` is a multimodal AI that can understand both images and text. This capability allows robots to perceive and reason about their visual environment.",
+      "title": "",
+      "id": "67973",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The imports reveal the model's architecture dependencies. `json` and `os` handle data serialization and file system paths. `Llama` from `llama_cpp` provides the core language model inference engine, while `Llava15ChatHandler` adds vision capabilities by bridging the `CLIP` vision encoder with the language model. The `image_to_base64_data_uri` utility converts raw image data into base64-encoded data URIs that multimodal APIs can process in `json` messages.",
+      "file": "dimos/models/labels/llava-34b.py",
+      "highlight": [
+        {
+          "start": 16,
+          "end": 23
+        }
+      ],
+      "title": "",
+      "id": "67974",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The constructor loads two separate model components: `mmproj` (line 25) contains the vision encoder weights that process images, while `model_path` holds the language model that generates text. The **gpu** flag controls **hardware acceleration** - when True, `n_gpu_layers=-1` (line 29) moves all model layers to GPU memory for faster inference critical in real-time robotics. Line 26 creates the `Llava15ChatHandler` that coordinates between vision and language processing, while line 30 initializes the complete model with 2048 context tokens.",
+      "file": "dimos/models/labels/llava-34b.py",
+      "highlight": [
+        {
+          "start": 25,
+          "end": 31
+        }
+      ],
+      "title": "",
+      "id": "67975",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the `Llava` class constructor, what distinct roles do the `mmproj` and `model_path` parameters serve in initializing the multimodal model?\n\nOptions:\n\n A). `mmproj` specifies the path to the vision encoder model that processes images, while `model_path` points to the language model that generates textual descriptions.\n\nB). `mmproj` defines the main language model weights, and `model_path` provides a path to a smaller, specialized projection model for text processing.\n\nC). Both parameters point to components of the language model; `mmproj` is for the core model and `model_path` is for an adapter fine-tuned for chat.\n\nD). `mmproj` is a configuration file that sets inference parameters like context size, while `model_path` loads the actual model weights.\n\n\nCorrect: A). `mmproj` specifies the path to the vision encoder model that processes images, while `model_path` points to the language model that generates textual descriptions.\n\nExplanation: The correct answer accurately reflects the code. The `mmproj` path is passed to `Llava15ChatHandler` as the `clip_model_path`, which is the vision encoder. The `model_path` is passed directly to the `Llama` constructor, which loads the core language model. The other options incorrectly swap the roles, ignore the vision component entirely, or misinterpret the parameters as configuration files.",
+      "title": "",
+      "id": "67991",
+      "text": "In the `Llava` class constructor, what distinct roles do the `mmproj` and `model_path` parameters serve in initializing the multimodal model?",
+      "answers": [
+        "`mmproj` specifies the path to the vision encoder model that processes images, while `model_path` points to the language model that generates textual descriptions.",
+        "`mmproj` defines the main language model weights, and `model_path` provides a path to a smaller, specialized projection model for text processing.",
+        "Both parameters point to components of the language model; `mmproj` is for the core model and `model_path` is for an adapter fine-tuned for chat.",
+        "`mmproj` is a configuration file that sets inference parameters like context size, while `model_path` loads the actual model weights."
+      ],
+      "correct": 0,
+      "explanation": "The correct answer accurately reflects the code. The `mmproj` path is passed to `Llava15ChatHandler` as the `clip_model_path`, which is the vision encoder. The `model_path` is passed directly to the `Llama` constructor, which loads the core language model. The other options incorrectly swap the roles, ignore the vision component entirely, or misinterpret the parameters as configuration files."
+    },
+    {
+      "type": "highlight",
+      "description": "The core inference pipeline starts on line 34 with **image_to_base64_data_uri** - this conversion is necessary because multimodal chat APIs require images as web-compatible `data URIs` rather than raw pixel arrays. Lines 35-46 structure the conversation using `OpenAI`'s chat format: a system message defines the assistant's role, while the user message contains both the encoded image (line 40) and text prompt (line 41). Lines 47-50 demonstrate why structured **JSON** is preferred - robotics systems need consistent, machine-parseable object descriptions rather than free-form text that's hard to process programmatically.",
+      "file": "dimos/models/labels/llava-34b.py",
+      "highlight": [
+        {
+          "start": 33,
+          "end": 50
+        }
+      ],
+      "title": "",
+      "id": "67976",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "In the `Llava` class, what is the primary reason for the `extract_descriptions_from_incomplete_json` method's existence?\n\nOptions:\n\n A). To convert the model's free-form text output into a structured JSON format based on detected keywords.\n\nB). To repair truncated or incomplete JSON strings from the model, ensuring the output is always parsable before being used downstream.\n\nC). To validate the completed JSON against a strict schema, ensuring fields like 'description' are always present for every object.\n\nD). To remove redundant or duplicate object descriptions that the model might generate for a single image.\n\n\nCorrect: B). To repair truncated or incomplete JSON strings from the model, ensuring the output is always parsable before being used downstream.\n\nExplanation: The correct answer is that the method repairs incomplete JSON. Language models can be stopped mid-generation due to token limits, resulting in a truncated string that is not valid JSON. This method (lines 53-61) attempts to fix this by finding the last complete object and properly closing the JSON structure. While duplicate removal happens later (line 48), it is not the purpose of this specific function. The function does not convert text to JSON (it expects JSON-like text) or perform schema validation.",
+      "title": "",
+      "id": "67992",
+      "text": "In the `Llava` class, what is the primary reason for the `extract_descriptions_from_incomplete_json` method's existence?",
+      "answers": [
+        "To convert the model's free-form text output into a structured JSON format based on detected keywords.",
+        "To repair truncated or incomplete JSON strings from the model, ensuring the output is always parsable before being used downstream.",
+        "To validate the completed JSON against a strict schema, ensuring fields like 'description' are always present for every object.",
+        "To remove redundant or duplicate object descriptions that the model might generate for a single image."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is that the method repairs incomplete JSON. Language models can be stopped mid-generation due to token limits, resulting in a truncated string that is not valid JSON. This method (lines 53-61) attempts to fix this by finding the last complete object and properly closing the JSON structure. While duplicate removal happens later (line 48), it is not the purpose of this specific function. The function does not convert text to JSON (it expects JSON-like text) or perform schema validation."
+    },
+    {
+      "type": "highlight",
+      "description": "Language models often generate incomplete **JSON** due to token limits or early stopping, so this method repairs truncated responses. Lines 54-61 implement the repair logic: finding the last complete object entry (line 54) and adding proper **JSON** closure. This truncation happens because the model may hit token limits while generating long object lists. Lines 63-67 parse the repaired **JSON** and extract only the `description` fields, removing periods for consistent formatting. The **set()** operation removes duplicates while preserving unique object descriptions needed for robotics perception.",
+      "file": "dimos/models/labels/llava-34b.py",
+      "highlight": [
+        {
+          "start": 53,
+          "end": 68
+        }
+      ],
+      "title": "",
+      "id": "67977",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/data/labels.py"
+      ],
+      "description": "Now let's see how the **LLaVA model** integrates into the robotics perception pipeline. This `LabelProcessor` provides the high-level interface that connects camera inputs to structured object understanding for planning systems.",
+      "title": "",
+      "id": "67978",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The LabelProcessor imports the `Llava` class (line 16) and defines a carefully crafted `prompt template` (line 23). This prompt is critical for robotics - it specifically requests **JSON** with numbered objects and six-word descriptions, ensuring consistent output format that planning algorithms can reliably parse. The example format shows exactly how the robot should understand its environment: discrete, identifiable objects with concise but descriptive labels.",
+      "file": "dimos/data/labels.py",
+      "highlight": [
+        {
+          "start": 16,
+          "end": 24
+        }
+      ],
+      "title": "",
+      "id": "67979",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The model uses lazy initialization (line 27), a technique that helps manage memory and startup time in robotics systems. The repeated import (line 28) avoids circular dependencies common with heavy ML models. Line 29 instantiates the `Llava` model with the same vision and language model files, while line 36 demonstrates the complete perception pipeline: **run_inference** processes the camera frame with the structured prompt to generate object descriptions for robotic decision-making.",
+      "file": "dimos/data/labels.py",
+      "highlight": [
+        {
+          "start": 27,
+          "end": 33
+        }
+      ],
+      "title": "",
+      "id": "67980",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "**Complete Robotics Perception Pipeline**: Camera sensor captures frame → Frame converted to base64 data URI for API compatibility → LLaVA model processes image with structured prompt → Raw JSON response repaired and parsed → Object descriptions extracted and deduplicated → `LabelType` object created containing structured environment understanding → Downstream robotics planning and navigation systems use these object descriptions to make movement and manipulation decisions.",
+      "title": "",
+      "id": "67981"
+    }
+  ]
+}

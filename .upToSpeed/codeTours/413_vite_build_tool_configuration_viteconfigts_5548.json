@@ -1,0 +1,156 @@
+{
+  "title": "41.3: Vite Build Tool Configuration (`vite.config.ts`)",
+  "id": "e2LjtlNgcqIFtv7fhDkZ/HwV85mCQN2UtWjqwl80mck=",
+  "originalId": 5548,
+  "position": 165,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough examines the Vite configuration in `vite.config.ts`, focusing on the `Svelte` plugin integration and the **proxy setup** that enables communication with backend services during development.",
+      "title": "",
+      "id": "68937"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/web/dimos_interface/vite.config.ts"
+      ],
+      "description": "Here's the complete `Vite configuration file` that orchestrates the development environment for this **Svelte** application.",
+      "title": "",
+      "id": "68938",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "We start by importing the Svelte plugin alongside Vite's standard configuration function. This import brings in the necessary tooling to compile Svelte components.",
+      "file": "dimos/web/dimos_interface/vite.config.ts",
+      "highlight": [
+        {
+          "start": 17,
+          "end": 18
+        }
+      ],
+      "title": "",
+      "id": "68939",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Svelte` plugin is activated by calling `svelte()` within the plugins array. This single line enables `Vite` to process `.svelte` files and handle all Svelte-specific compilation tasks.",
+      "file": "dimos/web/dimos_interface/vite.config.ts",
+      "highlight": [
+        {
+          "start": 21,
+          "end": 22
+        }
+      ],
+      "title": "",
+      "id": "68940",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The development server is configured to run on port 3000. The `watch` configuration uses polling instead of filesystem events for better cross-platform compatibility, while excluding large directories like `node_modules` to improve performance.",
+      "file": "dimos/web/dimos_interface/vite.config.ts",
+      "highlight": [
+        {
+          "start": 23,
+          "end": 30
+        }
+      ],
+      "title": "",
+      "id": "68941",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `proxy` configuration is the key to enabling frontend-backend communication during development. It forwards specific request paths to different backend services, eliminating CORS issues.",
+      "file": "dimos/web/dimos_interface/vite.config.ts",
+      "highlight": [
+        {
+          "start": 31,
+          "end": 31
+        }
+      ],
+      "title": "",
+      "id": "68942",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `/api` proxy demonstrates sophisticated request forwarding. It targets an **AWS API Gateway**, uses `changeOrigin: true` to modify the Host header, and rewrites paths from `/api` to `/default/getGenesis`. The `configure` function adds comprehensive logging for debugging.",
+      "file": "dimos/web/dimos_interface/vite.config.ts",
+      "highlight": [
+        {
+          "start": 32,
+          "end": 47
+        }
+      ],
+      "title": "",
+      "id": "68943",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "When a frontend component sends a request to `/api`, which of the following describes how the Vite dev server's proxy handles it?\n\nOptions:\n\n A). The request is sent to `https://0rqz7w5rvf.execute-api.us-east-2.amazonaws.com/api`.\n\nB). The request is sent to `https://0rqz7w5rvf.execute-api.us-east-2.amazonaws.com/default/getGenesis`.\n\nC). The request is sent to `http://0.0.0.0:5555/api`.\n\n\nCorrect: B). The request is sent to `https://0rqz7w5rvf.execute-api.us-east-2.amazonaws.com/default/getGenesis`.\n\nExplanation: The correct answer is determined by combining the `target` and the result of the `rewrite` function. The proxy rule for `/api` has a `target` of `https://0rqz7w5rvf.execute-api.us-east-2.amazonaws.com`. The `rewrite` function, `path.replace(/^\\/api/, '/default/getGenesis')`, replaces the `/api` at the start of the path with `/default/getGenesis`. Therefore, a request to `/api` is forwarded to the target URL with the rewritten path appended.",
+      "title": "",
+      "id": "68948",
+      "text": "When a frontend component sends a request to `/api`, which of the following describes how the Vite dev server's proxy handles it?",
+      "answers": [
+        "The request is sent to `https://0rqz7w5rvf.execute-api.us-east-2.amazonaws.com/api`.",
+        "The request is sent to `https://0rqz7w5rvf.execute-api.us-east-2.amazonaws.com/default/getGenesis`.",
+        "The request is sent to `http://0.0.0.0:5555/api`."
+      ],
+      "correct": 1,
+      "explanation": "The correct answer is determined by combining the `target` and the result of the `rewrite` function. The proxy rule for `/api` has a `target` of `https://0rqz7w5rvf.execute-api.us-east-2.amazonaws.com`. The `rewrite` function, `path.replace(/^\\/api/, '/default/getGenesis')`, replaces the `/api` at the start of the path with `/default/getGenesis`. Therefore, a request to `/api` is forwarded to the target URL with the rewritten path appended."
+    },
+    {
+      "type": "highlight",
+      "description": "The `/unitree` proxy targets `http://0.0.0.0:5555` - this is likely the local `FastAPI` backend server. The configuration includes similar logging capabilities to monitor requests during development.",
+      "file": "dimos/web/dimos_interface/vite.config.ts",
+      "highlight": [
+        {
+          "start": 48,
+          "end": 62
+        }
+      ],
+      "title": "",
+      "id": "68944",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `/text_streams` proxy also connects to port `5555`, the same `FastAPI` backend. While the user mentioned `/ws` endpoints, this proxy likely handles streaming or WebSocket-like communication with the backend server.",
+      "file": "dimos/web/dimos_interface/vite.config.ts",
+      "highlight": [
+        {
+          "start": 63,
+          "end": 77
+        }
+      ],
+      "title": "",
+      "id": "68945",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The configuration concludes by enabling CORS and exposing environment variables to the application through the `define` property, ensuring the frontend can access necessary runtime configuration.",
+      "file": "dimos/web/dimos_interface/vite.config.ts",
+      "highlight": [
+        {
+          "start": 91,
+          "end": 96
+        }
+      ],
+      "title": "",
+      "id": "68946",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This **proxy setup** elegantly solves development challenges by allowing the **frontend** on `port 3000` to seamlessly communicate with multiple **backend services**, including the **FastAPI server** on `port 5555` and external `AWS services`, all while maintaining clean separation of concerns.",
+      "title": "",
+      "id": "68947"
+    }
+  ]
+}

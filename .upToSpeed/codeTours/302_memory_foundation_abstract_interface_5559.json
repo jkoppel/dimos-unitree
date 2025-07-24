@@ -1,0 +1,180 @@
+{
+  "title": "30.2: Memory Foundation: Abstract Interface",
+  "id": "85N4FI0dNzOl5pAVIUPjwmReA2hznrU2QwxFrj3bnPg=",
+  "originalId": 5559,
+  "position": 114,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This guide provides a deep dive into the `AbstractAgentSemanticMemory` class, located in `dimos/agents/memory/base.py`. We will explore the class's initialization process, its handling of different database connection types, and the specific roles of its abstract methods for managing vector data.",
+      "title": "",
+      "id": "69049"
+    },
+    {
+      "type": "textOnly",
+      "description": "The `AbstractAgentSemanticMemory` class serves as a blueprint for managing semantic memory in intelligent agents. Its design specifies the functionalities required for interacting with a `vector database`, whether local or remote. Let's start by examining the initialization logic.",
+      "title": "",
+      "id": "69050"
+    },
+    {
+      "type": "highlight",
+      "description": "Initialization is handled by the `__init__` method. It uses the `connection_type` parameter to determine whether the system should connect to a remote database or create a local one. The method also captures any additional keyword arguments, which can be used for connection parameters.",
+      "file": "dimos/agents/memory/base.py",
+      "highlight": [
+        {
+          "start": 27,
+          "end": 53
+        }
+      ],
+      "title": "",
+      "id": "69051",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The method begins by setting up a logger and handling the `connection_type`. If the `connection_type` is not `local` or `remote`, it raises a custom `UnknownConnectionTypeError`. This ensures that the system fails fast if improperly configured.",
+      "file": "dimos/agents/memory/base.py",
+      "highlight": [
+        {
+          "start": 41,
+          "end": 44
+        }
+      ],
+      "title": "",
+      "id": "69052",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "If the `connection_type` is valid, the method proceeds to establish the database connection. It calls `self.connect()` for a `'remote'` type or `self.create()` for a `'local'` type. This design delegates the specific connection logic to be implemented by concrete subclasses.",
+      "file": "dimos/agents/memory/base.py",
+      "highlight": [
+        {
+          "start": 47,
+          "end": 50
+        }
+      ],
+      "title": "",
+      "id": "69053",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Any exception during the connection or creation process is caught and wrapped in an `AgentMemoryConnectionError`. This provides a clear, high-level exception that signals a failure to initialize the database connection, while preserving the original exception details.",
+      "file": "dimos/agents/memory/base.py",
+      "highlight": [
+        {
+          "start": 46,
+          "end": 53
+        }
+      ],
+      "title": "",
+      "id": "69054",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "A subclass of `AbstractAgentSemanticMemory` is instantiated with `connection_type='remote'`. The implementation of the `connect()` method raises a standard `ConnectionError` due to a network timeout. According to the `__init__` method's logic, what exception will be propagated to the caller?\n\nOptions:\n\n A). UnknownConnectionTypeError\n\nB). AgentMemoryConnectionError\n\nC). ConnectionError\n\n\nCorrect: B). AgentMemoryConnectionError\n\nExplanation: The `__init__` method wraps any exception that occurs during the `self.connect()` or `self.create()` calls within an `AgentMemoryConnectionError`. This design provides a specific, high-level exception for initialization failures, while preserving the original error. `UnknownConnectionTypeError` is raised only if the `connection_type` string itself is invalid (e.g., not 'local' or 'remote'). The original `ConnectionError` is caught and not propagated directly.",
+      "title": "",
+      "id": "69062",
+      "text": "A subclass of `AbstractAgentSemanticMemory` is instantiated with `connection_type='remote'`. The implementation of the `connect()` method raises a standard `ConnectionError` due to a network timeout. According to the `__init__` method's logic, what exception will be propagated to the caller?",
+      "answers": [
+        "UnknownConnectionTypeError",
+        "AgentMemoryConnectionError",
+        "ConnectionError"
+      ],
+      "correct": 1,
+      "explanation": "The `__init__` method wraps any exception that occurs during the `self.connect()` or `self.create()` calls within an `AgentMemoryConnectionError`. This design provides a specific, high-level exception for initialization failures, while preserving the original error. `UnknownConnectionTypeError` is raised only if the `connection_type` string itself is invalid (e.g., not 'local' or 'remote'). The original `ConnectionError` is caught and not propagated directly."
+    },
+    {
+      "type": "highlight",
+      "description": "The **abstract methods** `connect()` and `create()` methods are defined as abstract methods, meaning they must be implemented by any class that inherits from `AbstractAgentSemanticMemory`. `connect()` is intended for establishing a connection to a remote data store, while `create()` is for setting up a local instance.",
+      "file": "dimos/agents/memory/base.py",
+      "highlight": [
+        {
+          "start": 56,
+          "end": 62
+        }
+      ],
+      "title": "",
+      "id": "69055",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The class defines abstract methods for **CRUD operations**. First, `add_vector` is used to store a new vector in the database, taking a unique `vector_id` and the `vector_data`.",
+      "file": "dimos/agents/memory/base.py",
+      "highlight": [
+        {
+          "start": 66,
+          "end": 71
+        }
+      ],
+      "title": "",
+      "id": "69056",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "For reading data, `get_vector` retrieves a vector using its unique identifier.",
+      "file": "dimos/agents/memory/base.py",
+      "highlight": [
+        {
+          "start": 75,
+          "end": 79
+        }
+      ],
+      "title": "",
+      "id": "69057",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `query` method is central to the semantic search functionality. It searches for vectors that are semantically similar to the `query_texts`. The `n_results` parameter limits the number of results, and `similarity_threshold` filters them based on a minimum similarity score. The method returns a list of tuples, each containing a retrieved document and its similarity score.",
+      "file": "dimos/agents/memory/base.py",
+      "highlight": [
+        {
+          "start": 82,
+          "end": 99
+        }
+      ],
+      "title": "",
+      "id": "69058",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "To modify data, the `update_vector` method allows for changing the data of an existing vector, identified by its `vector_id`.",
+      "file": "dimos/agents/memory/base.py",
+      "highlight": [
+        {
+          "start": 103,
+          "end": 108
+        }
+      ],
+      "title": "",
+      "id": "69059",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "To remove data, the `delete_vector` method removes a vector from the database entirely, operating on a specific `vector_id`.",
+      "file": "dimos/agents/memory/base.py",
+      "highlight": [
+        {
+          "start": 112,
+          "end": 116
+        }
+      ],
+      "title": "",
+      "id": "69060",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "In summary, `AbstractAgentSemanticMemory` provides an interface for semantic memory operations. It ensures that any implementation will have a consistent API for connection, data management, and error handling, making it a foundational component for building AI agents.",
+      "title": "",
+      "id": "69061"
+    }
+  ]
+}

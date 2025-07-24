@@ -1,0 +1,243 @@
+{
+  "title": "21.1: Perception & Data (2D Object Detection): Overview",
+  "id": "se86dHLjeSx6AECJP2oUo8LFkiZZ+x9mhJjwZAIEO9Y=",
+  "originalId": 5483,
+  "position": 70,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "Welcome to the **2D Object Detection** component walkthrough. This component provides two different approaches for detecting and tracking objects in images: open-vocabulary detection with `Detic` and detection with `YOLO` models.",
+      "title": "",
+      "id": "68014"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/detection2d/detic_2d_det.py"
+      ],
+      "description": "The **Detic implementation** provides open-vocabulary 2D object detection using the `Detic` model with `Detectron2`. This file contains both the main detector class and a simple IoU-based tracker for maintaining object identities across frames.",
+      "title": "",
+      "id": "68015",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/detection2d/yolo_2d_det.py"
+      ],
+      "description": "The **YOLO implementation** offers 2D object detection and tracking using `Ultralytics YOLO` models. It leverages pre-trained `COCO` classes with built-in tracking capabilities for real-time detection.",
+      "title": "",
+      "id": "68016",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/detection2d/utils.py"
+      ],
+      "description": "The **`utilities module`** contains shared functions used by both detectors. This includes detection result processing, filtering, visualization, and depth calculations for converting 2D detections into spatial information.",
+      "title": "",
+      "id": "68017",
+      "hideAreas": []
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/perception/detection2d/config/custom_tracker.yaml"
+      ],
+      "description": "The **tracker configuration** defines parameters for the `BoT-SORT` object tracker used with `YOLO`. This YAML file controls tracking thresholds, buffer sizes, and motion compensation methods.",
+      "title": "",
+      "id": "68018",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Detic2DDetector` class supports custom vocabularies for open-vocabulary detection. The constructor accepts a `vocabulary` parameter that can be either built-in datasets like `lvis` or `coco`, or custom class lists for specialized detection tasks.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 134,
+          "end": 144
+        }
+      ],
+      "title": "",
+      "id": "68019",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The `Yolo2DDetector` class provides a simpler interface focused on efficiency. It uses pre-trained **YOLO** models with the `COCO` dataset classes and integrates tracking capabilities directly through the `Ultralytics` framework.",
+      "file": "dimos/perception/detection2d/yolo_2d_det.py",
+      "highlight": [
+        {
+          "start": 8,
+          "end": 16
+        }
+      ],
+      "title": "",
+      "id": "68020",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Detic's vocabulary system** is its key differentiator. The `setup_vocabulary()` method can handle both built-in datasets (lines 232-238) and custom vocabularies. For built-in datasets, it uses pre-computed CLIP embeddings stored as `numpy` files.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 219,
+          "end": 238
+        }
+      ],
+      "title": "",
+      "id": "68021",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "For custom vocabularies, Detic **generates CLIP embeddings on-the-fly**. The `_get_clip_embeddings()` method uses a text encoder to convert class names into semantic embeddings that the model can understand, enabling true open-vocabulary detection.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 267,
+          "end": 282
+        }
+      ],
+      "title": "",
+      "id": "68022",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**YOLO's tracking integration** is handled through the `Ultralytics` framework. The `model.track()` call on line 38 combines detection and tracking in a single operation, using the custom `BoT-SORT` configuration for object tracking.",
+      "file": "dimos/perception/detection2d/yolo_2d_det.py",
+      "highlight": [
+        {
+          "start": 38,
+          "end": 46
+        }
+      ],
+      "title": "",
+      "id": "68023",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Since Detic doesn't have built-in tracking, the implementation includes a `SimpleTracker` class. This IoU-based tracker maintains object identities by calculating intersection-over-union between detections across frames (lines 34-49).",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 25,
+          "end": 49
+        }
+      ],
+      "title": "",
+      "id": "68024",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "Based on the code, what is the primary capability that distinguishes `Detic2DDetector` from `Yolo2DDetector`?\n\nOptions:\n\n A). It offers more advanced, integrated object tracking using the BoT-SORT algorithm.\n\nB). It is more computationally efficient and optimized for real-time performance on edge devices.\n\nC). It supports open-vocabulary detection, allowing it to detect object classes defined at runtime.\n\nD). It relies on a single, simple YAML file for all of its model and tracker configuration.\n\n\nCorrect: C). It supports open-vocabulary detection, allowing it to detect object classes defined at runtime.\n\nExplanation: The correct answer is that `Detic2DDetector` supports open-vocabulary detection. Its `setup_vocabulary` and `_get_clip_embeddings` methods allow it to generate embeddings for custom class names on-the-fly. In contrast, `Yolo2DDetector` uses the more advanced BoT-SORT tracker and is positioned as the more efficient, real-time option, while its classes are fixed by the pre-trained model (e.g., COCO).",
+      "title": "",
+      "id": "68032",
+      "text": "Based on the code, what is the primary capability that distinguishes `Detic2DDetector` from `Yolo2DDetector`?",
+      "answers": [
+        "It offers more advanced, integrated object tracking using the BoT-SORT algorithm.",
+        "It is more computationally efficient and optimized for real-time performance on edge devices.",
+        "It supports open-vocabulary detection, allowing it to detect object classes defined at runtime.",
+        "It relies on a single, simple YAML file for all of its model and tracker configuration."
+      ],
+      "correct": 2,
+      "explanation": "The correct answer is that `Detic2DDetector` supports open-vocabulary detection. Its `setup_vocabulary` and `_get_clip_embeddings` methods allow it to generate embeddings for custom class names on-the-fly. In contrast, `Yolo2DDetector` uses the more advanced BoT-SORT tracker and is positioned as the more efficient, real-time option, while its classes are fixed by the pre-trained model (e.g., COCO)."
+    },
+    {
+      "type": "highlight",
+      "description": "The **package interface** imports `utilities` and the `YOLO` detector, but notably excludes the `Detic` detector. This suggests that `YOLO` is the primary detection method used by the rest of the DimOS codebase, while `Detic` is available as an alternative for specialized use cases.",
+      "file": "dimos/perception/detection2d/__init__.py",
+      "highlight": [
+        {
+          "start": 1,
+          "end": 2
+        }
+      ],
+      "title": "",
+      "id": "68025",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Both detector classes follow a **common interface pattern**. The `process_image()` method returns a standardized tuple of detection results including bounding boxes, track IDs, class information, and confidence scores.",
+      "file": "dimos/perception/detection2d/yolo_2d_det.py",
+      "highlight": [
+        {
+          "start": 23,
+          "end": 37
+        }
+      ],
+      "title": "",
+      "id": "68026",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **Detic detector** implements the **same `process_image()` interface**. Notice how both detectors return identical output formats, allowing them to be used interchangeably in the larger **DimOS system** despite using completely different underlying models.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 284,
+          "end": 298
+        }
+      ],
+      "title": "",
+      "id": "68027",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Both classes also provide identical `visualize_results()` methods. The **YOLO** implementation delegates to the shared utility function, ensuring consistent visualization across both detection approaches.",
+      "file": "dimos/perception/detection2d/yolo_2d_det.py",
+      "highlight": [
+        {
+          "start": 55,
+          "end": 70
+        }
+      ],
+      "title": "",
+      "id": "68028",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The **Detic detector**'s `visualize_results()` method follows the same signature and behavior, completing the common interface pattern. This standardization allows the rest of the **DimOS system** to work with either detector transparently.",
+      "file": "dimos/perception/detection2d/detic_2d_det.py",
+      "highlight": [
+        {
+          "start": 349,
+          "end": 365
+        }
+      ],
+      "title": "",
+      "id": "68029",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "The shared **`plot_results()` function** handles visualization for both detectors. It generates consistent colors based on track IDs (line 150) or class names (line 152), ensuring objects maintain their visual identity across frames.",
+      "file": "dimos/perception/detection2d/utils.py",
+      "highlight": [
+        {
+          "start": 129,
+          "end": 154
+        }
+      ],
+      "title": "",
+      "id": "68030",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "This component design uses two complementary approaches: `Detic` for scenarios requiring custom vocabularies or open-vocabulary detection, and `YOLO` for efficient real-time detection with tracking. The standardized interface facilitates integration with other `DimOS` perception modules, allowing each detector to be used for its specific capabilities.",
+      "title": "",
+      "id": "68031"
+    }
+  ]
+}

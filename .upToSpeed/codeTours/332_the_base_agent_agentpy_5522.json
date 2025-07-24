@@ -1,0 +1,219 @@
+{
+  "title": "33.2: The Base Agent: `agent.py`",
+  "id": "MPqgiT/UN548nZJH7j6JTlNTCbA/ytDma1T7fwG/OU8=",
+  "originalId": 5522,
+  "position": 123,
+  "steps": [
+    {
+      "type": "textOnly",
+      "description": "This walkthrough addresses the agent architecture in `dimos/agents/agent.py` and clarifies mismatches: the query assumes `run()` and `_process_input()` methods and direct `Agent→OpenAIAgent` inheritance, but the actual code uses reactive streams and includes an intermediate `LLMAgent` class.",
+      "title": "",
+      "id": "68656"
+    },
+    {
+      "type": "revealFiles",
+      "files": [
+        "dimos/agents/agent.py"
+      ],
+      "description": "This file defines a layered agent framework for LLM-based autonomous systems, with three classes: `Agent` (base), `LLMAgent` (adds streaming and LLM logic), and `OpenAIAgent` (concrete **OpenAI** implementation).",
+      "title": "",
+      "id": "68657",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`Agent` is a concrete base class that handles memory and subscription management. Its constructor parameters are `dev_name`, `agent_type`, `agent_memory`, and `pool_scheduler`, not streaming or skill parameters.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 75,
+          "end": 83
+        }
+      ],
+      "title": "",
+      "id": "68658",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`Agent.dispose_all()` disposes of all reactive subscriptions via `CompositeDisposable`, preventing memory leaks by closing all streams.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 93,
+          "end": 99
+        }
+      ],
+      "title": "",
+      "id": "68659",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "Missing methods: There is no `run()` or `_process_input()` in `Agent`. Instead, `LLMAgent` defines an abstract `_send_query()` method as the extension point.",
+      "title": "",
+      "id": "68660"
+    },
+    {
+      "type": "highlight",
+      "description": "Subclasses must implement this method to handle the actual API call to the language model.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 412,
+          "end": 419
+        }
+      ],
+      "title": "",
+      "id": "68661",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**`LLMAgent` constructor introduces streaming parameters: `input_query_stream`, `input_data_stream`, `input_video_stream`, and `process_all_inputs`. These were assumed to be in `Agent` but reside here.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 145,
+          "end": 153
+        }
+      ],
+      "title": "",
+      "id": "68662",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Reactive orchestration**: `LLMAgent` merges or subscribes to streams in its constructor instead of a `run()` loop, enabling asynchronous multimodal processing.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 205,
+          "end": 213
+        }
+      ],
+      "title": "",
+      "id": "68663",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`_observable_query()` is the core pipeline. It updates the query, retrieves **RAG context**, builds prompts, calls `_send_query()`, and emits the response through an Observer.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 356,
+          "end": 364
+        }
+      ],
+      "title": "",
+      "id": "68664",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`_get_rag_context()` queries `agent_memory` to fetch similar documents for **RAG**, returning formatted results for logging and condensed content for prompts.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 241,
+          "end": 249
+        }
+      ],
+      "title": "",
+      "id": "68665",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "`OpenAIAgent` inherits from `LLMAgent`, not directly from `Agent`—automatically gaining `streaming` and `RAG` capabilities.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 660,
+          "end": 666
+        }
+      ],
+      "title": "",
+      "id": "68666",
+      "hideAreas": []
+    },
+    {
+      "type": "mcq",
+      "description": "To create a new agent (e.g., `ClaudeAgent`) by subclassing `LLMAgent`, which method must be implemented to handle the API-specific communication?\n\nOptions:\n\n A). subscribe_to_query_processing()\n\nB). _observable_query()\n\nC). _send_query()\n\nD). __init__()\n\n\nCorrect: C). _send_query()\n\nExplanation: `LLMAgent` defines `_send_query()` as an abstract method that raises `NotImplementedError`. This is the designated extension point for any subclass, like `OpenAIAgent` or a hypothetical `ClaudeAgent`, to provide the specific logic for communicating with its target LLM API. The other methods have different roles: `_observable_query()` orchestrates the entire process and calls `_send_query()`, while `subscribe_to_query_processing()` connects the agent to an input stream. While `__init__()` is implemented, its role is configuration, not API communication.",
+      "title": "",
+      "id": "68672",
+      "text": "To create a new agent (e.g., `ClaudeAgent`) by subclassing `LLMAgent`, which method must be implemented to handle the API-specific communication?",
+      "answers": [
+        "subscribe_to_query_processing()",
+        "_observable_query()",
+        "_send_query()",
+        "__init__()"
+      ],
+      "correct": 2,
+      "explanation": "`LLMAgent` defines `_send_query()` as an abstract method that raises `NotImplementedError`. This is the designated extension point for any subclass, like `OpenAIAgent` or a hypothetical `ClaudeAgent`, to provide the specific logic for communicating with its target LLM API. The other methods have different roles: `_observable_query()` orchestrates the entire process and calls `_send_query()`, while `subscribe_to_query_processing()` connects the agent to an input stream. While `__init__()` is implemented, its role is configuration, not API communication."
+    },
+    {
+      "type": "highlight",
+      "description": "OpenAIAgent constructor calls `super().__init__()` then sets `query`, `model_name`, optional `response_model`, `openai_client`, and output directory.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 668,
+          "end": 676
+        }
+      ],
+      "title": "",
+      "id": "68667",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "Skills normalization: the `skills` parameter (single skill, list, or `SkillLibrary`) is unified into a `skill_library` for tool/function calling.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 747,
+          "end": 755
+        }
+      ],
+      "title": "",
+      "id": "68668",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**OpenAI’s API** `OpenAIAgent` `_send_query()` calls **OpenAI’s API**—choosing between `beta.chat.completions.parse` (with `response_model`) and `chat.completions.create`, passing `tools` and `max_tokens`.",
+      "file": "dimos/agents/agent.py",
+      "highlight": [
+        {
+          "start": 820,
+          "end": 828
+        }
+      ],
+      "title": "",
+      "id": "68669",
+      "hideAreas": []
+    },
+    {
+      "type": "highlight",
+      "description": "**Agent chaining example:**",
+      "file": "README.md",
+      "highlight": [
+        {
+          "start": 288,
+          "end": 297
+        }
+      ],
+      "title": "",
+      "id": "68670",
+      "hideAreas": []
+    },
+    {
+      "type": "textOnly",
+      "description": "**Conclusion:** The query’s assumed `run()`/`_process_input()` methods and direct inheritance differ from the actual design. The real architecture uses reactive streams, a three-tier hierarchy (`Agent`→`LLMAgent`→`OpenAIAgent`), and `_send_query()` as the override point.",
+      "title": "",
+      "id": "68671"
+    }
+  ]
+}
